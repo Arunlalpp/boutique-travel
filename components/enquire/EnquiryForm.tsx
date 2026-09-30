@@ -273,7 +273,7 @@ export function EnquiryForm({ journeys, initialJourney }: { journeys: JourneyOpt
             }}
             aria-invalid={!!showError("consent")}
             aria-describedby={showError("consent") ? "consent-error" : undefined}
-            className="mt-0.5 size-5 shrink-0 cursor-pointer appearance-none border border-ink/40 bg-transparent bg-center bg-no-repeat checked:border-ink checked:bg-ink checked:bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%23f3efe7%22%20stroke-width=%222%22><path%20d=%22M5%2012l5%205L20%207%22/></svg>')]"
+            className="mt-0.5 size-5 shrink-0 cursor-pointer appearance-none border border-ink/40 bg-transparent bg-center bg-no-repeat checked:border-ink checked:bg-ink checked:bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%23eef1ec%22%20stroke-width=%222%22><path%20d=%22M5%2012l5%205L20%207%22/></svg>')]"
           />
           <span>
             I&apos;m happy to be contacted about this enquiry. We never share your details, and won&apos;t add you to a
@@ -424,7 +424,7 @@ function SelectField({
         onChange={(e) => onChange(e.target.value)}
         className={cn(
           inputBase,
-          "cursor-pointer appearance-none border-ink/25 bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%231d1c19%22%20stroke-width=%221.25%22><path%20d=%22M6%209l6%206%206-6%22/></svg>')] bg-[length:1.1rem] bg-[right_0.25rem_center] bg-no-repeat pr-8 focus:border-ink",
+          "cursor-pointer appearance-none border-ink/25 bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%2312191a%22%20stroke-width=%221.25%22><path%20d=%22M6%209l6%206%206-6%22/></svg>')] bg-[length:1.1rem] bg-[right_0.25rem_center] bg-no-repeat pr-8 focus:border-ink",
         )}
       >
         {options.map((o) => (

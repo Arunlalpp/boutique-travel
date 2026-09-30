@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { Preloader } from "@/components/motion/Preloader";
 import { Analytics } from "@/components/analytics/Analytics";
 import { site, ALLOW_INDEXING } from "@/lib/data/site";
-import { media } from "@/lib/data/media";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.siteUrl),
@@ -14,19 +14,20 @@ export const metadata: Metadata = {
   },
   description: site.description,
   alternates: { canonical: "/" },
+  // Social share images come from app/opengraph-image.tsx and app/twitter-image.tsx
+  // (generated from the brand tokens) unless a route defines its own, more specific
+  // image — see the itinerary/story generateMetadata() functions.
   openGraph: {
     title: site.name,
     description: site.description,
     type: "website",
     url: "/",
     siteName: site.name,
-    images: [{ url: media.heroMountains.src, width: 1200, height: 630, alt: media.heroMountains.alt }],
   },
   twitter: {
     card: "summary_large_image",
     title: site.name,
     description: site.description,
-    images: [media.heroMountains.src],
   },
   // Design preview: keep out of search engines until ALLOW_INDEXING is flipped in lib/data/site.ts.
   robots: ALLOW_INDEXING
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f3efe7",
+  themeColor: "#eef1ec",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
       </head>
       <body>
+        <Preloader />
         <a
           href="#main"
           className="sr-only z-[60] bg-ink px-4 py-3 text-paper focus:not-sr-only focus:fixed focus:left-4 focus:top-4"

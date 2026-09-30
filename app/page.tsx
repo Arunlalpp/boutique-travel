@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Hero } from "@/components/home/Hero";
 import { Intro } from "@/components/home/Intro";
 import { FeaturedJourneys } from "@/components/home/FeaturedJourneys";
@@ -20,9 +21,9 @@ export default function HomePage() {
         eyebrow={site.descriptor}
         lines={[
           "Journeys composed",
-          <>
+          <Fragment key="slowly-for-the-few">
             <span className="serif-italic">slowly,</span> for the few.
-          </>,
+          </Fragment>,
         ]}
         tagline="Private and small-group travel, designed from a blank page around the way you like to see the world."
       />
