@@ -2,11 +2,11 @@ import type { Highlight, NavItem } from "@/lib/types";
 
 /**
  * PLACEHOLDER BRAND
- * "Meridian" is a stand-in name. Swap name, contact details and socials here
- * once the client's identity is supplied.
+ * "Boutique Travel" is a stand-in name. Swap name, contact details and socials
+ * here once the client's identity is supplied.
  */
 export const site = {
-  name: "Meridian",
+  name: "Boutique Travel",
   descriptor: "Private & small-group journeys",
   tagline: "Journeys composed slowly, for the few.",
   description:
@@ -16,7 +16,7 @@ export const site = {
   studio: "London · by appointment",
   hours: "Mon–Fri, 9am–6pm",
   /** Placeholder — replace with the client's production domain before launch. */
-  siteUrl: "https://www.meridian-travel.example",
+  siteUrl: "https://www.boutique-travel.example",
   socials: [
     { label: "Instagram", href: "https://instagram.com" },
     { label: "Vimeo", href: "https://vimeo.com" },

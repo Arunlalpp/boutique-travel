@@ -1,4 +1,4 @@
-# Meridian — Boutique Travel Website (MVP / Design Preview)
+# Boutique Travel — Website (MVP / Design Preview)
 
 A front-end MVP for a premium boutique travel company, built for client design and UX approval before production development.
 
