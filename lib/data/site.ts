@@ -15,8 +15,8 @@ export const site = {
   phone: "+44 (0)20 0000 0000",
   studio: "London · by appointment",
   hours: "Mon–Fri, 9am–6pm",
-  /** Placeholder — replace with the client's production domain before launch. */
-  siteUrl: "https://www.boutique-travel.example",
+  /** Live Vercel deployment. Swap to the client's custom domain once one is supplied. */
+  siteUrl: "https://boutique-travel.vercel.app",
   socials: [
     { label: "Instagram", href: "https://instagram.com" },
     { label: "Vimeo", href: "https://vimeo.com" },
