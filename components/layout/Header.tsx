@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { mainNav, site } from "@/lib/data/site";
-import { cn } from "@/lib/utils";
+import { cn, pad } from "@/lib/utils";
 import { Wordmark } from "./Wordmark";
 
 /** Routes whose first section is a full-bleed photograph */
@@ -81,10 +81,10 @@ export function Header() {
             <Link
               href="/enquire"
               className={cn(
-                "border px-5 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.18em] transition-colors duration-500",
+                "group relative isolate overflow-hidden border px-5 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.18em] transition-[color,transform] duration-300 ease-[var(--ease-out-soft)] before:absolute before:inset-0 before:-z-10 before:origin-left before:scale-x-0 before:transition-transform before:duration-500 before:ease-[var(--ease-out-soft)] hover:before:scale-x-100 focus-visible:before:scale-x-100 active:scale-[0.96]",
                 transparent
-                  ? "border-paper/50 hover:bg-paper hover:text-ink"
-                  : "border-ink/30 hover:bg-ink hover:text-paper",
+                  ? "border-paper/50 before:bg-paper hover:text-ink focus-visible:text-ink"
+                  : "border-ink/30 before:bg-ink hover:text-paper focus-visible:text-paper",
               )}
             >
               Plan a journey
@@ -97,9 +97,24 @@ export function Header() {
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Close menu" : "Open menu"}
-            className="-mr-2 p-2 md:hidden"
+            className="relative -mr-2 size-10 shrink-0 p-2 transition-transform duration-300 active:scale-90 md:hidden"
           >
-            {open ? <X strokeWidth={1.25} className="size-6" /> : <Menu strokeWidth={1.25} className="size-6" />}
+            <Menu
+              strokeWidth={1.25}
+              aria-hidden
+              className={cn(
+                "absolute inset-2 transition-all duration-300 ease-[var(--ease-out-soft)]",
+                open ? "rotate-45 opacity-0" : "rotate-0 opacity-100",
+              )}
+            />
+            <X
+              strokeWidth={1.25}
+              aria-hidden
+              className={cn(
+                "absolute inset-2 transition-all duration-300 ease-[var(--ease-out-soft)]",
+                open ? "rotate-0 opacity-100" : "-rotate-45 opacity-0",
+              )}
+            />
           </button>
         </div>
       </header>
@@ -109,27 +124,39 @@ export function Header() {
         id="mobile-menu"
         aria-hidden={!open}
         className={cn(
-          "fixed inset-0 z-40 flex flex-col bg-night pt-28 text-paper transition-[opacity,visibility] duration-500 md:hidden",
+          "grain fixed inset-0 z-40 flex flex-col overflow-hidden bg-night pt-28 text-paper transition-[opacity,visibility] duration-500 md:hidden",
           open ? "visible opacity-100" : "invisible opacity-0",
         )}
       >
-        <nav aria-label="Mobile" className="container-x flex flex-1 flex-col gap-2">
-          {[...mainNav, { label: "Plan a journey", href: "/enquire" }].map((item, i) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              tabIndex={open ? 0 : -1}
-              className={cn(
-                "font-serif text-4xl font-light transition-all duration-700 ease-[var(--ease-out-soft)]",
-                open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
-              )}
-              style={{ transitionDelay: open ? `${120 + i * 70}ms` : "0ms" }}
-            >
-              {item.label}
-            </Link>
-          ))}
+        <nav aria-label="Mobile" className="container-x relative flex flex-1 flex-col justify-center">
+          {[...mainNav, { label: "Plan a journey", href: "/enquire" }].map((item, i) => {
+            const active = pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                tabIndex={open ? 0 : -1}
+                className={cn(
+                  "group flex items-baseline gap-5 border-t border-paper/10 py-5 transition-all duration-700 ease-[var(--ease-out-soft)] first:border-t-0",
+                  open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
+                )}
+                style={{ transitionDelay: open ? `${120 + i * 70}ms` : "0ms" }}
+              >
+                <span className="eyebrow text-clay">{pad(i + 1)}</span>
+                <span
+                  className={cn(
+                    "font-serif text-4xl font-normal transition-colors duration-300",
+                    active ? "text-clay" : "text-paper group-hover:text-paper/70",
+                  )}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
         </nav>
-        <div className="container-x border-t border-paper/10 py-8 text-sm text-paper/60">
+        <div className="container-x relative border-t border-paper/10 py-8 text-sm text-paper/60">
           <p>{site.email}</p>
           <p>{site.phone}</p>
         </div>

@@ -20,8 +20,13 @@ export function Preloader() {
 
   useEffect(() => {
     const minimumDelay = new Promise((resolve) => setTimeout(resolve, 700));
-    const fontsReady = "fonts" in document ? document.fonts.ready : Promise.resolve();
-    Promise.all([minimumDelay, fontsReady]).then(() => setReady(true));
+    // Race fonts.ready against a hard cap: a stalled font load (slow network,
+    // a blocked request) must never leave a visitor stuck behind this overlay.
+    const fontsReadyOrTimeout =
+      "fonts" in document
+        ? Promise.race([document.fonts.ready, new Promise((resolve) => setTimeout(resolve, 2500))])
+        : Promise.resolve();
+    Promise.all([minimumDelay, fontsReadyOrTimeout]).then(() => setReady(true));
   }, []);
 
   useEffect(() => {
