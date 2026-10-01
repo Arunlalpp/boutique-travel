@@ -5,7 +5,6 @@ import { Parallax } from "@/components/motion/Parallax";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import type { GuestStory } from "@/lib/types";
-import { getItinerary } from "@/lib/data/itineraries";
 
 interface StoriesTeaserProps {
     featured: GuestStory;
@@ -13,8 +12,6 @@ interface StoriesTeaserProps {
 }
 
 export function StoriesTeaser({ featured, others }: StoriesTeaserProps) {
-    const journey = getItinerary(featured.journeySlug);
-
     return (
         <section
             aria-labelledby="stories-title"
@@ -51,12 +48,12 @@ export function StoriesTeaser({ featured, others }: StoriesTeaserProps) {
                     </blockquote>
                     <p data-reveal className="mt-8 text-sm text-paper/60">
                         {featured.guestName}, {featured.homeTown}
-                        {journey && (
+                        {featured.journeySlug && (
                             <>
                                 <br />
                                 <span className="text-paper/40">Travelled on </span>
-                                <Link href={`/itineraries/${journey.slug}`} className="link-line text-paper/80">
-                                    {journey.title}
+                                <Link href={`/itineraries/${featured.journeySlug}`} className="link-line text-paper/80">
+                                    {featured.journeyTitle}
                                 </Link>
                             </>
                         )}

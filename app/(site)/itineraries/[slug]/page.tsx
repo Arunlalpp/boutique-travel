@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { ArrowRight, Check } from "lucide-react";
 import { ImageHero } from "@/components/ui/ImageHero";
 import { SmartImage } from "@/components/ui/SmartImage";
@@ -9,49 +10,60 @@ import { Reveal } from "@/components/motion/Reveal";
 import { RouteMap } from "@/components/itinerary/RouteMap";
 import { DayByDay } from "@/components/itinerary/DayByDay";
 import { Gallery } from "@/components/itinerary/Gallery";
-import { getItinerary, getNextItinerary, itineraries } from "@/lib/data/itineraries";
-import { getStoriesForJourney } from "@/lib/data/stories";
+import { getItinerary, getItinerarySlugs, getNextItinerary, getStoriesForJourney } from "@/sanity/lib/queries";
 
 type Params = Promise<{ slug: string }>;
 
-export function generateStaticParams() {
-    return itineraries.map((i) => ({ slug: i.slug }));
+const overviewComponents: PortableTextComponents = {
+    block: {
+        normal: ({ children }) => <p data-reveal>{children}</p>,
+    },
+};
+
+export async function generateStaticParams() {
+    const slugs = await getItinerarySlugs();
+    return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
     const { slug } = await params;
-    const journey = getItinerary(slug);
+    const journey = await getItinerary(slug);
     if (!journey) return {};
+    const title = journey.seo?.metaTitle || journey.title;
+    const description = journey.seo?.metaDescription || journey.hook;
+    const ogImage = journey.seo?.ogImage ?? journey.heroImage;
     return {
-        title: journey.title,
-        description: journey.hook,
+        title,
+        description,
         alternates: { canonical: `/itineraries/${journey.slug}` },
         openGraph: {
-            title: journey.title,
-            description: journey.hook,
+            title,
+            description,
             url: `/itineraries/${journey.slug}`,
-            images: [{ url: journey.heroImage.src, width: 1200, height: 630, alt: journey.heroImage.alt }],
+            images: [{ url: ogImage.src, width: 1200, height: 630, alt: ogImage.alt }],
         },
         twitter: {
             card: "summary_large_image",
-            title: journey.title,
-            description: journey.hook,
-            images: [journey.heroImage.src],
+            title,
+            description,
+            images: [ogImage.src],
         },
     };
 }
 
 export default async function ItineraryPage({ params }: { params: Params }) {
     const { slug } = await params;
-    const journey = getItinerary(slug);
+    const journey = await getItinerary(slug);
     if (!journey) notFound();
 
-    const next = getNextItinerary(journey.slug);
-    const story = getStoriesForJourney(journey.slug)[0];
+    const [next, story] = await Promise.all([
+        getNextItinerary(journey.slug),
+        getStoriesForJourney(journey.slug).then((stories) => stories[0]),
+    ]);
     const enquireHref = `/enquire?journey=${journey.slug}`;
 
     const facts = [
-        { label: "Duration", value: `${journey.durationDays} days` },
+        { label: "Duration", value: journey.duration },
         { label: "Style", value: journey.style + (journey.groupSize ? ` · ${journey.groupSize}` : "") },
         { label: "Best time", value: journey.bestTime },
         { label: "Pace", value: journey.pace },
@@ -92,19 +104,9 @@ export default async function ItineraryPage({ params }: { params: Params }) {
                         <p data-reveal className="eyebrow text-stone" id="overview-title">
                             The journey
                         </p>
-                        {journey.narrative.map((para, i) => (
-                            <p
-                                key={i}
-                                data-reveal
-                                className={
-                                    i === 0
-                                        ? "mt-8 font-serif text-[clamp(1.6rem,2.8vw,2.4rem)] font-light leading-[1.25]"
-                                        : "mt-8 max-w-2xl text-lg text-ink-soft"
-                                }
-                            >
-                                {para}
-                            </p>
-                        ))}
+                        <div className="[&>p:first-child]:mt-8 [&>p:first-child]:max-w-none [&>p:first-child]:font-serif [&>p:first-child]:text-[clamp(1.6rem,2.8vw,2.4rem)] [&>p:first-child]:font-light [&>p:first-child]:leading-[1.25] [&>p]:mt-8 [&>p]:max-w-2xl [&>p]:text-lg [&>p]:text-ink-soft">
+                            <PortableText value={journey.overview} components={overviewComponents} />
+                        </div>
                     </Reveal>
 
                     <Reveal as="aside" className="md:col-span-4 md:col-start-9" aria-labelledby="highlights-title">
@@ -132,32 +134,55 @@ export default async function ItineraryPage({ params }: { params: Params }) {
                 </div>
             </section>
 
-            <section aria-labelledby="route-title" className="bg-paper-deep py-24 md:py-36">
-                <div className="container-x grid gap-12 md:grid-cols-12 md:gap-8">
-                    <Reveal className="md:col-span-4">
-                        <p data-reveal className="eyebrow text-stone">
-                            The route
-                        </p>
-                        <h2 id="route-title" data-reveal className="mt-6 text-4xl md:text-5xl">
-                            {journey.route.length} stops, <span className="serif-italic">one thread</span>
-                        </h2>
-                        <ol data-reveal className="mt-10 space-y-3">
-                            {journey.route.map((p, i) => (
-                                <li key={p.name} className="flex items-baseline gap-4 border-b border-ink/10 pb-3">
-                                    <span className="eyebrow w-6 text-clay">{String(i + 1).padStart(2, "0")}</span>
-                                    <span className="font-serif text-xl font-light">{p.name}</span>
-                                </li>
-                            ))}
-                        </ol>
-                        <p data-reveal className="mt-6 text-xs text-stone">
-                            Illustrative route, not to scale.
-                        </p>
-                    </Reveal>
-                    <div className="text-ink md:col-span-7 md:col-start-6">
-                        <RouteMap points={journey.route} country={journey.country} />
+            {journey.route.length > 0 ? (
+                <section aria-labelledby="route-title" className="bg-paper-deep py-24 md:py-36">
+                    <div className="container-x grid gap-12 md:grid-cols-12 md:gap-8">
+                        <Reveal className="md:col-span-4">
+                            <p data-reveal className="eyebrow text-stone">
+                                The route
+                            </p>
+                            <h2 id="route-title" data-reveal className="mt-6 text-4xl md:text-5xl">
+                                {journey.route.length} stops, <span className="serif-italic">one thread</span>
+                            </h2>
+                            <ol data-reveal className="mt-10 space-y-3">
+                                {journey.route.map((p, i) => (
+                                    <li key={p.name} className="flex items-baseline gap-4 border-b border-ink/10 pb-3">
+                                        <span className="eyebrow w-6 text-clay">{String(i + 1).padStart(2, "0")}</span>
+                                        <span className="font-serif text-xl font-light">{p.name}</span>
+                                    </li>
+                                ))}
+                            </ol>
+                            <p data-reveal className="mt-6 text-xs text-stone">
+                                Illustrative route, not to scale.
+                            </p>
+                        </Reveal>
+                        <div className="text-ink md:col-span-7 md:col-start-6">
+                            <RouteMap points={journey.route} country={journey.country} />
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            ) : (
+                journey.mapImage && (
+                    <section aria-labelledby="route-title" className="bg-paper-deep py-24 md:py-36">
+                        <div className="container-x grid gap-12 md:grid-cols-12 md:gap-8">
+                            <Reveal className="md:col-span-4">
+                                <p data-reveal className="eyebrow text-stone">
+                                    The route
+                                </p>
+                                <h2 id="route-title" data-reveal className="mt-6 text-4xl md:text-5xl">
+                                    How it <span className="serif-italic">comes together</span>
+                                </h2>
+                            </Reveal>
+                            <div
+                                data-reveal="mask"
+                                className="relative aspect-[4/3] overflow-hidden bg-paper md:col-span-7 md:col-start-6"
+                            >
+                                <SmartImage image={journey.mapImage} sizes="(min-width: 768px) 55vw, 100vw" tone="light" />
+                            </div>
+                        </div>
+                    </section>
+                )
+            )}
 
             <section aria-labelledby="days-title" className="py-24 md:py-36">
                 <div className="container-x">
@@ -258,28 +283,30 @@ export default async function ItineraryPage({ params }: { params: Params }) {
                 </Reveal>
             </section>
 
-            <Link
-                href={`/itineraries/${next.slug}`}
-                className="group relative block h-[60svh] min-h-[420px] overflow-hidden bg-night text-paper"
-            >
-                <SmartImage
-                    image={next.cardImage}
-                    sizes="100vw"
-                    className="opacity-70 transition-all duration-[1600ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.03] group-hover:opacity-85"
-                />
-                <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-night/80 to-night/10" />
-                <div className="container-x relative flex h-full flex-col justify-end pb-14">
-                    <p className="eyebrow text-paper/70">Next journey · {next.country}</p>
-                    <p className="mt-4 flex items-end justify-between gap-6 font-serif text-[clamp(2.25rem,6vw,5.5rem)] font-light leading-none">
-                        <span>{next.title}</span>
-                        <ArrowRight
-                            aria-hidden
-                            strokeWidth={1}
-                            className="mb-2 size-10 shrink-0 transition-transform duration-700 group-hover:translate-x-2 md:size-14"
-                        />
-                    </p>
-                </div>
-            </Link>
+            {next && (
+                <Link
+                    href={`/itineraries/${next.slug}`}
+                    className="group relative block h-[60svh] min-h-[420px] overflow-hidden bg-night text-paper"
+                >
+                    <SmartImage
+                        image={next.cardImage}
+                        sizes="100vw"
+                        className="opacity-70 transition-all duration-[1600ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.03] group-hover:opacity-85"
+                    />
+                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-night/80 to-night/10" />
+                    <div className="container-x relative flex h-full flex-col justify-end pb-14">
+                        <p className="eyebrow text-paper/70">Next journey · {next.country}</p>
+                        <p className="mt-4 flex items-end justify-between gap-6 font-serif text-[clamp(2.25rem,6vw,5.5rem)] font-light leading-none">
+                            <span>{next.title}</span>
+                            <ArrowRight
+                                aria-hidden
+                                strokeWidth={1}
+                                className="mb-2 size-10 shrink-0 transition-transform duration-700 group-hover:translate-x-2 md:size-14"
+                            />
+                        </p>
+                    </div>
+                </Link>
+            )}
         </article>
     );
 }

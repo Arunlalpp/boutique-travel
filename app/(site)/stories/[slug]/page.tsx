@@ -6,46 +6,52 @@ import { VideoPlayer } from "@/components/stories/VideoPlayer";
 import { StoryEntry } from "@/components/stories/StoryEntry";
 import { JourneyCard } from "@/components/itinerary/JourneyCard";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { getStory, stories } from "@/lib/data/stories";
-import { getItinerary } from "@/lib/data/itineraries";
+import { getStory, getStorySlugs, getAllStories, getItinerary } from "@/sanity/lib/queries";
 
 type Params = Promise<{ slug: string }>;
 
-export function generateStaticParams() {
-    return stories.map((s) => ({ slug: s.slug }));
+export async function generateStaticParams() {
+    const slugs = await getStorySlugs();
+    return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
     const { slug } = await params;
-    const story = getStory(slug);
+    const story = await getStory(slug);
     if (!story) return {};
-    const title = `${story.guestName} — Guest Story`;
+    const defaultTitle = `${story.guestName} — Guest Story`;
+    const title = story.seo?.metaTitle || defaultTitle;
+    const description = story.seo?.metaDescription || story.excerpt;
+    const ogImage = story.seo?.ogImage ?? story.poster;
     return {
         title,
-        description: story.excerpt,
+        description,
         alternates: { canonical: `/stories/${story.slug}` },
         openGraph: {
             title,
-            description: story.excerpt,
+            description,
             url: `/stories/${story.slug}`,
-            images: [{ url: story.poster.src, width: 1200, height: 630, alt: story.poster.alt }],
+            images: [{ url: ogImage.src, width: 1200, height: 630, alt: ogImage.alt }],
         },
         twitter: {
             card: "summary_large_image",
             title,
-            description: story.excerpt,
-            images: [story.poster.src],
+            description,
+            images: [ogImage.src],
         },
     };
 }
 
 export default async function StoryPage({ params }: { params: Params }) {
     const { slug } = await params;
-    const story = getStory(slug);
+    const story = await getStory(slug);
     if (!story) notFound();
 
-    const journey = getItinerary(story.journeySlug);
-    const more = stories.filter((s) => s.slug !== story.slug).slice(0, 2);
+    const [journey, allStories] = await Promise.all([
+        story.journeySlug ? getItinerary(story.journeySlug) : Promise.resolve(undefined),
+        getAllStories(),
+    ]);
+    const more = allStories.filter((s) => s.slug !== story.slug).slice(0, 2);
 
     return (
         <article>

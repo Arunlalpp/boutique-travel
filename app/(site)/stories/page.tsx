@@ -5,8 +5,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { VideoPlayer } from "@/components/stories/VideoPlayer";
 import { StoryEntry } from "@/components/stories/StoryEntry";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { getFeaturedStory, stories } from "@/lib/data/stories";
-import { getItinerary } from "@/lib/data/itineraries";
+import { getAllStories, getFeaturedStory } from "@/sanity/lib/queries";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -15,10 +14,10 @@ export const metadata: Metadata = {
     alternates: { canonical: "/stories" },
 };
 
-export default function StoriesPage() {
-    const featured = getFeaturedStory();
-    const journey = getItinerary(featured.journeySlug);
-    const rest = stories.filter((s) => s.slug !== featured.slug);
+export default async function StoriesPage() {
+    const [featured, allStories] = await Promise.all([getFeaturedStory(), getAllStories()]);
+    if (!featured) return null;
+    const rest = allStories.filter((s) => s.slug !== featured.slug);
 
     return (
         <>
@@ -40,7 +39,7 @@ export default function StoriesPage() {
                         <VideoPlayer
                             video={featured.video}
                             poster={featured.poster}
-                            title={`${featured.guestName} — ${journey?.title ?? "guest story"}`}
+                            title={`${featured.guestName} — ${featured.journeyTitle ?? "guest story"}`}
                         />
                     </div>
                     <div className="mt-10 grid gap-8 md:grid-cols-12">
@@ -53,11 +52,11 @@ export default function StoriesPage() {
                             </h2>
                             <p data-reveal className="mt-6 text-stone">
                                 {featured.guestName}, {featured.homeTown}
-                                {journey && (
+                                {featured.journeySlug && (
                                     <>
                                         {" · "}
-                                        <Link href={`/itineraries/${journey.slug}`} className="link-line text-ink">
-                                            {journey.title}
+                                        <Link href={`/itineraries/${featured.journeySlug}`} className="link-line text-ink">
+                                            {featured.journeyTitle}
                                         </Link>
                                     </>
                                 )}

@@ -1,11 +1,16 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/lib/data/site";
-import { itineraries } from "@/lib/data/itineraries";
-import { stories } from "@/lib/data/stories";
+import { getSiteSettings, getAllItineraries, getAllStories, getAllDestinations } from "@/sanity/lib/queries";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-    const base = site.siteUrl;
-    const staticRoutes = ["/", "/about", "/itineraries", "/stories", "/enquire"].map((path) => ({
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+    const [settings, itineraries, stories, destinations] = await Promise.all([
+        getSiteSettings(),
+        getAllItineraries(),
+        getAllStories(),
+        getAllDestinations(),
+    ]);
+    const base = settings.siteUrl;
+
+    const staticRoutes = ["/", "/about", "/itineraries", "/stories", "/destinations", "/enquire"].map((path) => ({
         url: `${base}${path}`,
         lastModified: new Date(),
     }));
@@ -20,5 +25,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
         lastModified: new Date(),
     }));
 
-    return [...staticRoutes, ...itineraryRoutes, ...storyRoutes];
+    const destinationRoutes = destinations.map((d) => ({
+        url: `${base}/destinations/${d.slug}`,
+        lastModified: new Date(),
+    }));
+
+    return [...staticRoutes, ...itineraryRoutes, ...storyRoutes, ...destinationRoutes];
 }

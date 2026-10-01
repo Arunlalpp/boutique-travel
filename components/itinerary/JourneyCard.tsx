@@ -48,7 +48,7 @@ export function JourneyCard({
                         {index && <span className="text-ink">{index}</span>}
                         <span>{journey.country}</span>
                         <span aria-hidden className="h-px w-4 bg-ink/25" />
-                        <span>{journey.durationDays} days</span>
+                        <span>{journey.duration}</span>
                     </p>
                     <h3 className="mt-3 text-3xl leading-tight md:text-[2.25rem]">
                         <span className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-700 ease-[var(--ease-out-soft)] group-hover:bg-[length:100%_1px]">

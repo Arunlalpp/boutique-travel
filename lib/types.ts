@@ -1,3 +1,5 @@
+import type { PortableTextBlock } from "@portabletext/types";
+
 export interface ImageAsset {
     src: string;
     alt: string;
@@ -19,7 +21,22 @@ export interface ItineraryDay {
     title: string;
     location: string;
     description: string;
+    image?: ImageAsset;
     stay?: string;
+    meals?: string;
+}
+
+export interface Destination {
+    slug: string;
+    name: string;
+    country: string;
+    region: Region;
+    shortDescription: string;
+    description?: string;
+    heroImage: ImageAsset;
+    gallery: ImageAsset[];
+    featured: boolean;
+    seo?: Seo;
 }
 
 export interface Itinerary {
@@ -28,20 +45,31 @@ export interface Itinerary {
     hook: string;
     region: Region;
     country: string;
-    durationDays: number;
+    destinationSlug?: string;
+    duration: string;
     style: TravelStyle;
     groupSize?: string;
     bestTime: string;
     pace: string;
+    startingPrice?: string;
     heroImage: ImageAsset;
     cardImage: ImageAsset;
     gallery: ImageAsset[];
-    narrative: string[];
+    overview: PortableTextBlock[];
     highlights: string[];
     days: ItineraryDay[];
     route: RoutePoint[];
+    mapImage?: ImageAsset;
     included: string[];
+    video?: VideoEmbed;
     featured: boolean;
+    seo?: Seo;
+}
+
+export interface Seo {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: ImageAsset;
 }
 
 export interface VideoEmbed {
@@ -53,7 +81,8 @@ export interface GuestStory {
     slug: string;
     guestName: string;
     homeTown: string;
-    journeySlug: string;
+    journeySlug?: string;
+    journeyTitle?: string;
     travelled: string;
     quote: string;
     excerpt: string;
@@ -62,6 +91,26 @@ export interface GuestStory {
     poster: ImageAsset;
     portrait: ImageAsset;
     featured: boolean;
+    seo?: Seo;
+}
+
+export interface SiteSettings {
+    name: string;
+    descriptor: string;
+    tagline: string;
+    email: string;
+    phone: string;
+    whatsapp?: string;
+    studio: string;
+    hours: string;
+    siteUrl: string;
+    socials: { label: string; href: string }[];
+    allowIndexing: boolean;
+    defaultSeoTitle: string;
+    defaultSeoDescription: string;
+    defaultOgImage?: ImageAsset;
+    footerText: string;
+    copyrightText: string;
 }
 
 export interface Highlight {

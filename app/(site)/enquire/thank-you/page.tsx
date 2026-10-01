@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { Reveal } from "@/components/motion/Reveal";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { site } from "@/lib/data/site";
+import { getSiteSettings } from "@/sanity/lib/queries";
 
 export const metadata: Metadata = {
     title: "Thank You",
@@ -18,6 +18,7 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Sea
     const name = Array.isArray(params.name) ? params.name[0] : params.name;
     const contactRaw = Array.isArray(params.contact) ? params.contact[0] : params.contact;
     const contactBy = (contactRaw || "email").toLowerCase();
+    const settings = await getSiteSettings();
 
     return (
         <section className="container-x flex min-h-[70vh] items-center pb-24 pt-40 md:pb-40 md:pt-52">
@@ -33,9 +34,6 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Sea
                     Your enquiry is with us. A journey designer will be in touch by {contactBy} within two working days
                     to start the conversation.
                 </p>
-                <p data-reveal className="mt-8 border-l-2 border-clay pl-4 text-sm text-stone">
-                    Design preview: this form isn&apos;t connected to a backend yet, so no details were actually sent.
-                </p>
                 <div data-reveal className="mt-14 flex flex-wrap gap-x-10 gap-y-4">
                     <ButtonLink href="/itineraries">Browse journeys</ButtonLink>
                     <Link href="/stories" className="link-line text-sm">
@@ -44,8 +42,8 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Sea
                 </div>
                 <p data-reveal className="mt-14 border-t border-ink/15 pt-10 text-sm text-stone">
                     Prefer to talk?{" "}
-                    <a href={`tel:${site.phone.replace(/[^+\d]/g, "")}`} className="link-line">
-                        {site.phone}
+                    <a href={`tel:${settings.phone.replace(/[^+\d]/g, "")}`} className="link-line">
+                        {settings.phone}
                     </a>
                 </p>
             </Reveal>

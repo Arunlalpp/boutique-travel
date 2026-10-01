@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { site } from "@/lib/data/site";
 import { cn } from "@/lib/utils";
 
-export function Preloader() {
+export function Preloader({ siteName }: { siteName: string }) {
     const [ready, setReady] = useState(false);
     const [mounted, setMounted] = useState(true);
 
@@ -36,10 +35,10 @@ export function Preloader() {
             )}
         >
             <span className="font-serif text-2xl font-light tracking-[0.01em] text-paper">
-                {site.name}
+                {siteName}
                 <span aria-hidden className="ml-1 inline-block size-1.5 translate-y-[-2px] rounded-full bg-clay" />
             </span>
-            <span className="sr-only">Loading {site.name}…</span>
+            <span className="sr-only">Loading {siteName}…</span>
         </div>
     );
 }

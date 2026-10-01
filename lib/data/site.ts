@@ -1,27 +1,14 @@
 import type { Highlight, NavItem } from "@/lib/types";
 
-export const site = {
-    name: "Boutique Travel",
-    descriptor: "Private & small-group journeys",
-    tagline: "Journeys composed slowly, for the few.",
-    description:
-        "Curated, personal travel — private and small-group journeys shaped around the way you like to see the world.",
-    email: "journeys@example.com",
-    phone: "+44 (0)20 0000 0000",
-    studio: "London · by appointment",
-    hours: "Mon–Fri, 9am–6pm",
-    siteUrl: "https://boutique-travel.vercel.app",
-    socials: [
-        { label: "Instagram", href: "https://instagram.com" },
-        { label: "Vimeo", href: "https://vimeo.com" },
-        { label: "LinkedIn", href: "https://linkedin.com" },
-    ],
-} as const;
-
-export const ALLOW_INDEXING = false;
-
+/**
+ * Contact details, social links, and SEO defaults now live in Sanity
+ * (siteSettings singleton — see sanity/lib/queries.ts#getSiteSettings).
+ * Navigation and the two content blocks below aren't part of the content
+ * model the client asked to manage, so they stay in code.
+ */
 export const mainNav: NavItem[] = [
     { label: "Journeys", href: "/itineraries" },
+    { label: "Destinations", href: "/destinations" },
     { label: "Guest Stories", href: "/stories" },
     { label: "Our Story", href: "/about" },
 ];

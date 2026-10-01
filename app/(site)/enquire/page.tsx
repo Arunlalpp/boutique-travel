@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Reveal } from "@/components/motion/Reveal";
 import { EnquiryForm } from "@/components/enquire/EnquiryForm";
-import { itineraries } from "@/lib/data/itineraries";
-import { site } from "@/lib/data/site";
+import { getAllItineraries, getSiteSettings } from "@/sanity/lib/queries";
 import { pad } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -29,6 +28,7 @@ type SearchParams = Promise<{ journey?: string | string[] }>;
 export default async function EnquirePage({ searchParams }: { searchParams: SearchParams }) {
     const { journey } = await searchParams;
     const initialJourney = Array.isArray(journey) ? journey[0] : journey;
+    const [itineraries, settings] = await Promise.all([getAllItineraries(), getSiteSettings()]);
 
     return (
         <section className="container-x grid gap-16 pb-24 pt-40 md:pb-40 md:pt-52 lg:grid-cols-12 lg:gap-8">
@@ -62,16 +62,16 @@ export default async function EnquirePage({ searchParams }: { searchParams: Sear
                         <p className="eyebrow text-stone">Prefer to talk?</p>
                         <p className="mt-4">
                             <a
-                                href={`tel:${site.phone.replace(/[^+\d]/g, "")}`}
+                                href={`tel:${settings.phone.replace(/[^+\d]/g, "")}`}
                                 className="link-line font-serif text-2xl font-light"
                             >
-                                {site.phone}
+                                {settings.phone}
                             </a>
                         </p>
-                        <p className="mt-2 text-stone">{site.hours}</p>
+                        <p className="mt-2 text-stone">{settings.hours}</p>
                         <p className="mt-4">
-                            <a href={`mailto:${site.email}`} className="link-line">
-                                {site.email}
+                            <a href={`mailto:${settings.email}`} className="link-line">
+                                {settings.email}
                             </a>
                         </p>
                     </div>

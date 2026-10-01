@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { JourneyIndex } from "@/components/itinerary/JourneyIndex";
-import { itineraries } from "@/lib/data/itineraries";
+import { getAllItineraries } from "@/sanity/lib/queries";
 
 export const metadata: Metadata = {
     title: "Sample Journeys",
@@ -9,7 +9,9 @@ export const metadata: Metadata = {
     alternates: { canonical: "/itineraries" },
 };
 
-export default function ItinerariesPage() {
+export default async function ItinerariesPage() {
+    const itineraries = await getAllItineraries();
+
     return (
         <>
             <PageHeader

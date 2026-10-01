@@ -76,7 +76,7 @@ export function EnquiryForm({ journeys, initialJourney }: { journeys: JourneyOpt
         consent: false,
     });
     const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});
-    const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+    const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
     const [honeypot, setHoneypot] = useState("");
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -104,11 +104,20 @@ export function EnquiryForm({ journeys, initialJourney }: { journeys: JourneyOpt
             return;
         }
         setStatus("sending");
-        await new Promise((r) => setTimeout(r, 900));
-        setStatus("sent");
-        router.push(
-            `/enquire/thank-you?name=${encodeURIComponent(values.firstName)}&contact=${encodeURIComponent(values.contactBy)}`,
-        );
+        try {
+            const res = await fetch("/api/enquiry", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...values, companyWebsite: honeypot }),
+            });
+            if (!res.ok) throw new Error("Request failed");
+            setStatus("sent");
+            router.push(
+                `/enquire/thank-you?name=${encodeURIComponent(values.firstName)}&contact=${encodeURIComponent(values.contactBy)}`,
+            );
+        } catch {
+            setStatus("error");
+        }
     }
 
     return (
@@ -280,7 +289,13 @@ export function EnquiryForm({ journeys, initialJourney }: { journeys: JourneyOpt
             </Fieldset>
 
             <div className="flex flex-col gap-6 border-t border-ink/15 pt-10 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm text-stone">We reply to every enquiry personally, within two working days.</p>
+                <p className="text-sm text-stone">
+                    {status === "error" ? (
+                        <span className="text-clay">Something went wrong sending that — please try again.</span>
+                    ) : (
+                        "We reply to every enquiry personally, within two working days."
+                    )}
+                </p>
                 <button
                     type="submit"
                     disabled={status === "sending"}

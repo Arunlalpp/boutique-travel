@@ -2,11 +2,8 @@ import Link from "next/link";
 import { Play } from "lucide-react";
 import type { GuestStory } from "@/lib/types";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { getItinerary } from "@/lib/data/itineraries";
 
 export function StoryEntry({ story }: { story: GuestStory }) {
-    const journey = getItinerary(story.journeySlug);
-
     return (
         <article className="group">
             <Link href={`/stories/${story.slug}`} className="block">
@@ -30,7 +27,7 @@ export function StoryEntry({ story }: { story: GuestStory }) {
                         <p className="text-sm leading-snug">
                             <span className="block text-ink">{story.guestName}</span>
                             <span className="block text-stone">
-                                {journey?.title ?? "Private journey"} · {story.travelled}
+                                {story.journeyTitle ?? "Private journey"} · {story.travelled}
                             </span>
                         </p>
                     </div>

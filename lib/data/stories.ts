@@ -1,7 +1,25 @@
-import type { GuestStory } from "@/lib/types";
+import type { ImageAsset } from "@/lib/types";
 import { media } from "./media";
 
-export const stories: GuestStory[] = [
+/**
+ * This file's only remaining purpose is as source data for `scripts/seed.ts`
+ * — the live site reads guest stories from Sanity (see sanity/lib/queries.ts).
+ */
+interface SeedGuestStory {
+    slug: string;
+    guestName: string;
+    homeTown: string;
+    journeySlug: string;
+    travelled: string;
+    quote: string;
+    excerpt: string;
+    body: string[];
+    poster: ImageAsset;
+    portrait: ImageAsset;
+    featured: boolean;
+}
+
+export const stories: SeedGuestStory[] = [
     {
         slug: "a-morning-in-the-garden",
         guestName: "Placeholder Guest A",
@@ -84,14 +102,3 @@ export const stories: GuestStory[] = [
     },
 ];
 
-export function getStory(slug: string): GuestStory | undefined {
-    return stories.find((s) => s.slug === slug);
-}
-
-export function getStoriesForJourney(journeySlug: string): GuestStory[] {
-    return stories.filter((s) => s.journeySlug === journeySlug);
-}
-
-export function getFeaturedStory(): GuestStory {
-    return stories.find((s) => s.featured) ?? stories[0];
-}

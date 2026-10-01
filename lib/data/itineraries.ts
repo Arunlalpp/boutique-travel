@@ -1,7 +1,35 @@
-import type { Itinerary } from "@/lib/types";
+import type { ImageAsset, ItineraryDay, Region, RoutePoint, TravelStyle } from "@/lib/types";
 import { media } from "./media";
 
-export const itineraries: Itinerary[] = [
+/**
+ * This file's only remaining purpose is as source data for `scripts/seed.ts`
+ * — the live site reads itineraries from Sanity (see sanity/lib/queries.ts).
+ * Kept in its original shape (durationDays, narrative paragraphs) since
+ * that's what the seed script transforms into the Sanity schema.
+ */
+interface SeedItinerary {
+    slug: string;
+    title: string;
+    hook: string;
+    region: Region;
+    country: string;
+    durationDays: number;
+    style: TravelStyle;
+    groupSize?: string;
+    bestTime: string;
+    pace: string;
+    heroImage: ImageAsset;
+    cardImage: ImageAsset;
+    gallery: ImageAsset[];
+    narrative: string[];
+    highlights: string[];
+    days: ItineraryDay[];
+    route: RoutePoint[];
+    included: string[];
+    featured: boolean;
+}
+
+export const itineraries: SeedItinerary[] = [
     {
         slug: "the-quiet-season-in-kyoto",
         title: "The Quiet Season in Kyoto",
@@ -381,15 +409,3 @@ export const itineraries: Itinerary[] = [
     },
 ];
 
-export function getItinerary(slug: string): Itinerary | undefined {
-    return itineraries.find((i) => i.slug === slug);
-}
-
-export function getFeaturedItineraries(limit = 4): Itinerary[] {
-    return itineraries.filter((i) => i.featured).slice(0, limit);
-}
-
-export function getNextItinerary(slug: string): Itinerary {
-    const index = itineraries.findIndex((i) => i.slug === slug);
-    return itineraries[(index + 1) % itineraries.length];
-}

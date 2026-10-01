@@ -1,12 +1,17 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { site } from "@/lib/data/site";
 
 export const ogImageSize = { width: 1200, height: 630 };
 export const ogImageContentType = "image/png";
 
-export async function generateOgImage() {
+interface OgImageProps {
+    name: string;
+    descriptor: string;
+    tagline: string;
+}
+
+export async function generateOgImage({ name, descriptor, tagline }: OgImageProps) {
     const fontData = await readFile(
         join(process.cwd(), "node_modules/@fontsource/playfair-display/files/playfair-display-latin-700-normal.woff"),
     );
@@ -35,10 +40,10 @@ export async function generateOgImage() {
                     fontFamily: "sans-serif",
                 }}
             >
-                {site.descriptor}
+                {descriptor}
             </div>
             <div style={{ display: "flex", alignItems: "flex-end", marginTop: 32 }}>
-                <span style={{ fontSize: 112 }}>{site.name}</span>
+                <span style={{ fontSize: 112 }}>{name}</span>
                 <div
                     style={{
                         width: 16,
@@ -51,7 +56,7 @@ export async function generateOgImage() {
                 />
             </div>
             <div style={{ fontSize: 32, marginTop: 28, color: "#c9d0c5", maxWidth: 860, textAlign: "center" }}>
-                {site.tagline}
+                {tagline}
             </div>
         </div>,
         {

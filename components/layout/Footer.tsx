@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { mainNav, site } from "@/lib/data/site";
+import { mainNav } from "@/lib/data/site";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Reveal } from "@/components/motion/Reveal";
+import { getSiteSettings } from "@/sanity/lib/queries";
 import { Wordmark } from "./Wordmark";
 
-export function Footer() {
+export async function Footer() {
     const year = new Date().getFullYear();
+    const settings = await getSiteSettings();
 
     return (
         <footer className="grain relative overflow-hidden bg-night text-paper">
@@ -22,8 +24,8 @@ export function Footer() {
                     </ButtonLink>
                     <p className="text-sm text-paper/60">
                         Or call the studio on{" "}
-                        <a href={`tel:${site.phone.replace(/[^+\d]/g, "")}`} className="link-line text-paper">
-                            {site.phone}
+                        <a href={`tel:${settings.phone.replace(/[^+\d]/g, "")}`} className="link-line text-paper">
+                            {settings.phone}
                         </a>
                     </p>
                 </div>
@@ -31,8 +33,8 @@ export function Footer() {
 
             <div className="container-x relative grid gap-12 py-16 md:grid-cols-12">
                 <div className="md:col-span-5">
-                    <Wordmark />
-                    <p className="mt-4 max-w-xs text-sm text-paper/60">{site.description}</p>
+                    <Wordmark siteName={settings.name} />
+                    <p className="mt-4 max-w-xs text-sm text-paper/60">{settings.footerText}</p>
                 </div>
 
                 <nav aria-label="Footer" className="md:col-span-2">
@@ -57,19 +59,19 @@ export function Footer() {
                     <p className="eyebrow text-paper/40">The studio</p>
                     <ul className="mt-5 space-y-3 text-sm text-paper/80">
                         <li>
-                            <a href={`mailto:${site.email}`} className="link-line hover:text-paper">
-                                {site.email}
+                            <a href={`mailto:${settings.email}`} className="link-line hover:text-paper">
+                                {settings.email}
                             </a>
                         </li>
-                        <li>{site.studio}</li>
-                        <li>{site.hours}</li>
+                        <li>{settings.studio}</li>
+                        <li>{settings.hours}</li>
                     </ul>
                 </div>
 
                 <div className="md:col-span-2">
                     <p className="eyebrow text-paper/40">Follow</p>
                     <ul className="mt-5 space-y-3 text-sm">
-                        {site.socials.map((s) => (
+                        {settings.socials.map((s) => (
                             <li key={s.label}>
                                 <a
                                     href={s.href}
@@ -87,9 +89,9 @@ export function Footer() {
 
             <div className="container-x relative flex flex-col gap-2 border-t border-paper/10 py-8 text-xs text-paper/40 md:flex-row md:justify-between">
                 <p>
-                    © {year} {site.name}. All rights reserved.
+                    © {year} {settings.name}. All rights reserved.
                 </p>
-                <p>Design preview — placeholder brand, copy and photography.</p>
+                <p>{settings.copyrightText}</p>
             </div>
         </footer>
     );

@@ -4,14 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { mainNav, site } from "@/lib/data/site";
+import { mainNav } from "@/lib/data/site";
 import { cn, pad } from "@/lib/utils";
 import { gsap, motion } from "@/lib/gsap";
 import { Wordmark } from "./Wordmark";
 
 const OVER_IMAGE = [/^\/$/, /^\/itineraries\/[^/]+$/, /^\/about$/];
 
-export function Header() {
+interface HeaderProps {
+    siteName: string;
+    email: string;
+    phone: string;
+}
+
+export function Header({ siteName, email, phone }: HeaderProps) {
     const pathname = usePathname();
     const overImage = OVER_IMAGE.some((re) => re.test(pathname));
     const root = useRef<HTMLElement>(null);
@@ -85,8 +91,8 @@ export function Header() {
                 )}
             >
                 <div className="container-x flex h-16 items-center justify-between md:h-20">
-                    <Link href="/" aria-label={`${site.name} — home`} className="relative z-10">
-                        <Wordmark />
+                    <Link href="/" aria-label={`${siteName} — home`} className="relative z-10">
+                        <Wordmark siteName={siteName} />
                     </Link>
 
                     <nav aria-label="Main" className="hidden items-center gap-10 md:flex">
@@ -181,8 +187,8 @@ export function Header() {
                     })}
                 </nav>
                 <div className="container-x relative border-t border-paper/10 py-8 text-sm text-paper/60">
-                    <p>{site.email}</p>
-                    <p>{site.phone}</p>
+                    <p>{email}</p>
+                    <p>{phone}</p>
                 </div>
             </div>
         </>
