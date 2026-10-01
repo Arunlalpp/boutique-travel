@@ -5,7 +5,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { VideoPlayer } from "@/components/stories/VideoPlayer";
 import { StoryEntry } from "@/components/stories/StoryEntry";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { getAllStories, getFeaturedStory } from "@/sanity/lib/queries";
+import { getAllStories, pickFeaturedStory } from "@/sanity/lib/queries";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -15,7 +15,8 @@ export const metadata: Metadata = {
 };
 
 export default async function StoriesPage() {
-    const [featured, allStories] = await Promise.all([getFeaturedStory(), getAllStories()]);
+    const allStories = await getAllStories();
+    const featured = pickFeaturedStory(allStories);
     if (!featured) return null;
     const rest = allStories.filter((s) => s.slug !== featured.slug);
 

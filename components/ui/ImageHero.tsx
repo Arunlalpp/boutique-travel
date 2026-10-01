@@ -50,7 +50,7 @@ export function ImageHero({ image, eyebrow, title, children, size = "tall" }: Im
             )}
         >
             <div data-hero-media className="absolute inset-0 will-change-transform">
-                <SmartImage image={image} sizes="100vw" priority />
+                <SmartImage image={image} sizes="100vw" priority quality={80} />
             </div>
             <div aria-hidden className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-night/50 to-transparent" />
             <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-night/85 via-night/20 to-transparent" />

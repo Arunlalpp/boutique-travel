@@ -50,7 +50,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
             </a>
             <Header siteName={settings.name} email={settings.email} phone={settings.phone} />
             <main id="main">{children}</main>
-            <Footer />
+            <Footer settings={settings} />
             <Analytics />
             <SanityLive />
         </>

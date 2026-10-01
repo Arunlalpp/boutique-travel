@@ -6,7 +6,7 @@ import { VideoPlayer } from "@/components/stories/VideoPlayer";
 import { StoryEntry } from "@/components/stories/StoryEntry";
 import { JourneyCard } from "@/components/itinerary/JourneyCard";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { getStory, getStorySlugs, getAllStories, getItinerary } from "@/sanity/lib/queries";
+import { getStory, getStorySlugs, getAllStories, getItineraryCard } from "@/sanity/lib/queries";
 
 type Params = Promise<{ slug: string }>;
 
@@ -48,7 +48,7 @@ export default async function StoryPage({ params }: { params: Params }) {
     if (!story) notFound();
 
     const [journey, allStories] = await Promise.all([
-        story.journeySlug ? getItinerary(story.journeySlug) : Promise.resolve(undefined),
+        story.journeySlug ? getItineraryCard(story.journeySlug) : Promise.resolve(undefined),
         getAllStories(),
     ]);
     const more = allStories.filter((s) => s.slug !== story.slug).slice(0, 2);
@@ -68,7 +68,7 @@ export default async function StoryPage({ params }: { params: Params }) {
                 </h1>
                 <div data-reveal className="mt-10 flex items-center gap-4">
                     <span className="relative size-14 overflow-hidden rounded-full bg-paper-deep">
-                        <SmartImage image={story.portrait} sizes="56px" tone="light" />
+                        <SmartImage image={story.portrait} sizes="56px" tone="light" quality={65} />
                     </span>
                     <p className="leading-snug">
                         <span className="block">{story.guestName}</span>

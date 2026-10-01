@@ -113,6 +113,38 @@ export interface SiteSettings {
     copyrightText: string;
 }
 
+/**
+ * The subset of fields every listing/card view actually renders (JourneyCard,
+ * JourneyIndex, FeaturedJourneys, the "next journey" teaser, destination
+ * pages' journey grids). Listing queries project only these fields instead
+ * of the full document, so a page with many cards doesn't pull every
+ * itinerary's overview, day-by-day, gallery and route data over the wire.
+ */
+export type ItineraryCard = Pick<
+    Itinerary,
+    "slug" | "title" | "hook" | "region" | "country" | "destinationSlug" | "duration" | "style" | "cardImage" | "featured"
+>;
+
+/** Same idea as ItineraryCard, for StoryEntry/StoriesTeaser and other listing views. */
+export type GuestStoryCard = Pick<
+    GuestStory,
+    | "slug"
+    | "guestName"
+    | "homeTown"
+    | "journeySlug"
+    | "journeyTitle"
+    | "travelled"
+    | "quote"
+    | "excerpt"
+    | "poster"
+    | "portrait"
+    | "featured"
+    | "video"
+>;
+
+/** Same idea as ItineraryCard, for DestinationCard on the destinations index. */
+export type DestinationCard = Pick<Destination, "slug" | "name" | "country" | "region" | "shortDescription" | "heroImage" | "featured">;
+
 export interface Highlight {
     icon: "compass" | "users" | "leaf" | "phone";
     title: string;

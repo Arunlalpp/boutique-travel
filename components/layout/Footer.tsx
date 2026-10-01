@@ -1,13 +1,12 @@
 import Link from "next/link";
+import type { SiteSettings } from "@/lib/types";
 import { mainNav } from "@/lib/data/site";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Reveal } from "@/components/motion/Reveal";
-import { getSiteSettings } from "@/sanity/lib/queries";
 import { Wordmark } from "./Wordmark";
 
-export async function Footer() {
+export function Footer({ settings }: { settings: SiteSettings }) {
     const year = new Date().getFullYear();
-    const settings = await getSiteSettings();
 
     return (
         <footer className="grain relative overflow-hidden bg-night text-paper">

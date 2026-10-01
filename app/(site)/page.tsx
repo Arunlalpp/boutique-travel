@@ -7,15 +7,15 @@ import { StoriesTeaser } from "@/components/home/StoriesTeaser";
 import { WhyChooseUs } from "@/components/home/WhyChooseUs";
 import { media } from "@/lib/data/media";
 import { whyChooseUs } from "@/lib/data/site";
-import { getFeaturedItineraries, getAllStories, getFeaturedStory, getSiteSettings } from "@/sanity/lib/queries";
+import { getFeaturedItineraries, getAllStories, pickFeaturedStory, getSiteSettings } from "@/sanity/lib/queries";
 
 export default async function HomePage() {
-    const [settings, featuredJourneys, featuredStory, allStories] = await Promise.all([
+    const [settings, featuredJourneys, allStories] = await Promise.all([
         getSiteSettings(),
         getFeaturedItineraries(4),
-        getFeaturedStory(),
         getAllStories(),
     ]);
+    const featuredStory = pickFeaturedStory(allStories);
     const otherStories = featuredStory ? allStories.filter((s) => s.slug !== featuredStory.slug) : allStories;
 
     return (

@@ -1,10 +1,10 @@
 import Link from "next/link";
-import type { Itinerary } from "@/lib/types";
+import type { ItineraryCard } from "@/lib/types";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { cn } from "@/lib/utils";
 
 interface JourneyCardProps {
-    journey: Itinerary;
+    journey: ItineraryCard;
     shape?: "landscape" | "portrait" | "wide";
     sizes?: string;
     index?: string;

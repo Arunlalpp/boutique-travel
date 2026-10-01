@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { imageFields, imageOptions } from "./objects/imageWithAlt";
+import { gallerySizeWarning, imageFields, imageOptions, imageSizeWarning } from "./objects/imageWithAlt";
 
 const STYLES = ["Private journey", "Small group"];
 
@@ -87,26 +87,29 @@ export const itinerary = defineType({
             title: "Hero image",
             type: "image",
             group: "media",
-            description: "The full-bleed photograph at the top of the journey page.",
+            description: "The full-bleed photograph at the top of the journey page. JPG, PNG or WebP — 5MB or smaller recommended.",
             options: imageOptions,
             fields: imageFields,
-            validation: (Rule) => Rule.required(),
+            validation: (Rule) => imageSizeWarning(5)(Rule).required(),
         }),
         defineField({
             name: "cardImage",
             title: "Card image",
             type: "image",
             group: "media",
-            description: "Shown on journey listing cards. Leave blank to reuse the hero image.",
+            description:
+                "Shown on journey listing cards. Leave blank to reuse the hero image. JPG, PNG or WebP — 2MB or smaller recommended.",
             options: imageOptions,
             fields: imageFields,
+            validation: imageSizeWarning(2),
         }),
         defineField({
             name: "gallery",
             title: "Gallery",
             type: "array",
             group: "media",
-            of: [{ type: "image", options: imageOptions, fields: imageFields }],
+            description: "JPG, PNG or WebP — 3MB or smaller recommended per image.",
+            of: [{ type: "image", options: imageOptions, fields: imageFields, validation: gallerySizeWarning(3) }],
         }),
         defineField({
             name: "videoUrl",
@@ -185,9 +188,11 @@ export const itinerary = defineType({
             title: "Map image",
             type: "image",
             group: "travel",
-            description: "A simple map graphic. Optional — see also the advanced route diagram below.",
+            description:
+                "A simple map graphic. Optional — see also the advanced route diagram below. JPG, PNG or WebP — 3MB or smaller recommended.",
             options: imageOptions,
             fields: imageFields,
+            validation: imageSizeWarning(3),
         }),
         defineField({
             name: "route",

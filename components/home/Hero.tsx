@@ -58,6 +58,7 @@ export function Hero({ image, videoSrc, eyebrow, lines, tagline }: HeroProps) {
                         className="absolute inset-0 size-full object-cover"
                         src={videoSrc}
                         poster={image.src}
+                        preload="metadata"
                         autoPlay
                         muted
                         loop
@@ -65,7 +66,7 @@ export function Hero({ image, videoSrc, eyebrow, lines, tagline }: HeroProps) {
                         aria-hidden
                     />
                 ) : (
-                    <SmartImage image={image} sizes="100vw" priority />
+                    <SmartImage image={image} sizes="100vw" priority quality={80} />
                 )}
             </div>
 

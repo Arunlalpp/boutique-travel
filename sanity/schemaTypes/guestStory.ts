@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { imageFields, imageOptions } from "./objects/imageWithAlt";
+import { gallerySizeWarning, imageFields, imageOptions, imageSizeWarning } from "./objects/imageWithAlt";
 
 export const guestStory = defineType({
     name: "guestStory",
@@ -104,25 +104,29 @@ export const guestStory = defineType({
             title: "Guest portrait",
             type: "image",
             group: "media",
+            description: "A small headshot-style photo. JPG, PNG or WebP — 2MB or smaller recommended.",
             options: imageOptions,
             fields: imageFields,
-            validation: (Rule) => Rule.required(),
+            validation: (Rule) => imageSizeWarning(2)(Rule).required(),
         }),
         defineField({
             name: "posterImage",
             title: "Film poster image",
             type: "image",
             group: "media",
-            description: "The still shown before the film plays. Leave blank to use the first gallery image.",
+            description:
+                "The still shown before the film plays. Leave blank to use the first gallery image. JPG, PNG or WebP — 5MB or smaller recommended.",
             options: imageOptions,
             fields: imageFields,
+            validation: imageSizeWarning(5),
         }),
         defineField({
             name: "gallery",
             title: "Gallery",
             type: "array",
             group: "media",
-            of: [{ type: "image", options: imageOptions, fields: imageFields }],
+            description: "JPG, PNG or WebP — 3MB or smaller recommended per image.",
+            of: [{ type: "image", options: imageOptions, fields: imageFields, validation: gallerySizeWarning(3) }],
         }),
         defineField({
             name: "videoUrl",

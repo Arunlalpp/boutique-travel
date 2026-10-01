@@ -2,7 +2,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SectionIntro } from "@/components/ui/SectionIntro";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { JourneyCard } from "@/components/itinerary/JourneyCard";
-import type { Itinerary } from "@/lib/types";
+import type { ItineraryCard as ItineraryCardType } from "@/lib/types";
 import { pad } from "@/lib/utils";
 
 const layout = [
@@ -24,7 +24,7 @@ const layout = [
     },
 ];
 
-export function FeaturedJourneys({ journeys }: { journeys: Itinerary[] }) {
+export function FeaturedJourneys({ journeys }: { journeys: ItineraryCardType[] }) {
     return (
         <section aria-labelledby="featured-title" className="bg-paper-deep py-24 md:py-40">
             <div className="container-x">

@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { Destination } from "@/lib/types";
+import type { DestinationCard as DestinationCardType } from "@/lib/types";
 import { SmartImage } from "@/components/ui/SmartImage";
 
-export function DestinationCard({ destination }: { destination: Destination }) {
+export function DestinationCard({ destination }: { destination: DestinationCardType }) {
     return (
         <article className="group">
             <Link href={`/destinations/${destination.slug}`} className="block" aria-label={`${destination.name} — view destination`}>

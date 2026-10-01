@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { imageFields, imageOptions } from "./imageWithAlt";
+import { imageFields, imageOptions, imageSizeWarning } from "./imageWithAlt";
 
 export const itineraryDay = defineType({
     name: "itineraryDay",
@@ -42,8 +42,10 @@ export const itineraryDay = defineType({
             name: "image",
             title: "Image",
             type: "image",
+            description: "JPG, PNG or WebP — 3MB or smaller recommended.",
             options: imageOptions,
             fields: imageFields,
+            validation: imageSizeWarning(3),
         }),
         defineField({
             name: "accommodation",

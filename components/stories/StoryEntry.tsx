@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Play } from "lucide-react";
-import type { GuestStory } from "@/lib/types";
+import type { GuestStoryCard } from "@/lib/types";
 import { SmartImage } from "@/components/ui/SmartImage";
 
-export function StoryEntry({ story }: { story: GuestStory }) {
+export function StoryEntry({ story }: { story: GuestStoryCard }) {
     return (
         <article className="group">
             <Link href={`/stories/${story.slug}`} className="block">
@@ -22,7 +22,7 @@ export function StoryEntry({ story }: { story: GuestStory }) {
                     <p className="font-serif text-2xl font-light leading-snug md:text-[1.75rem]">“{story.quote}”</p>
                     <div className="mt-6 flex items-center gap-4">
                         <span className="relative size-11 shrink-0 overflow-hidden rounded-full bg-paper-deep">
-                            <SmartImage image={story.portrait} sizes="44px" tone="light" />
+                            <SmartImage image={story.portrait} sizes="44px" tone="light" quality={65} />
                         </span>
                         <p className="text-sm leading-snug">
                             <span className="block text-ink">{story.guestName}</span>

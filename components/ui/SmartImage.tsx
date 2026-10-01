@@ -11,9 +11,11 @@ interface SmartImageProps {
     priority?: boolean;
     className?: string;
     tone?: "light" | "dark";
+    /** Defaults to Next's standard 75. Use ~80-85 for large hero banners, ~65-70 for small thumbnails/avatars. */
+    quality?: number;
 }
 
-export function SmartImage({ image, sizes, priority, className, tone = "dark" }: SmartImageProps) {
+export function SmartImage({ image, sizes, priority, className, tone = "dark", quality }: SmartImageProps) {
     const [failed, setFailed] = useState(false);
 
     if (failed) {
@@ -39,6 +41,7 @@ export function SmartImage({ image, sizes, priority, className, tone = "dark" }:
             fill
             sizes={sizes}
             priority={priority}
+            quality={quality}
             onError={() => setFailed(true)}
             className={cn("object-cover", className)}
             style={image.focal ? { objectPosition: image.focal } : undefined}

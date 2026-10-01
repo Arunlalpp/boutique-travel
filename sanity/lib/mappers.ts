@@ -1,6 +1,18 @@
 import type { PortableTextBlock } from "@portabletext/types";
-import type { Destination, GuestStory, Itinerary, ItineraryDay, Region, Seo, SiteSettings, TravelStyle } from "@/lib/types";
-import { toImageAsset, toImageAssetList, type RawImage } from "./image";
+import type {
+    Destination,
+    DestinationCard,
+    GuestStory,
+    GuestStoryCard,
+    Itinerary,
+    ItineraryCard,
+    ItineraryDay,
+    Region,
+    Seo,
+    SiteSettings,
+    TravelStyle,
+} from "@/lib/types";
+import { toImageAsset, toImageAssetList, toImageAssetOrFallback, type RawImage } from "./image";
 import { parseVideoUrl } from "./video";
 
 interface RawSeo {
@@ -66,8 +78,8 @@ export function mapItinerary(raw: RawItinerary): Itinerary {
         bestTime: raw.bestTime ?? "",
         pace: raw.pace ?? "",
         startingPrice: raw.startingPrice,
-        heroImage: toImageAsset(raw.heroImage, raw.title) ?? { src: "", alt: raw.title },
-        cardImage: toImageAsset(raw.cardImage ?? raw.heroImage, raw.title) ?? { src: "", alt: raw.title },
+        heroImage: toImageAssetOrFallback(raw.heroImage, raw.title),
+        cardImage: toImageAssetOrFallback(raw.cardImage ?? raw.heroImage, raw.title),
         gallery: toImageAssetList(raw.gallery, raw.title),
         overview: raw.overview ?? [],
         highlights: raw.highlights ?? [],
@@ -78,6 +90,33 @@ export function mapItinerary(raw: RawItinerary): Itinerary {
         video: parseVideoUrl(raw.videoUrl),
         featured: raw.featured ?? false,
         seo: mapSeo(raw.seo, raw.title),
+    };
+}
+
+export interface RawItineraryCard {
+    slug: string;
+    title: string;
+    shortDescription: string;
+    cardImage: RawImage;
+    destination: RawDestinationRef | null;
+    style: string;
+    duration: string;
+    featured: boolean;
+}
+
+/** Lightweight counterpart to mapItinerary, for listing/card views — see ItineraryCard. */
+export function mapItineraryCard(raw: RawItineraryCard): ItineraryCard {
+    return {
+        slug: raw.slug,
+        title: raw.title,
+        hook: raw.shortDescription,
+        region: (raw.destination?.region as Region) ?? "Asia",
+        country: raw.destination?.country ?? "",
+        destinationSlug: raw.destination?.slug,
+        duration: raw.duration,
+        style: raw.style as TravelStyle,
+        cardImage: toImageAssetOrFallback(raw.cardImage, raw.title),
+        featured: raw.featured ?? false,
     };
 }
 
@@ -123,10 +162,42 @@ export function mapGuestStory(raw: RawGuestStory): GuestStory {
         excerpt: raw.excerpt,
         body: splitParagraphs(raw.story),
         video: parseVideoUrl(raw.videoUrl),
-        poster: toImageAsset(posterSource, raw.guestName) ?? { src: "", alt: raw.guestName },
-        portrait: toImageAsset(raw.profileImage, raw.guestName) ?? { src: "", alt: raw.guestName },
+        poster: toImageAssetOrFallback(posterSource, raw.guestName),
+        portrait: toImageAssetOrFallback(raw.profileImage, raw.guestName),
         featured: raw.featured ?? false,
         seo: mapSeo(raw.seo, raw.guestName),
+    };
+}
+
+export interface RawGuestStoryCard {
+    slug: string;
+    guestName: string;
+    guestLocation?: string;
+    quote: string;
+    excerpt: string;
+    travelled?: string;
+    posterSource?: RawImage;
+    profileImage: RawImage;
+    journey?: { slug: string; title: string } | null;
+    videoUrl?: string;
+    featured: boolean;
+}
+
+/** Lightweight counterpart to mapGuestStory, for listing/card views — see GuestStoryCard. */
+export function mapGuestStoryCard(raw: RawGuestStoryCard): GuestStoryCard {
+    return {
+        slug: raw.slug,
+        guestName: raw.guestName,
+        homeTown: raw.guestLocation ?? "",
+        journeySlug: raw.journey?.slug,
+        journeyTitle: raw.journey?.title,
+        travelled: raw.travelled ?? "",
+        quote: raw.quote,
+        excerpt: raw.excerpt,
+        video: parseVideoUrl(raw.videoUrl),
+        poster: toImageAssetOrFallback(raw.posterSource ?? raw.profileImage, raw.guestName),
+        portrait: toImageAssetOrFallback(raw.profileImage, raw.guestName),
+        featured: raw.featured ?? false,
     };
 }
 
@@ -158,10 +229,33 @@ export function mapDestination(raw: RawDestination): Destination {
         region: raw.region as Region,
         shortDescription: raw.shortDescription,
         description: raw.description,
-        heroImage: toImageAsset(raw.heroImage, raw.name) ?? { src: "", alt: raw.name },
+        heroImage: toImageAssetOrFallback(raw.heroImage, raw.name),
         gallery: toImageAssetList(raw.gallery, raw.name),
         featured: raw.featured ?? false,
         seo: mapSeo(raw.seo, raw.name),
+    };
+}
+
+export interface RawDestinationCard {
+    slug: string;
+    name: string;
+    country: string;
+    region: string;
+    shortDescription: string;
+    heroImage: RawImage;
+    featured: boolean;
+}
+
+/** Lightweight counterpart to mapDestination, for listing/card views — see DestinationCard. */
+export function mapDestinationCard(raw: RawDestinationCard): DestinationCard {
+    return {
+        slug: raw.slug,
+        name: raw.name,
+        country: raw.country,
+        region: raw.region as Region,
+        shortDescription: raw.shortDescription,
+        heroImage: toImageAssetOrFallback(raw.heroImage, raw.name),
+        featured: raw.featured ?? false,
     };
 }
 

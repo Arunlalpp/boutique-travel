@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { imageFields, imageOptions } from "./objects/imageWithAlt";
+import { gallerySizeWarning, imageFields, imageOptions, imageSizeWarning } from "./objects/imageWithAlt";
 
 const REGIONS = ["Asia", "Europe", "Africa", "The North"];
 
@@ -62,16 +62,18 @@ export const destination = defineType({
             title: "Hero image",
             type: "image",
             group: "content",
+            description: "JPG, PNG or WebP — 5MB or smaller recommended.",
             options: imageOptions,
             fields: imageFields,
-            validation: (Rule) => Rule.required(),
+            validation: (Rule) => imageSizeWarning(5)(Rule).required(),
         }),
         defineField({
             name: "gallery",
             title: "Gallery",
             type: "array",
             group: "content",
-            of: [{ type: "image", options: imageOptions, fields: imageFields }],
+            description: "JPG, PNG or WebP — 3MB or smaller recommended per image.",
+            of: [{ type: "image", options: imageOptions, fields: imageFields, validation: gallerySizeWarning(3) }],
         }),
         defineField({
             name: "featured",

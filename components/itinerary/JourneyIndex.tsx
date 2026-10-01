@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Itinerary, Region, TravelStyle } from "@/lib/types";
+import type { ItineraryCard as ItineraryCardType, Region, TravelStyle } from "@/lib/types";
 import { JourneyCard } from "./JourneyCard";
 import { Reveal } from "@/components/motion/Reveal";
 import { cn, pad } from "@/lib/utils";
@@ -9,7 +9,7 @@ import { cn, pad } from "@/lib/utils";
 type RegionFilter = Region | "All";
 type StyleFilter = TravelStyle | "Any";
 
-export function JourneyIndex({ journeys }: { journeys: Itinerary[] }) {
+export function JourneyIndex({ journeys }: { journeys: ItineraryCardType[] }) {
     const [region, setRegion] = useState<RegionFilter>("All");
     const [style, setStyle] = useState<StyleFilter>("Any");
 

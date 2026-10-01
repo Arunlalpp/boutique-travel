@@ -4,11 +4,11 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Parallax } from "@/components/motion/Parallax";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import type { GuestStory } from "@/lib/types";
+import type { GuestStoryCard } from "@/lib/types";
 
 interface StoriesTeaserProps {
-    featured: GuestStory;
-    others: GuestStory[];
+    featured: GuestStoryCard;
+    others: GuestStoryCard[];
 }
 
 export function StoriesTeaser({ featured, others }: StoriesTeaserProps) {
@@ -73,7 +73,7 @@ export function StoriesTeaser({ featured, others }: StoriesTeaserProps) {
                         <li key={story.slug} data-reveal>
                             <Link href={`/stories/${story.slug}`} className="group flex items-start gap-4">
                                 <span className="relative size-14 shrink-0 overflow-hidden rounded-full bg-night-soft">
-                                    <SmartImage image={story.portrait} sizes="56px" />
+                                    <SmartImage image={story.portrait} sizes="56px" quality={65} />
                                 </span>
                                 <span>
                                     <span className="block font-serif text-lg leading-snug text-paper/90 transition-colors group-hover:text-paper">
