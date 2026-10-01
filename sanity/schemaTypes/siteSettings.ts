@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { imageFields, imageOptions, imageSizeWarning } from "./objects/imageWithAlt";
+import { imageFields, imageOptions, imageSizeLimit } from "./objects/imageWithAlt";
 
 export const siteSettings = defineType({
     name: "siteSettings",
@@ -81,10 +81,10 @@ export const siteSettings = defineType({
             title: "Default share image",
             type: "image",
             group: "general",
-            description: "Shown when a page without its own SEO image is shared. JPG, PNG or WebP — 2MB or smaller recommended (1200×630 works best).",
+            description: "Shown when a page without its own SEO image is shared. JPG, PNG or WebP — 2MB maximum (1200×630 works best) — larger images can be uploaded but will block publishing until replaced.",
             options: imageOptions,
             fields: imageFields,
-            validation: imageSizeWarning(2),
+            validation: imageSizeLimit(2),
         }),
         defineField({
             name: "allowIndexing",

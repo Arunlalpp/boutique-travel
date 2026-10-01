@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { gallerySizeWarning, imageFields, imageOptions, imageSizeWarning } from "./objects/imageWithAlt";
+import { gallerySizeLimit, imageFields, imageOptions, imageSizeLimit } from "./objects/imageWithAlt";
 
 const STYLES = ["Private journey", "Small group"];
 
@@ -87,10 +87,10 @@ export const itinerary = defineType({
             title: "Hero image",
             type: "image",
             group: "media",
-            description: "The full-bleed photograph at the top of the journey page. JPG, PNG or WebP — 5MB or smaller recommended.",
+            description: "The full-bleed photograph at the top of the journey page. JPG, PNG or WebP — 5MB maximum — larger images can be uploaded but will block publishing until replaced.",
             options: imageOptions,
             fields: imageFields,
-            validation: (Rule) => imageSizeWarning(5)(Rule).required(),
+            validation: (Rule) => imageSizeLimit(5)(Rule).required(),
         }),
         defineField({
             name: "cardImage",
@@ -98,18 +98,18 @@ export const itinerary = defineType({
             type: "image",
             group: "media",
             description:
-                "Shown on journey listing cards. Leave blank to reuse the hero image. JPG, PNG or WebP — 2MB or smaller recommended.",
+                "Shown on journey listing cards. Leave blank to reuse the hero image. JPG, PNG or WebP — 2MB maximum — larger images can be uploaded but will block publishing until replaced.",
             options: imageOptions,
             fields: imageFields,
-            validation: imageSizeWarning(2),
+            validation: imageSizeLimit(2),
         }),
         defineField({
             name: "gallery",
             title: "Gallery",
             type: "array",
             group: "media",
-            description: "JPG, PNG or WebP — 3MB or smaller recommended per image.",
-            of: [{ type: "image", options: imageOptions, fields: imageFields, validation: gallerySizeWarning(3) }],
+            description: "JPG, PNG or WebP — 3MB maximum per image — larger images can be uploaded but will block publishing until replaced.",
+            of: [{ type: "image", options: imageOptions, fields: imageFields, validation: gallerySizeLimit(3) }],
         }),
         defineField({
             name: "videoUrl",
@@ -189,10 +189,10 @@ export const itinerary = defineType({
             type: "image",
             group: "travel",
             description:
-                "A simple map graphic. Optional — see also the advanced route diagram below. JPG, PNG or WebP — 3MB or smaller recommended.",
+                "A simple map graphic. Optional — see also the advanced route diagram below. JPG, PNG or WebP — 3MB maximum — larger images can be uploaded but will block publishing until replaced.",
             options: imageOptions,
             fields: imageFields,
-            validation: imageSizeWarning(3),
+            validation: imageSizeLimit(3),
         }),
         defineField({
             name: "route",

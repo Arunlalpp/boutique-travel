@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { gallerySizeWarning, imageFields, imageOptions, imageSizeWarning } from "./objects/imageWithAlt";
+import { gallerySizeLimit, imageFields, imageOptions, imageSizeLimit } from "./objects/imageWithAlt";
 
 export const guestStory = defineType({
     name: "guestStory",
@@ -104,10 +104,10 @@ export const guestStory = defineType({
             title: "Guest portrait",
             type: "image",
             group: "media",
-            description: "A small headshot-style photo. JPG, PNG or WebP — 2MB or smaller recommended.",
+            description: "A small headshot-style photo. JPG, PNG or WebP — 2MB maximum — larger images can be uploaded but will block publishing until replaced.",
             options: imageOptions,
             fields: imageFields,
-            validation: (Rule) => imageSizeWarning(2)(Rule).required(),
+            validation: (Rule) => imageSizeLimit(2)(Rule).required(),
         }),
         defineField({
             name: "posterImage",
@@ -115,18 +115,18 @@ export const guestStory = defineType({
             type: "image",
             group: "media",
             description:
-                "The still shown before the film plays. Leave blank to use the first gallery image. JPG, PNG or WebP — 5MB or smaller recommended.",
+                "The still shown before the film plays. Leave blank to use the first gallery image. JPG, PNG or WebP — 5MB maximum — larger images can be uploaded but will block publishing until replaced.",
             options: imageOptions,
             fields: imageFields,
-            validation: imageSizeWarning(5),
+            validation: imageSizeLimit(5),
         }),
         defineField({
             name: "gallery",
             title: "Gallery",
             type: "array",
             group: "media",
-            description: "JPG, PNG or WebP — 3MB or smaller recommended per image.",
-            of: [{ type: "image", options: imageOptions, fields: imageFields, validation: gallerySizeWarning(3) }],
+            description: "JPG, PNG or WebP — 3MB maximum per image — larger images can be uploaded but will block publishing until replaced.",
+            of: [{ type: "image", options: imageOptions, fields: imageFields, validation: gallerySizeLimit(3) }],
         }),
         defineField({
             name: "videoUrl",

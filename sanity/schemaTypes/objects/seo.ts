@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { imageFields, imageOptions, imageSizeWarning } from "./imageWithAlt";
+import { imageFields, imageOptions, imageSizeLimit } from "./imageWithAlt";
 
 export const seo = defineType({
     name: "seo",
@@ -27,10 +27,10 @@ export const seo = defineType({
             title: "Social share image",
             type: "image",
             description:
-                "Shown when this page is shared on social media. Leave blank to use the hero image. JPG, PNG or WebP — 2MB or smaller recommended (1200×630 works best).",
+                "Shown when this page is shared on social media. Leave blank to use the hero image. JPG, PNG or WebP — 2MB maximum (1200×630 works best) — larger images can be uploaded but will block publishing until replaced.",
             options: imageOptions,
             fields: imageFields,
-            validation: imageSizeWarning(2),
+            validation: imageSizeLimit(2),
         }),
     ],
     options: {

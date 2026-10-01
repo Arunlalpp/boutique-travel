@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { gallerySizeWarning, imageFields, imageOptions, imageSizeWarning } from "./objects/imageWithAlt";
+import { gallerySizeLimit, imageFields, imageOptions, imageSizeLimit } from "./objects/imageWithAlt";
 
 const REGIONS = ["Asia", "Europe", "Africa", "The North"];
 
@@ -62,18 +62,18 @@ export const destination = defineType({
             title: "Hero image",
             type: "image",
             group: "content",
-            description: "JPG, PNG or WebP — 5MB or smaller recommended.",
+            description: "JPG, PNG or WebP — 5MB maximum — larger images can be uploaded but will block publishing until replaced.",
             options: imageOptions,
             fields: imageFields,
-            validation: (Rule) => imageSizeWarning(5)(Rule).required(),
+            validation: (Rule) => imageSizeLimit(5)(Rule).required(),
         }),
         defineField({
             name: "gallery",
             title: "Gallery",
             type: "array",
             group: "content",
-            description: "JPG, PNG or WebP — 3MB or smaller recommended per image.",
-            of: [{ type: "image", options: imageOptions, fields: imageFields, validation: gallerySizeWarning(3) }],
+            description: "JPG, PNG or WebP — 3MB maximum per image — larger images can be uploaded but will block publishing until replaced.",
+            of: [{ type: "image", options: imageOptions, fields: imageFields, validation: gallerySizeLimit(3) }],
         }),
         defineField({
             name: "featured",
