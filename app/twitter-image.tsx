@@ -6,5 +6,5 @@ export const contentType = ogImageContentType;
 export const alt = `${site.name} — ${site.descriptor}`;
 
 export default async function TwitterImage() {
-  return generateOgImage();
+    return generateOgImage();
 }
