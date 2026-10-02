@@ -55,107 +55,127 @@ export default async function StoryPage({ params }: { params: Params }) {
 
     return (
         <article>
-            <Reveal as="header" className="container-x pb-14 pt-40 md:pb-20 md:pt-52">
-                <p data-reveal className="eyebrow flex items-center gap-3 text-stone">
-                    <Link href="/stories" className="link-line">
-                        Guest stories
-                    </Link>
-                    <span aria-hidden className="h-px w-6 bg-ink/25" />
-                    {story.travelled}
-                </p>
-                <h1 data-reveal className="mt-8 max-w-5xl text-[clamp(2.25rem,5.5vw,5rem)] leading-[1.05]">
-                    “{story.quote}”
-                </h1>
-                <div data-reveal className="mt-10 flex items-center gap-4">
-                    <span className="relative size-14 overflow-hidden rounded-full bg-paper-deep">
-                        <SmartImage image={story.portrait} sizes="56px" tone="light" quality={65} />
-                    </span>
-                    <p className="leading-snug">
-                        <span className="block">{story.guestName}</span>
-                        <span className="block text-sm text-stone">{story.homeTown}</span>
-                    </p>
+            <header className="phero pb-12">
+                <div
+                    aria-hidden
+                    className="glow"
+                    style={{
+                        width: 700,
+                        height: 700,
+                        left: -200,
+                        top: -260,
+                        background: "radial-gradient(circle, rgba(245,158,61,.14), transparent 70%)",
+                    }}
+                />
+                <div className="wrap">
+                    <div className="copy max-w-[960px]">
+                        <nav aria-label="Breadcrumb" className="crumb glass">
+                            <Link href="/">Home</Link>
+                            <span aria-hidden>/</span>
+                            <Link href="/stories">Stories</Link>
+                            <span aria-hidden>/</span>
+                            <b aria-current="page">{story.guestName}</b>
+                        </nav>
+                        <span className="eyebrow">Guest story · {story.travelled}</span>
+                        <h1 className="h-lg italic leading-[1.15]">“{story.quote}”</h1>
+                        <div className="q-who">
+                            <div className="avatar size-14">
+                                <SmartImage image={story.portrait} sizes="56px" quality={65} />
+                            </div>
+                            <span>
+                                <b>{story.guestName}</b>
+                                <br />
+                                <small className="text-dim">{story.homeTown}</small>
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </Reveal>
+            </header>
 
-            <Reveal className="container-x">
-                <div data-reveal="mask">
-                    <VideoPlayer video={story.video} poster={story.poster} title={`${story.guestName} — guest film`} />
-                </div>
-            </Reveal>
+            <div className="wrap">
+                <VideoPlayer video={story.video} poster={story.poster} title={`${story.guestName}: guest film`} />
+            </div>
 
-            <section className="container-x grid gap-14 py-24 md:grid-cols-12 md:gap-8 md:py-32">
-                <Reveal as="aside" className="md:col-span-3">
-                    <dl data-reveal className="space-y-6 border-t border-ink pt-6 text-sm">
-                        <div>
-                            <dt className="eyebrow text-stone">Journey</dt>
-                            <dd className="mt-2">
-                                {journey ? (
-                                    <Link href={`/itineraries/${journey.slug}`} className="link-line">
-                                        {journey.title}
-                                    </Link>
-                                ) : (
-                                    "Private journey"
-                                )}
-                            </dd>
-                        </div>
-                        <div>
-                            <dt className="eyebrow text-stone">Travelled</dt>
-                            <dd className="mt-2">{story.travelled}</dd>
-                        </div>
-                        <div>
-                            <dt className="eyebrow text-stone">From</dt>
-                            <dd className="mt-2">{story.homeTown}</dd>
-                        </div>
-                    </dl>
-                </Reveal>
+            <section className="sec">
+                <div className="wrap grid gap-[clamp(28px,5vw,64px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+                    <aside>
+                        <dl className="glass grid gap-5 rounded-[28px] p-7 text-sm">
+                            <div>
+                                <dt className="text-[11px] font-bold uppercase tracking-[0.14em] text-dim">Journey</dt>
+                                <dd className="mt-1 text-base">
+                                    {journey ? (
+                                        <Link href={`/itineraries/${journey.slug}`} className="text-ember hover:underline">
+                                            {journey.title}
+                                        </Link>
+                                    ) : (
+                                        "Private journey"
+                                    )}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt className="text-[11px] font-bold uppercase tracking-[0.14em] text-dim">Travelled</dt>
+                                <dd className="mt-1 text-base">{story.travelled}</dd>
+                            </div>
+                            {story.homeTown && (
+                                <div>
+                                    <dt className="text-[11px] font-bold uppercase tracking-[0.14em] text-dim">From</dt>
+                                    <dd className="mt-1 text-base">{story.homeTown}</dd>
+                                </div>
+                            )}
+                        </dl>
+                    </aside>
 
-                <Reveal className="md:col-span-7 md:col-start-5">
-                    <p data-reveal className="font-serif text-[clamp(1.5rem,2.6vw,2.1rem)] font-light leading-[1.3]">
-                        {story.excerpt}
-                    </p>
-                    {story.body.map((para, i) => (
-                        <p key={i} data-reveal className="mt-7 text-lg text-ink-soft">
-                            {para}
+                    <Reveal>
+                        <p className="font-display text-[clamp(22px,2.6vw,30px)] leading-[1.3]" data-reveal>
+                            {story.excerpt}
                         </p>
-                    ))}
-                </Reveal>
+                        {story.body.map((para, i) => (
+                            <p key={i} className="lede mt-6 max-w-[64ch]" data-reveal>
+                                {para}
+                            </p>
+                        ))}
+                    </Reveal>
+                </div>
             </section>
 
             {journey && (
-                <section aria-labelledby="journey-title" className="bg-paper-deep py-24 md:py-32">
-                    <div className="container-x grid gap-12 md:grid-cols-12 md:gap-8">
-                        <Reveal className="md:col-span-4">
-                            <p data-reveal className="eyebrow text-stone">
-                                The journey behind the story
-                            </p>
-                            <h2 id="journey-title" data-reveal className="mt-6 text-4xl md:text-5xl">
-                                Travel <span className="serif-italic">this way</span>
+                <section
+                    aria-labelledby="journey-title"
+                    className="sec"
+                    style={{ background: "linear-gradient(180deg,var(--color-night),var(--color-night-2))" }}
+                >
+                    <div className="wrap grid items-center gap-[clamp(28px,5vw,64px)] md:grid-cols-[minmax(0,1fr)_auto]">
+                        <div className="grid gap-4">
+                            <span className="eyebrow">The journey behind the story</span>
+                            <h2 id="journey-title" className="h-lg">
+                                Travel this way
                             </h2>
-                            <p data-reveal className="mt-6 text-stone">
-                                Every journey is reshaped for each guest — but this is where theirs began.
-                            </p>
-                        </Reveal>
-                        <Reveal className="md:col-span-7 md:col-start-6">
-                            <JourneyCard journey={journey} shape="wide" sizes="(min-width: 768px) 55vw, 100vw" />
-                        </Reveal>
+                            <p className="lede">Every journey is reshaped for each guest, but this is where theirs began.</p>
+                        </div>
+                        <JourneyCard journey={journey} className="mx-auto md:mx-0" />
                     </div>
                 </section>
             )}
 
-            <section aria-labelledby="more-title" className="py-24 md:py-32">
-                <div className="container-x">
-                    <h2 id="more-title" className="eyebrow mb-12 text-stone">
-                        More guest stories
-                    </h2>
-                    <div className="grid gap-x-12 gap-y-16 md:grid-cols-2">
-                        {more.map((s) => (
-                            <Reveal key={s.slug}>
-                                <StoryEntry story={s} />
-                            </Reveal>
-                        ))}
+            {more.length > 0 && (
+                <section aria-labelledby="more-title" className="sec">
+                    <div className="wrap">
+                        <div className="sec-head">
+                            <div className="t">
+                                <span className="eyebrow">Keep reading</span>
+                                <h2 id="more-title" className="h-lg">
+                                    More guest stories
+                                </h2>
+                            </div>
+                        </div>
+                        <div className="grid gap-5.5 md:grid-cols-2">
+                            {more.map((s) => (
+                                <StoryEntry key={s.slug} story={s} />
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
         </article>
     );
 }

@@ -26,8 +26,8 @@ export function SmartImage({ image, sizes, priority, className, tone = "dark", q
                 className={cn(
                     "absolute inset-0",
                     tone === "dark"
-                        ? "bg-[radial-gradient(120%_90%_at_30%_20%,#2e3a37_0%,#182421_60%,#0d1a17_100%)]"
-                        : "bg-[radial-gradient(120%_90%_at_30%_20%,#e2e8e1_0%,#cdd6c8_70%,#b9c4b3_100%)]",
+                        ? "bg-[radial-gradient(120%_90%_at_30%_20%,#2a3142_0%,#1c212c_60%,#0e1117_100%)]"
+                        : "bg-[radial-gradient(120%_90%_at_30%_20%,#f2e6d4_0%,#e5d5bd_70%,#d6c2a4_100%)]",
                     className,
                 )}
             />

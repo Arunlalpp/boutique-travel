@@ -25,6 +25,14 @@ export const enquiry = defineType({
             to: [{ type: "itinerary" }],
             readOnly: true,
         }),
+        defineField({
+            name: "destination",
+            title: "Destination of interest",
+            type: "reference",
+            to: [{ type: "destination" }],
+            readOnly: true,
+        }),
+        defineField({ name: "packageName", title: "Package", type: "string", readOnly: true }),
         defineField({ name: "preferredContact", title: "Preferred contact method", type: "string", readOnly: true }),
         defineField({ name: "submittedAt", title: "Submitted at", type: "datetime", readOnly: true }),
         defineField({

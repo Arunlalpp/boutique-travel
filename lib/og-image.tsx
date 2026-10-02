@@ -25,9 +25,9 @@ export async function generateOgImage({ name, descriptor, tagline }: OgImageProp
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "#0d1a17",
-                backgroundImage: "linear-gradient(135deg, #0d1a17 0%, #16241f 55%, #12191a 100%)",
-                color: "#eef1ec",
+                backgroundColor: "#0e1117",
+                backgroundImage: "radial-gradient(circle at 30% 20%, #2a3550 0%, #151922 55%, #0e1117 100%)",
+                color: "#f4efe8",
                 fontFamily: "Playfair Display",
             }}
         >
@@ -36,7 +36,7 @@ export async function generateOgImage({ name, descriptor, tagline }: OgImageProp
                     fontSize: 26,
                     letterSpacing: 8,
                     textTransform: "uppercase",
-                    color: "#c99169",
+                    color: "#f59e3d",
                     fontFamily: "sans-serif",
                 }}
             >
@@ -49,13 +49,13 @@ export async function generateOgImage({ name, descriptor, tagline }: OgImageProp
                         width: 16,
                         height: 16,
                         borderRadius: "50%",
-                        backgroundColor: "#a05f38",
+                        backgroundColor: "#f59e3d",
                         marginLeft: 16,
                         marginBottom: 20,
                     }}
                 />
             </div>
-            <div style={{ fontSize: 32, marginTop: 28, color: "#c9d0c5", maxWidth: 860, textAlign: "center" }}>
+            <div style={{ fontSize: 32, marginTop: 28, color: "rgba(244,239,232,0.72)", maxWidth: 860, textAlign: "center" }}>
                 {tagline}
             </div>
         </div>,

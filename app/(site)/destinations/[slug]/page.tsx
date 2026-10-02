@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ImageHero } from "@/components/ui/ImageHero";
+import { PageHero } from "@/components/ui/PageHero";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Reveal } from "@/components/motion/Reveal";
+import { Rail } from "@/components/ui/Rail";
 import { Gallery } from "@/components/itinerary/Gallery";
 import { JourneyCard } from "@/components/itinerary/JourneyCard";
+import { CtaBand } from "@/components/home/CtaBand";
 import { getDestination, getDestinationSlugs, getItinerariesForDestination } from "@/sanity/lib/queries";
-import { pad } from "@/lib/utils";
 
 type Params = Promise<{ slug: string }>;
 
@@ -46,20 +48,39 @@ export default async function DestinationPage({ params }: { params: Params }) {
     if (!destination) notFound();
 
     const journeys = await getItinerariesForDestination(destination.slug);
+    const enquireHref = `/enquire?destination=${destination.slug}`;
 
     return (
         <article>
-            <ImageHero image={destination.heroImage} eyebrow={destination.country} title={destination.name} size="medium">
-                <p className="max-w-xl text-lg text-paper/80">{destination.shortDescription}</p>
-            </ImageHero>
+            <PageHero
+                image={destination.heroImage}
+                tall
+                crumbs={[
+                    { label: "Home", href: "/" },
+                    { label: "Destinations", href: "/destinations" },
+                    { label: destination.name },
+                ]}
+                eyebrow={`${destination.region} · ${destination.country}`}
+                title={destination.name}
+                lede={destination.shortDescription}
+            >
+                <div className="flex flex-wrap gap-2.5">
+                    <ButtonLink href={enquireHref}>Plan a trip here</ButtonLink>
+                    {journeys.length > 0 && (
+                        <ButtonLink href="#journeys" variant="glass" arrow={false}>
+                            {journeys.length} journey{journeys.length === 1 ? "" : "s"}
+                        </ButtonLink>
+                    )}
+                </div>
+            </PageHero>
 
             {destination.description && (
-                <section aria-labelledby="about-title" className="py-24 md:py-36">
-                    <Reveal className="container-x grid gap-10 md:grid-cols-12 md:gap-8">
-                        <p data-reveal className="eyebrow text-stone md:col-span-3" id="about-title">
+                <section aria-labelledby="about-title" className="sec">
+                    <Reveal className="wrap grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+                        <span className="eyebrow self-start" id="about-title" data-reveal>
                             About {destination.name}
-                        </p>
-                        <p data-reveal className="max-w-2xl text-lg text-ink-soft md:col-span-8">
+                        </span>
+                        <p className="font-display text-[clamp(22px,2.6vw,32px)] leading-[1.35]" data-reveal>
                             {destination.description}
                         </p>
                     </Reveal>
@@ -67,42 +88,45 @@ export default async function DestinationPage({ params }: { params: Params }) {
             )}
 
             {destination.gallery.length > 0 && (
-                <section aria-labelledby="gallery-title" className="pb-24 md:pb-36">
-                    <Reveal className="container-x">
-                        <h2 id="gallery-title" data-reveal className="eyebrow mb-10 text-stone">
-                            In pictures
-                        </h2>
+                <section aria-labelledby="gallery-title" className="sec pt-0">
+                    <div className="wrap">
+                        <div className="sec-head">
+                            <div className="t">
+                                <span className="eyebrow">In pictures</span>
+                                <h2 id="gallery-title" className="h-md">
+                                    {destination.name}, up close
+                                </h2>
+                            </div>
+                        </div>
                         <Gallery images={destination.gallery} title={destination.name} />
-                    </Reveal>
+                    </div>
                 </section>
             )}
 
             {journeys.length > 0 && (
-                <section aria-labelledby="journeys-title" className="bg-paper-deep py-24 md:py-36">
-                    <div className="container-x">
-                        <Reveal>
-                            <p data-reveal className="eyebrow text-stone">
-                                Journeys here
-                            </p>
-                            <h2 id="journeys-title" data-reveal className="mt-6 text-4xl md:text-6xl">
-                                Ways to see <span className="serif-italic">{destination.name}</span>
-                            </h2>
-                        </Reveal>
-                        <div className="mt-16 grid gap-x-10 gap-y-20 md:grid-cols-2 md:gap-y-28">
-                            {journeys.map((journey, i) => (
-                                <Reveal key={journey.slug}>
-                                    <JourneyCard
-                                        journey={journey}
-                                        shape={i % 2 === 0 ? "landscape" : "portrait"}
-                                        sizes="(min-width: 768px) 50vw, 100vw"
-                                        index={pad(i + 1)}
-                                    />
-                                </Reveal>
-                            ))}
-                        </div>
-                    </div>
+                <section id="journeys" aria-labelledby="journeys-title" className="sec scroll-mt-24 pt-0">
+                    <Rail
+                        label={`Journeys in ${destination.name}`}
+                        head={
+                            <div className="t">
+                                <span className="eyebrow">Journeys here</span>
+                                <h2 id="journeys-title" className="h-lg">
+                                    Ways to see {destination.name}
+                                </h2>
+                            </div>
+                        }
+                    >
+                        {journeys.map((j) => (
+                            <JourneyCard key={j.slug} journey={j} />
+                        ))}
+                    </Rail>
                 </section>
             )}
+
+            <CtaBand
+                title={`Shall we begin with ${destination.name}?`}
+                lede="Tell us who’s travelling and when. A trip designer will shape the route around you, with no obligation."
+            />
         </article>
     );
 }

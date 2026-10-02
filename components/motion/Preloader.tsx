@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { LogoMark } from "@/components/ui/Icons";
 
 export function Preloader({ siteName }: { siteName: string }) {
     const [ready, setReady] = useState(false);
@@ -34,9 +35,9 @@ export function Preloader({ siteName }: { siteName: string }) {
                 ready ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100",
             )}
         >
-            <span className="font-serif text-2xl font-light tracking-[0.01em] text-paper">
+            <span className="logo text-2xl text-fg">
+                <LogoMark className="!size-9" />
                 {siteName}
-                <span aria-hidden className="ml-1 inline-block size-1.5 translate-y-[-2px] rounded-full bg-clay" />
             </span>
             <span className="sr-only">Loading {siteName}…</span>
         </div>

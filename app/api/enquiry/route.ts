@@ -8,6 +8,8 @@ interface EnquiryPayload {
     phone?: string;
     nationality?: string;
     journey: string;
+    destination?: string;
+    packageName?: string;
     style: string;
     dates?: string;
     travellers: number;
@@ -48,12 +50,18 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Missing or invalid required fields" }, { status: 400 });
     }
 
-    const journeyId =
+    const [journeyId, destinationId] = await Promise.all([
         body.journey && body.journey !== "bespoke"
-            ? await writeClient.fetch<string | null>(`*[_type == "itinerary" && slug.current == $slug][0]._id`, {
+            ? writeClient.fetch<string | null>(`*[_type == "itinerary" && slug.current == $slug][0]._id`, {
                   slug: body.journey,
               })
-            : null;
+            : null,
+        typeof body.destination === "string" && body.destination
+            ? writeClient.fetch<string | null>(`*[_type == "destination" && slug.current == $slug][0]._id`, {
+                  slug: body.destination,
+              })
+            : null,
+    ]);
 
     await writeClient.create({
         _type: "enquiry",
@@ -68,6 +76,8 @@ export async function POST(request: Request) {
         interests: body.interests ?? [],
         message: body.message || undefined,
         journey: journeyId ? { _type: "reference", _ref: journeyId } : undefined,
+        destination: destinationId ? { _type: "reference", _ref: destinationId } : undefined,
+        packageName: typeof body.packageName === "string" ? body.packageName.slice(0, 120) || undefined : undefined,
         preferredContact: body.contactBy,
         submittedAt: new Date().toISOString(),
         status: "New",

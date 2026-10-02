@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { PageHero } from "@/components/ui/PageHero";
 import { Reveal } from "@/components/motion/Reveal";
 import { VideoPlayer } from "@/components/stories/VideoPlayer";
 import { StoryEntry } from "@/components/stories/StoryEntry";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { CtaBand } from "@/components/home/CtaBand";
+import { media } from "@/lib/data/media";
 import { getAllStories, pickFeaturedStory } from "@/sanity/lib/queries";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
     title: "Guest Stories",
@@ -17,70 +18,93 @@ export const metadata: Metadata = {
 export default async function StoriesPage() {
     const allStories = await getAllStories();
     const featured = pickFeaturedStory(allStories);
-    if (!featured) return null;
-    const rest = allStories.filter((s) => s.slug !== featured.slug);
+    const rest = featured ? allStories.filter((s) => s.slug !== featured.slug) : [];
 
     return (
         <>
-            <PageHeader
+            <PageHero
+                image={media.safariPlains}
+                crumbs={[{ label: "Home", href: "/" }, { label: "Stories" }]}
                 eyebrow="Guest stories"
-                title={
-                    <>
-                        In their <span className="serif-italic">own words</span>
-                    </>
-                }
-            >
-                The best measure of a journey is how it&apos;s remembered. Short films and reflections from guests who
-                have travelled with us.
-            </PageHeader>
+                title="Told around the campfire."
+                lede="The best measure of a journey is how it’s remembered. Short films and reflections from guests who have travelled with us."
+            />
 
-            <section aria-labelledby="featured-story" className="container-x pb-24 md:pb-36">
-                <Reveal>
-                    <div data-reveal="mask">
-                        <VideoPlayer
-                            video={featured.video}
-                            poster={featured.poster}
-                            title={`${featured.guestName} — ${featured.journeyTitle ?? "guest story"}`}
-                        />
-                    </div>
-                    <div className="mt-10 grid gap-8 md:grid-cols-12">
-                        <p data-reveal className="eyebrow text-stone md:col-span-3">
-                            Featured film
-                        </p>
-                        <div className="md:col-span-8">
-                            <h2 id="featured-story" data-reveal className="text-3xl leading-[1.15] md:text-5xl">
-                                “{featured.quote}”
-                            </h2>
-                            <p data-reveal className="mt-6 text-stone">
-                                {featured.guestName}, {featured.homeTown}
-                                {featured.journeySlug && (
-                                    <>
-                                        {" · "}
-                                        <Link href={`/itineraries/${featured.journeySlug}`} className="link-line text-ink">
-                                            {featured.journeyTitle}
-                                        </Link>
-                                    </>
-                                )}
-                            </p>
-                            <div data-reveal className="mt-8">
-                                <ButtonLink href={`/stories/${featured.slug}`} variant="text">
-                                    Read the full story
-                                </ButtonLink>
+            {featured ? (
+                <>
+                    <section aria-labelledby="featured-story" className="sec pt-5">
+                        <div className="wrap">
+                            <VideoPlayer
+                                video={featured.video}
+                                poster={featured.poster}
+                                title={`${featured.guestName}: ${featured.journeyTitle ?? "guest story"}`}
+                            />
+                            <Reveal className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+                                <span className="eyebrow self-start" data-reveal>
+                                    Featured film
+                                </span>
+                                <div className="grid gap-5">
+                                    <h2 id="featured-story" className="h-md italic leading-tight" data-reveal>
+                                        “{featured.quote}”
+                                    </h2>
+                                    <p className="text-dim" data-reveal>
+                                        {featured.guestName}, {featured.homeTown}
+                                        {featured.journeySlug && (
+                                            <>
+                                                {" · "}
+                                                <Link
+                                                    href={`/itineraries/${featured.journeySlug}`}
+                                                    className="text-fg underline-offset-4 hover:underline"
+                                                >
+                                                    {featured.journeyTitle}
+                                                </Link>
+                                            </>
+                                        )}
+                                    </p>
+                                    <div data-reveal>
+                                        <ButtonLink href={`/stories/${featured.slug}`} variant="glass">
+                                            Read the full story
+                                        </ButtonLink>
+                                    </div>
+                                </div>
+                            </Reveal>
+                        </div>
+                    </section>
+
+                    {rest.length > 0 && (
+                        <section
+                            aria-label="More guest stories"
+                            className="sec"
+                            style={{ background: "linear-gradient(180deg,var(--color-night),var(--color-night-2))" }}
+                        >
+                            <div className="wrap">
+                                <div className="sec-head">
+                                    <div className="t">
+                                        <span className="eyebrow">More stories</span>
+                                        <h2 className="h-lg">In their own words</h2>
+                                    </div>
+                                </div>
+                                <div className="grid gap-5.5 md:grid-cols-2">
+                                    {rest.map((story) => (
+                                        <StoryEntry key={story.slug} story={story} />
+                                    ))}
+                                </div>
                             </div>
+                        </section>
+                    )}
+                </>
+            ) : (
+                <section className="sec pt-5">
+                    <div className="wrap">
+                        <div className="empty glass">
+                            <h2 className="h-md">Stories are on their way</h2>
+                            <p className="lede text-center">Our guests’ films and reflections will appear here soon.</p>
                         </div>
                     </div>
-                </Reveal>
-            </section>
+                </section>
+            )}
 
-            <section aria-label="More guest stories" className="bg-paper-deep py-24 md:py-36">
-                <div className="container-x grid gap-x-12 gap-y-20 md:grid-cols-2">
-                    {rest.map((story, i) => (
-                        <Reveal key={story.slug} className={cn(i % 2 === 1 && "md:mt-28")}>
-                            <StoryEntry story={story} />
-                        </Reveal>
-                    ))}
-                </div>
-            </section>
+            <CtaBand />
         </>
     );
 }

@@ -1,91 +1,129 @@
 import type { Metadata } from "next";
-import { Reveal } from "@/components/motion/Reveal";
-import { EnquiryForm } from "@/components/enquire/EnquiryForm";
-import { getAllItineraries, getSiteSettings } from "@/sanity/lib/queries";
-import { pad } from "@/lib/utils";
+import { PageHero } from "@/components/ui/PageHero";
+import { ButtonLink } from "@/components/ui/ButtonLink";
+import { PinIcon } from "@/components/ui/Icons";
+import { ContactCards } from "@/components/enquire/ContactCards";
+import { EnquiryForm, type EnquiryPrefill } from "@/components/enquire/EnquiryForm";
+import { getAllDestinations, getAllItineraries, getSiteSettings } from "@/sanity/lib/queries";
 
 export const metadata: Metadata = {
-    title: "Plan a Journey",
-    description:
-        "Tell us about the journey you have in mind. A designer will reply personally within two working days.",
+    title: "Plan a Trip",
+    description: "Tell us about your dream trip in three quick steps. A trip designer replies personally.",
     alternates: { canonical: "/enquire" },
 };
 
-const steps = [
-    {
-        title: "A conversation",
-        text: "A designer calls to listen — to where you'd like to go and how you like to travel.",
-    },
-    {
-        title: "A first proposal",
-        text: "Within a week, a written journey shaped around you, with places to stay and why.",
-    },
-    { title: "Refined together", text: "We adjust until it's right. Nothing is booked until you're certain." },
-];
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-type SearchParams = Promise<{ journey?: string | string[] }>;
+const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+const int = (v: string | undefined) => {
+    const n = v ? parseInt(v, 10) : NaN;
+    return Number.isFinite(n) && n > 0 ? n : undefined;
+};
 
 export default async function EnquirePage({ searchParams }: { searchParams: SearchParams }) {
-    const { journey } = await searchParams;
-    const initialJourney = Array.isArray(journey) ? journey[0] : journey;
-    const [itineraries, settings] = await Promise.all([getAllItineraries(), getSiteSettings()]);
+    const params = await searchParams;
+    const [itineraries, destinations, settings] = await Promise.all([
+        getAllItineraries(),
+        getAllDestinations(),
+        getSiteSettings(),
+    ]);
+
+    const adults = int(first(params.adults));
+    const children = int(first(params.children)) ?? 0;
+    const pkg = first(params.package)?.slice(0, 80);
+    const pricing = { group: "Group of 4+", private: "Private" }[first(params.pricing) ?? ""] as string | undefined;
+
+    const prefill: EnquiryPrefill = {
+        journey: first(params.journey),
+        destination: first(params.destination),
+        date: first(params.date),
+        travellers: int(first(params.travellers)) ?? (adults ? adults + children : undefined),
+        packageName: pkg ? [pkg, pricing].filter(Boolean).join(" · ") : undefined,
+        experience: first(params.experience)?.slice(0, 80),
+    };
+
+    const mapsHref = settings.studio
+        ? `https://www.google.com/maps/search/${encodeURIComponent(settings.studio)}`
+        : undefined;
 
     return (
-        <section className="container-x grid gap-16 pb-24 pt-40 md:pb-40 md:pt-52 lg:grid-cols-12 lg:gap-8">
-            <Reveal as="aside" className="lg:col-span-4">
-                <div className="lg:sticky lg:top-32">
-                    <p data-reveal className="eyebrow flex items-center gap-4 text-stone">
-                        <span aria-hidden className="h-px w-10 bg-ink/25" />
-                        Plan a journey
-                    </p>
-                    <h1 data-reveal className="mt-8 text-[clamp(2.75rem,5.5vw,5rem)] leading-[1]">
-                        Let&apos;s begin <span className="serif-italic">with you</span>
-                    </h1>
-                    <p data-reveal className="mt-8 text-lg text-stone">
-                        Share as much or as little as you like. There&apos;s no obligation, and every enquiry is read by
-                        a person.
-                    </p>
+        <>
+            <PageHero
+                className="pb-15"
+                crumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
+                eyebrow="Say hello"
+                title="Let’s plan your next escape."
+            />
 
-                    <ol data-reveal className="mt-14 space-y-8 border-t border-ink/15 pt-10">
-                        {steps.map((s, i) => (
-                            <li key={s.title} className="grid grid-cols-[2.5rem_1fr] gap-2">
-                                <span className="eyebrow pt-1 text-clay">{pad(i + 1)}</span>
-                                <div>
-                                    <p className="font-serif text-xl font-light">{s.title}</p>
-                                    <p className="mt-2 text-sm text-stone">{s.text}</p>
-                                </div>
-                            </li>
-                        ))}
-                    </ol>
-
-                    <div data-reveal className="mt-14 border-t border-ink/15 pt-10 text-sm">
-                        <p className="eyebrow text-stone">Prefer to talk?</p>
-                        <p className="mt-4">
-                            <a
-                                href={`tel:${settings.phone.replace(/[^+\d]/g, "")}`}
-                                className="link-line font-serif text-2xl font-light"
-                            >
-                                {settings.phone}
-                            </a>
+            <section className="sec pt-5" aria-label="Enquiry">
+                <div className="wrap contact">
+                    <div className="grid gap-5.5">
+                        <p className="lede">
+                            Tell us a little about your dream trip in three quick steps. A trip designer replies
+                            personally, usually within the hour during studio hours.
                         </p>
-                        <p className="mt-2 text-stone">{settings.hours}</p>
-                        <p className="mt-4">
-                            <a href={`mailto:${settings.email}`} className="link-line">
-                                {settings.email}
-                            </a>
-                        </p>
+                        <ContactCards
+                            phone={settings.phone}
+                            email={settings.email}
+                            studio={settings.studio}
+                            hours={settings.hours}
+                        />
                     </div>
-                </div>
-            </Reveal>
-
-            <Reveal className="lg:col-span-7 lg:col-start-6">
-                <div data-reveal>
                     <EnquiryForm
                         journeys={itineraries.map((j) => ({ slug: j.slug, title: j.title }))}
-                        initialJourney={initialJourney}
+                        destinations={destinations.map((d) => ({ slug: d.slug, title: d.name }))}
+                        prefill={prefill}
                     />
                 </div>
-            </Reveal>
-        </section>
+            </section>
+
+            {settings.studio && (
+                <section className="sec pt-0" aria-label="Find the studio">
+                    <div className="wrap">
+                        <div className="mapcard shadow-deep">
+                            <svg
+                                viewBox="0 0 1200 440"
+                                preserveAspectRatio="xMidYMid slice"
+                                className="absolute inset-0 size-full"
+                                aria-hidden
+                            >
+                                <rect width="1200" height="440" fill="#1A2330" />
+                                <path d="M0 330 C200 300 300 380 520 350 S900 300 1200 360 V440 H0Z" fill="#244A66" opacity=".55" />
+                                <g stroke="rgba(255,255,255,.07)" strokeWidth="12" fill="none">
+                                    <path d="M-20 260 C200 220 400 300 640 240 C880 180 1040 260 1220 200" />
+                                    <path d="M300 -20 C340 140 280 260 360 460" />
+                                    <path d="M880 -20 C840 180 940 300 880 460" />
+                                </g>
+                                <g stroke="rgba(255,255,255,.04)" strokeWidth="3">
+                                    <path d="M0 110H1200M0 380H1200M160 0V440M560 0V440M1060 0V440" />
+                                </g>
+                                <g fill="rgba(255,255,255,.05)">
+                                    <rect x="420" y="120" width="70" height="50" rx="6" />
+                                    <rect x="700" y="140" width="90" height="60" rx="6" />
+                                    <rect x="200" y="160" width="60" height="70" rx="6" />
+                                    <rect x="960" y="90" width="80" height="50" rx="6" />
+                                </g>
+                            </svg>
+                            <div className="pinbox glass-strong shadow-deep">
+                                <b className="flex items-center gap-2">
+                                    <PinIcon width={16} height={16} className="text-ember" />
+                                    {settings.name} Studio
+                                </b>
+                                <span className="text-[13px] text-mist">
+                                    {settings.studio}
+                                    {settings.hours && ` · ${settings.hours}`}
+                                </span>
+                            </div>
+                            <span className="pt" aria-hidden />
+                            {mapsHref && (
+                                <ButtonLink href={mapsHref} external variant="glass" arrow={false} className="dir">
+                                    Get directions
+                                </ButtonLink>
+                            )}
+                        </div>
+                    </div>
+                </section>
+            )}
+        </>
     );
 }

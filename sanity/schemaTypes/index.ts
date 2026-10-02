@@ -5,6 +5,7 @@ import { guestStory } from "./guestStory";
 import { destination } from "./destination";
 import { siteSettings } from "./siteSettings";
 import { enquiry } from "./enquiry";
+import { subscriber } from "./subscriber";
 
 export const schemaTypes = [
     // Objects
@@ -16,4 +17,5 @@ export const schemaTypes = [
     destination,
     siteSettings,
     enquiry,
+    subscriber,
 ];

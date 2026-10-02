@@ -1,112 +1,306 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { ItineraryCard as ItineraryCardType, Region, TravelStyle } from "@/lib/types";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ItineraryCard, TravelStyle } from "@/lib/types";
 import { JourneyCard } from "./JourneyCard";
-import { Reveal } from "@/components/motion/Reveal";
-import { cn, pad } from "@/lib/utils";
+import { useSaved, useToast } from "@/components/providers/SiteProviders";
+import { FilterIcon, SearchIcon, XIcon } from "@/components/ui/Icons";
+import { cn } from "@/lib/utils";
 
-type RegionFilter = Region | "All";
-type StyleFilter = TravelStyle | "Any";
+type Sort = "featured" | "short" | "long" | "az";
+type Length = "short" | "mid" | "long";
 
-export function JourneyIndex({ journeys }: { journeys: ItineraryCardType[] }) {
-    const [region, setRegion] = useState<RegionFilter>("All");
-    const [style, setStyle] = useState<StyleFilter>("Any");
+const LENGTHS: { id: Length; label: string; test: (days: number) => boolean }[] = [
+    { id: "short", label: "Up to 7 days", test: (d) => d <= 7 },
+    { id: "mid", label: "8–10 days", test: (d) => d >= 8 && d <= 10 },
+    { id: "long", label: "11+ days", test: (d) => d >= 11 },
+];
+const STYLES: TravelStyle[] = ["Private journey", "Small group"];
 
-    const regions = useMemo<RegionFilter[]>(
-        () => ["All", ...Array.from(new Set(journeys.map((j) => j.region)))],
-        [journeys],
-    );
-    const styles: StyleFilter[] = ["Any", "Private journey", "Small group"];
+/** "7 days", "10–12 nights" → 7, 10. Unknown → 0 (only matches when no length filter is set). */
+const days = (duration: string) => parseInt(duration, 10) || 0;
 
-    const visible = journeys.filter(
-        (j) => (region === "All" || j.region === region) && (style === "Any" || j.style === style),
-    );
+interface Filters {
+    style: TravelStyle | null;
+    length: Length | null;
+}
+
+export function JourneyIndex({ journeys }: { journeys: ItineraryCard[] }) {
+    const params = useSearchParams();
+    const router = useRouter();
+    const toast = useToast();
+    const { saved } = useSaved();
+
+    const [query, setQuery] = useState("");
+    const [region, setRegion] = useState(() => params.get("region") ?? "All");
+    const [sort, setSort] = useState<Sort>("featured");
+    const [savedOnly, setSavedOnly] = useState(() => params.get("saved") === "1");
+    const [filters, setFilters] = useState<Filters>({ style: null, length: null });
+    const [draft, setDraft] = useState<Filters>(filters);
+    const [drawer, setDrawer] = useState(false);
+
+    // The nav heart links here with ?saved=1; react when that changes on the same page.
+    useEffect(() => {
+        if (params.get("saved") === "1") setSavedOnly(true);
+        const r = params.get("region");
+        if (r) setRegion(r);
+    }, [params]);
+
+    const regions = useMemo(() => ["All", ...Array.from(new Set(journeys.map((j) => j.region)))], [journeys]);
+
+    const match = (j: ItineraryCard, f: Filters) => {
+        const q = query.trim().toLowerCase();
+        return (
+            (!q || `${j.title} ${j.country} ${j.region} ${j.hook} ${j.style}`.toLowerCase().includes(q)) &&
+            (region === "All" || j.region === region) &&
+            (!f.style || j.style === f.style) &&
+            (!f.length || LENGTHS.find((l) => l.id === f.length)!.test(days(j.duration))) &&
+            (!savedOnly || saved.includes(j.slug))
+        );
+    };
+
+    const visible = journeys.filter((j) => match(j, filters));
+    const order: Record<Sort, (a: ItineraryCard, b: ItineraryCard) => number> = {
+        featured: (a, b) => Number(b.featured) - Number(a.featured),
+        short: (a, b) => days(a.duration) - days(b.duration),
+        long: (a, b) => days(b.duration) - days(a.duration),
+        az: (a, b) => a.title.localeCompare(b.title),
+    };
+    const sorted = [...visible].sort(order[sort]);
+    const previewCount = journeys.filter((j) => match(j, draft)).length;
+
+    const activeFilters = Number(!!filters.style) + Number(!!filters.length);
+    const anything = activeFilters > 0 || query.trim() !== "" || region !== "All" || savedOnly;
+
+    const resetAll = () => {
+        setQuery("");
+        setRegion("All");
+        setFilters({ style: null, length: null });
+        setDraft({ style: null, length: null });
+        if (savedOnly) {
+            setSavedOnly(false);
+            router.replace("/itineraries", { scroll: false });
+        }
+    };
+
+    const openDrawer = () => {
+        setDraft(filters);
+        setDrawer(true);
+    };
+    const apply = () => {
+        setFilters(draft);
+        setDrawer(false);
+        const n = journeys.filter((j) => match(j, draft)).length;
+        toast(`${n} journey${n === 1 ? "" : "s"} found`);
+    };
 
     return (
-        <section aria-label="Journeys" className="container-x pb-24 md:pb-40">
-            <div className="flex flex-col gap-6 border-y border-ink/15 py-6 lg:flex-row lg:items-center lg:justify-between">
-                <FilterGroup label="Region" options={regions} value={region} onChange={setRegion} />
-                <FilterGroup label="Style" options={styles} value={style} onChange={setStyle} />
+        <div className="wrap">
+            <div className="toolbar glass-strong shadow-deep" role="search">
+                <label className="search">
+                    <SearchIcon />
+                    <input
+                        type="search"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search journeys, countries or styles"
+                        aria-label="Search journeys"
+                    />
+                </label>
+                <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort by">
+                    <option value="featured">Most loved</option>
+                    <option value="short">Shortest first</option>
+                    <option value="long">Longest first</option>
+                    <option value="az">Name: A to Z</option>
+                </select>
+                <button type="button" className="btn btn-glass filter-btn" onClick={openDrawer} aria-haspopup="dialog">
+                    <FilterIcon />
+                    Filters
+                    {activeFilters > 0 && <span className="n">{activeFilters}</span>}
+                </button>
             </div>
 
-            <p className="mt-6 text-sm text-stone" aria-live="polite">
-                Showing {visible.length} of {journeys.length} journeys
-            </p>
-
-            <div className="mt-12 grid gap-x-10 gap-y-20 md:grid-cols-2 md:gap-y-28">
-                {visible.map((journey, i) => (
-                    <Reveal key={`${journey.slug}-${region}-${style}`} className={cn(i % 2 === 1 && "md:mt-32")}>
-                        <JourneyCard
-                            journey={journey}
-                            shape={i % 4 === 0 || i % 4 === 3 ? "landscape" : "portrait"}
-                            sizes="(min-width: 768px) 50vw, 100vw"
-                            index={pad(journeys.indexOf(journey) + 1)}
-                        />
-                    </Reveal>
+            <div className="cats" role="group" aria-label="Region">
+                {regions.map((r) => (
+                    <button key={r} type="button" className="chip" aria-pressed={r === region} onClick={() => setRegion(r)}>
+                        {r}
+                    </button>
                 ))}
             </div>
 
-            {visible.length === 0 && (
-                <div className="mt-12 border border-ink/15 px-8 py-16 text-center">
-                    <p className="font-serif text-3xl font-light">Nothing here — yet.</p>
-                    <p className="mx-auto mt-4 max-w-md text-stone">
-                        Every journey we plan is designed from scratch, so this is only a starting point. Tell us what
-                        you have in mind.
+            <div className="result-line">
+                <span aria-live="polite">
+                    {sorted.length} journey{sorted.length === 1 ? "" : "s"}
+                    {savedOnly && " saved"}
+                    {region !== "All" && ` · ${region}`}
+                </span>
+                {anything && (
+                    <button type="button" className="mono text-ember" onClick={resetAll}>
+                        Clear all filters
+                    </button>
+                )}
+            </div>
+
+            {sorted.length > 0 ? (
+                <div className="card-grid">
+                    {sorted.map((j) => (
+                        <JourneyCard
+                            key={j.slug}
+                            journey={j}
+                            sizes="(min-width: 1240px) 400px, (min-width: 640px) 50vw, 100vw"
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className="empty glass">
+                    <h3 className="h-md">{savedOnly ? "Nothing saved yet" : "No journeys match yet"}</h3>
+                    <p className="lede text-center">
+                        {savedOnly
+                            ? "Tap ♥ on any journey to keep it here for later."
+                            : "Try a different region or length. We also build custom routes from scratch."}
                     </p>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setRegion("All");
-                            setStyle("Any");
-                        }}
-                        className="eyebrow mt-8 border-b border-ink/40 pb-1"
-                    >
-                        Clear filters
+                    <button type="button" className="btn btn-glass" onClick={resetAll}>
+                        {savedOnly ? "Show all journeys" : "Reset filters"}
                     </button>
                 </div>
             )}
-        </section>
+
+            <FilterDrawer
+                open={drawer}
+                onClose={() => setDrawer(false)}
+                draft={draft}
+                setDraft={setDraft}
+                count={previewCount}
+                onApply={apply}
+            />
+        </div>
     );
 }
 
-function FilterGroup<T extends string>({
-    label,
-    options,
-    value,
-    onChange,
+function FilterDrawer({
+    open,
+    onClose,
+    draft,
+    setDraft,
+    count,
+    onApply,
 }: {
-    label: string;
-    options: T[];
-    value: T;
-    onChange: (v: T) => void;
+    open: boolean;
+    onClose: () => void;
+    draft: Filters;
+    setDraft: (f: Filters) => void;
+    count: number;
+    onApply: () => void;
 }) {
+    const panel = useRef<HTMLElement>(null);
+    const lastFocus = useRef<HTMLElement | null>(null);
+    const startY = useRef<number | null>(null);
+    const [mounted, setMounted] = useState(false);
+    const [shown, setShown] = useState(false);
+    const close = useRef(onClose);
+    close.current = onClose;
+    const wasOpen = useRef(false);
+
+    useEffect(() => {
+        if (open) {
+            wasOpen.current = true;
+            lastFocus.current = document.activeElement as HTMLElement;
+            setMounted(true);
+            const raf = requestAnimationFrame(() => setShown(true));
+            document.documentElement.style.overflow = "hidden";
+            const t = setTimeout(() => panel.current?.querySelector<HTMLElement>("button")?.focus(), 80);
+            const onKey = (e: KeyboardEvent) => e.key === "Escape" && close.current();
+            window.addEventListener("keydown", onKey);
+            return () => {
+                cancelAnimationFrame(raf);
+                clearTimeout(t);
+                window.removeEventListener("keydown", onKey);
+                document.documentElement.style.overflow = "";
+            };
+        }
+        if (!wasOpen.current) return;
+        wasOpen.current = false;
+        setShown(false);
+        lastFocus.current?.focus?.();
+        const t = setTimeout(() => setMounted(false), 350);
+        return () => clearTimeout(t);
+    }, [open]);
+
     return (
-        <div
-            role="group"
-            aria-label={`Filter by ${label.toLowerCase()}`}
-            className="flex flex-wrap items-center gap-x-2 gap-y-3"
-        >
-            <span className="eyebrow mr-4 text-stone">{label}</span>
-            {options.map((opt) => {
-                const selected = opt === value;
-                return (
-                    <button
-                        key={opt}
-                        type="button"
-                        aria-pressed={selected}
-                        onClick={() => onChange(opt)}
-                        className={cn(
-                            "border px-4 py-2 text-sm transition-colors duration-300",
-                            selected
-                                ? "border-ink bg-ink text-paper"
-                                : "border-ink/15 text-ink-soft hover:border-ink/50",
-                        )}
-                    >
-                        {opt}
+        <>
+            {mounted && <div className={cn("scrim", shown && "on")} onClick={onClose} aria-hidden />}
+            <aside
+                ref={panel}
+                className={cn("drawer glass-strong shadow-deep", shown && "on")}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Filters"
+                aria-hidden={!open}
+                onTouchStart={(e) => {
+                    if (panel.current && panel.current.scrollTop <= 0) startY.current = e.touches[0].clientY;
+                }}
+                onTouchMove={(e) => {
+                    if (startY.current === null || !panel.current) return;
+                    const dy = e.touches[0].clientY - startY.current;
+                    if (dy > 0) panel.current.style.transform = `translateY(${dy}px)`;
+                }}
+                onTouchEnd={(e) => {
+                    if (startY.current === null || !panel.current) return;
+                    const dy = e.changedTouches[0].clientY - startY.current;
+                    panel.current.style.transform = "";
+                    startY.current = null;
+                    if (dy > 110) onClose();
+                }}
+            >
+                <div className="handle" />
+                <header>
+                    <h3>Filters</h3>
+                    <button type="button" className="icon-btn" onClick={onClose} aria-label="Close filters">
+                        <XIcon />
                     </button>
-                );
-            })}
-        </div>
+                </header>
+                <div className="grp">
+                    <div className="k">Travel style</div>
+                    <div className="chips">
+                        {STYLES.map((s) => (
+                            <button
+                                key={s}
+                                type="button"
+                                className="chip"
+                                aria-pressed={draft.style === s}
+                                onClick={() => setDraft({ ...draft, style: draft.style === s ? null : s })}
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <div className="grp">
+                    <div className="k">Trip length</div>
+                    <div className="chips">
+                        {LENGTHS.map((l) => (
+                            <button
+                                key={l.id}
+                                type="button"
+                                className="chip"
+                                aria-pressed={draft.length === l.id}
+                                onClick={() => setDraft({ ...draft, length: draft.length === l.id ? null : l.id })}
+                            >
+                                {l.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <footer>
+                    <button type="button" className="btn btn-glass" onClick={() => setDraft({ style: null, length: null })}>
+                        Reset
+                    </button>
+                    <button type="button" className="btn btn-ember" onClick={onApply}>
+                        Show {count} journey{count === 1 ? "" : "s"}
+                    </button>
+                </footer>
+            </aside>
+        </>
     );
 }

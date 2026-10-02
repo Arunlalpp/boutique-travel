@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Preloader } from "@/components/motion/Preloader";
 import { Analytics } from "@/components/analytics/Analytics";
+import { SiteProviders } from "@/components/providers/SiteProviders";
 import { SanityLive } from "@/sanity/lib/live";
 import { getSiteSettings } from "@/sanity/lib/queries";
 
@@ -33,26 +34,27 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-    themeColor: "#eef1ec",
+    themeColor: "#0e1117",
+    viewportFit: "cover",
 };
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
     const settings = await getSiteSettings();
 
     return (
-        <>
+        <SiteProviders>
             <Preloader siteName={settings.name} />
             <a
                 href="#main"
-                className="sr-only z-[60] bg-ink px-4 py-3 text-paper focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+                className="sr-only z-70 rounded-full bg-fg px-4 py-3 text-night focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
             >
                 Skip to content
             </a>
-            <Header siteName={settings.name} email={settings.email} phone={settings.phone} />
+            <Header siteName={settings.name} />
             <main id="main">{children}</main>
             <Footer settings={settings} />
             <Analytics />
             <SanityLive />
-        </>
+        </SiteProviders>
     );
 }

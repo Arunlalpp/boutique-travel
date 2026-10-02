@@ -122,7 +122,17 @@ export interface SiteSettings {
  */
 export type ItineraryCard = Pick<
     Itinerary,
-    "slug" | "title" | "hook" | "region" | "country" | "destinationSlug" | "duration" | "style" | "cardImage" | "featured"
+    | "slug"
+    | "title"
+    | "hook"
+    | "region"
+    | "country"
+    | "destinationSlug"
+    | "duration"
+    | "style"
+    | "startingPrice"
+    | "cardImage"
+    | "featured"
 >;
 
 /** Same idea as ItineraryCard, for StoryEntry/StoriesTeaser and other listing views. */
@@ -143,13 +153,14 @@ export type GuestStoryCard = Pick<
 >;
 
 /** Same idea as ItineraryCard, for DestinationCard on the destinations index. */
-export type DestinationCard = Pick<Destination, "slug" | "name" | "country" | "region" | "shortDescription" | "heroImage" | "featured">;
-
-export interface Highlight {
-    icon: "compass" | "users" | "leaf" | "phone";
-    title: string;
-    text: string;
-}
+export type DestinationCard = Pick<
+    Destination,
+    "slug" | "name" | "country" | "region" | "shortDescription" | "heroImage" | "featured"
+> & {
+    /** Up to two gallery images, for the home page's explore map. */
+    thumbs: ImageAsset[];
+    journeyCount: number;
+};
 
 export interface NavItem {
     label: string;

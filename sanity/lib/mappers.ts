@@ -101,6 +101,7 @@ export interface RawItineraryCard {
     destination: RawDestinationRef | null;
     style: string;
     duration: string;
+    startingPrice?: string | null;
     featured: boolean;
 }
 
@@ -115,6 +116,7 @@ export function mapItineraryCard(raw: RawItineraryCard): ItineraryCard {
         destinationSlug: raw.destination?.slug,
         duration: raw.duration,
         style: raw.style as TravelStyle,
+        startingPrice: raw.startingPrice ?? undefined,
         cardImage: toImageAssetOrFallback(raw.cardImage, raw.title),
         featured: raw.featured ?? false,
     };
@@ -243,6 +245,8 @@ export interface RawDestinationCard {
     region: string;
     shortDescription: string;
     heroImage: RawImage;
+    thumbs?: RawImage[] | null;
+    journeyCount?: number;
     featured: boolean;
 }
 
@@ -255,6 +259,8 @@ export function mapDestinationCard(raw: RawDestinationCard): DestinationCard {
         region: raw.region as Region,
         shortDescription: raw.shortDescription,
         heroImage: toImageAssetOrFallback(raw.heroImage, raw.name),
+        thumbs: toImageAssetList(raw.thumbs, raw.name),
+        journeyCount: raw.journeyCount ?? 0,
         featured: raw.featured ?? false,
     };
 }

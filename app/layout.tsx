@@ -6,7 +6,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <head>
                 <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
             </head>
-            <body>{children}</body>
+            {/* Browser extensions (e.g. Grammarly) add attributes to <body>; ignore those mismatches. */}
+            <body suppressHydrationWarning>{children}</body>
         </html>
     );
 }

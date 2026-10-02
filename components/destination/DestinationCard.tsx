@@ -1,29 +1,46 @@
 import Link from "next/link";
 import type { DestinationCard as DestinationCardType } from "@/lib/types";
 import { SmartImage } from "@/components/ui/SmartImage";
+import { ArrowIcon, PinIcon } from "@/components/ui/Icons";
+import { cn } from "@/lib/utils";
 
-export function DestinationCard({ destination }: { destination: DestinationCardType }) {
+export function DestinationCard({
+    destination,
+    className,
+    sizes = "(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw",
+}: {
+    destination: DestinationCardType;
+    className?: string;
+    sizes?: string;
+}) {
+    const journeys = destination.journeyCount;
     return (
-        <article className="group">
-            <Link href={`/destinations/${destination.slug}`} className="block" aria-label={`${destination.name} — view destination`}>
-                <div data-reveal="mask" className="relative aspect-[4/5] overflow-hidden bg-paper-deep">
-                    <SmartImage
-                        image={destination.heroImage}
-                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                        tone="light"
-                        className="transition-transform duration-[1600ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.04]"
-                    />
+        <article className={cn("spot shadow-deep", className)}>
+            <Link href={`/destinations/${destination.slug}`} className="spot-link" aria-label={destination.name} />
+            <div className="media-fill">
+                <SmartImage image={destination.heroImage} sizes={sizes} />
+            </div>
+            <div className="top">
+                <span className="pill glass-strong">{destination.region}</span>
+            </div>
+            <div className="info glass-strong">
+                <span className="loc">
+                    <PinIcon />
+                    {destination.country}
+                </span>
+                <h3>{destination.name}</h3>
+                <span className="tagline">{destination.shortDescription}</span>
+                <div className="meta">
+                    <span className="price">
+                        <small>
+                            {journeys > 0 ? `${journeys} journey${journeys === 1 ? "" : "s"}` : "Designed to order"}
+                        </small>
+                    </span>
+                    <span className="go" aria-hidden>
+                        <ArrowIcon />
+                    </span>
                 </div>
-                <div data-reveal className="mt-6">
-                    <p className="eyebrow text-stone">{destination.country}</p>
-                    <h3 className="mt-3 text-3xl leading-tight">
-                        <span className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-700 ease-[var(--ease-out-soft)] group-hover:bg-[length:100%_1px]">
-                            {destination.name}
-                        </span>
-                    </h3>
-                    <p className="mt-3 max-w-md text-[0.95rem] text-stone">{destination.shortDescription}</p>
-                </div>
-            </Link>
+            </div>
         </article>
     );
 }

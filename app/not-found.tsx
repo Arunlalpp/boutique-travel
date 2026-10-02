@@ -2,19 +2,30 @@ import { ButtonLink } from "@/components/ui/ButtonLink";
 
 export default function NotFound() {
     return (
-        <section className="container-x flex min-h-[80svh] flex-col justify-center pb-24 pt-40">
-            <p className="eyebrow text-stone">Page not found</p>
-            <h1 className="mt-8 max-w-4xl text-[clamp(2.75rem,7vw,6.5rem)] leading-[1]">
-                Even the best journeys <span className="serif-italic">take a wrong turn</span>.
-            </h1>
-            <p className="mt-8 max-w-md text-lg text-stone">
-                The page you were looking for has moved, or never existed. Let us point you somewhere better.
-            </p>
-            <div className="mt-12 flex flex-wrap gap-4">
-                <ButtonLink href="/">Back to the start</ButtonLink>
-                <ButtonLink href="/itineraries" variant="outline">
-                    Browse journeys
-                </ButtonLink>
+        <section className="sec flex min-h-[80svh] items-center overflow-hidden pt-40">
+            <div
+                aria-hidden
+                className="glow"
+                style={{
+                    width: 700,
+                    height: 700,
+                    left: -200,
+                    top: -200,
+                    background: "radial-gradient(circle, rgba(245,158,61,.16), transparent 70%)",
+                }}
+            />
+            <div className="wrap relative grid gap-6">
+                <span className="eyebrow">Page not found</span>
+                <h1 className="h-xl max-w-[14ch]">Even the best trails take a wrong turn.</h1>
+                <p className="lede">
+                    The page you were looking for has moved, or never existed. Let us point you somewhere better.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2.5">
+                    <ButtonLink href="/">Back to camp</ButtonLink>
+                    <ButtonLink href="/itineraries" variant="glass" arrow={false}>
+                        Browse journeys
+                    </ButtonLink>
+                </div>
             </div>
         </section>
     );

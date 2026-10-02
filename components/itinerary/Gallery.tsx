@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Expand, X } from "lucide-react";
+import { ArrowIcon, ArrowLeftIcon, ExpandIcon, XIcon } from "@/components/ui/Icons";
 import type { ImageAsset } from "@/lib/types";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { cn, pad } from "@/lib/utils";
@@ -50,7 +50,7 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                     <li
                         key={image.src + i}
                         data-reveal="mask"
-                        className={cn("relative bg-paper-deep md:min-h-80", spans[i % spans.length])}
+                        className={cn("relative overflow-hidden rounded-[24px] bg-night-3 md:min-h-80", spans[i % spans.length])}
                     >
                         <button
                             type="button"
@@ -64,11 +64,10 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                             <SmartImage
                                 image={image}
                                 sizes="(min-width: 768px) 60vw, 100vw"
-                                tone="light"
                                 className="transition-transform duration-[1600ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.03]"
                             />
-                            <span className="absolute bottom-4 right-4 flex size-10 items-center justify-center bg-paper/90 text-ink opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
-                                <Expand aria-hidden strokeWidth={1.25} className="size-4" />
+                            <span className="glass-strong absolute bottom-4 right-4 flex size-10 items-center justify-center rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
+                                <ExpandIcon className="size-4" />
                             </span>
                         </button>
                     </li>
@@ -80,11 +79,11 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                     role="dialog"
                     aria-modal="true"
                     aria-label={`${title} — gallery`}
-                    className="fixed inset-0 z-[70] flex flex-col bg-night/97 text-paper"
+                    className="fixed inset-0 z-[130] flex flex-col bg-night/95 text-fg backdrop-blur-xl"
                     onClick={(e) => e.target === e.currentTarget && close()}
                 >
-                    <div className="container-x flex h-20 items-center justify-between">
-                        <p className="eyebrow text-paper/60">
+                    <div className="wrap flex h-20 items-center justify-between">
+                        <p className="mono text-dim">
                             {pad(active + 1)} / {pad(images.length)}
                         </p>
                         <button
@@ -92,9 +91,9 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                             type="button"
                             onClick={close}
                             aria-label="Close gallery"
-                            className="-mr-2 p-2"
+                            className="icon-btn glass"
                         >
-                            <X strokeWidth={1.25} className="size-6" />
+                            <XIcon />
                         </button>
                     </div>
 
@@ -102,24 +101,24 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                         <SmartImage key={active} image={images[active]} sizes="100vw" className="!object-contain" />
                     </div>
 
-                    <div className="container-x flex items-center justify-between gap-6 pb-8">
-                        <p className="max-w-xl text-sm text-paper/70">{images[active].alt}</p>
+                    <div className="wrap flex items-center justify-between gap-6 pb-8">
+                        <p className="max-w-xl text-sm text-mist">{images[active].alt}</p>
                         <div className="flex gap-2">
                             <button
                                 type="button"
                                 onClick={() => step(-1)}
                                 aria-label="Previous image"
-                                className="flex size-12 items-center justify-center border border-paper/30 transition-colors hover:bg-paper hover:text-ink"
+                                className="icon-btn glass"
                             >
-                                <ArrowLeft strokeWidth={1.25} className="size-5" />
+                                <ArrowLeftIcon />
                             </button>
                             <button
                                 type="button"
                                 onClick={() => step(1)}
                                 aria-label="Next image"
-                                className="flex size-12 items-center justify-center border border-paper/30 transition-colors hover:bg-paper hover:text-ink"
+                                className="icon-btn glass"
                             >
-                                <ArrowRight strokeWidth={1.25} className="size-5" />
+                                <ArrowIcon />
                             </button>
                         </div>
                     </div>

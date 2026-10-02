@@ -1,44 +1,78 @@
-import { Fragment } from "react";
-import { Hero } from "@/components/home/Hero";
-import { Intro } from "@/components/home/Intro";
-import { FeaturedJourneys } from "@/components/home/FeaturedJourneys";
-import { PullQuote } from "@/components/home/PullQuote";
-import { StoriesTeaser } from "@/components/home/StoriesTeaser";
-import { WhyChooseUs } from "@/components/home/WhyChooseUs";
-import { media } from "@/lib/data/media";
-import { whyChooseUs } from "@/lib/data/site";
-import { getFeaturedItineraries, getAllStories, pickFeaturedStory, getSiteSettings } from "@/sanity/lib/queries";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { BookingBar } from "@/components/home/BookingBar";
+import { ExploreMap } from "@/components/home/ExploreMap";
+import { Wildlife } from "@/components/home/Wildlife";
+import { ImpactBand } from "@/components/home/ImpactBand";
+import { ExperiencesRail } from "@/components/home/ExperiencesRail";
+import { CtaBand } from "@/components/home/CtaBand";
+import { JourneyCard } from "@/components/itinerary/JourneyCard";
+import { Rail } from "@/components/ui/Rail";
+import { brandSlide, trustChips, type HeroSlide } from "@/lib/data/home";
+import { getAllDestinations, getAllStories, getFeaturedItineraries, getSiteSettings } from "@/sanity/lib/queries";
 
 export default async function HomePage() {
-    const [settings, featuredJourneys, allStories] = await Promise.all([
+    const [settings, featured, destinations, stories] = await Promise.all([
         getSiteSettings(),
-        getFeaturedItineraries(4),
+        getFeaturedItineraries(8),
+        getAllDestinations(),
         getAllStories(),
     ]);
-    const featuredStory = pickFeaturedStory(allStories);
-    const otherStories = featuredStory ? allStories.filter((s) => s.slug !== featuredStory.slug) : allStories;
+
+    const slides: HeroSlide[] = [
+        brandSlide,
+        ...featured.slice(0, 2).map((j) => ({
+            image: j.cardImage,
+            title: j.title,
+            sub: `${j.country} · ${j.duration}`,
+            lede: j.hook,
+            place: `${j.country} · ${j.style}`,
+            href: `/itineraries/${j.slug}`,
+        })),
+    ];
 
     return (
         <>
-            <Hero
-                image={media.heroMountains}
-                eyebrow={settings.descriptor}
-                lines={[
-                    "Journeys composed",
-                    <Fragment key="slowly-for-the-few">
-                        <span className="serif-italic">slowly,</span> for the few.
-                    </Fragment>,
-                ]}
-                tagline="Private and small-group travel, designed from a blank page around the way you like to see the world."
-            />
-            <Intro />
-            <FeaturedJourneys journeys={featuredJourneys} />
-            <PullQuote attribution="The founders">
-                The best journeys aren&apos;t the ones with the most in them. They&apos;re the ones that leave{" "}
-                <span className="serif-italic text-clay">room for the unplanned</span>.
-            </PullQuote>
-            {featuredStory && <StoriesTeaser featured={featuredStory} others={otherStories} />}
-            <WhyChooseUs items={whyChooseUs} />
+            <HeroCarousel slides={slides} eyebrow={settings.descriptor || "Boutique adventures since 2014"} />
+
+            <div className="wrap">
+                <BookingBar
+                    destinations={destinations.map((d) => ({ slug: d.slug, name: d.name, country: d.country }))}
+                />
+                <div className="trust">
+                    {trustChips.map((c) => (
+                        <span key={c} className="chip">
+                            {c}
+                        </span>
+                    ))}
+                </div>
+            </div>
+
+            <ExploreMap destinations={destinations} />
+
+            {featured.length > 0 && (
+                <section className="sec pt-0" aria-labelledby="featured-title">
+                    <Rail
+                        label="Featured journeys"
+                        head={
+                            <div className="t">
+                                <span className="eyebrow">Hand-picked</span>
+                                <h2 id="featured-title" className="h-lg">
+                                    Nights you’ll remember
+                                </h2>
+                            </div>
+                        }
+                    >
+                        {featured.map((j) => (
+                            <JourneyCard key={j.slug} journey={j} />
+                        ))}
+                    </Rail>
+                </section>
+            )}
+
+            <Wildlife stories={stories} />
+            <ImpactBand />
+            <ExperiencesRail />
+            <CtaBand />
         </>
     );
 }

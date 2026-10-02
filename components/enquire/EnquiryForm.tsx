@@ -1,136 +1,201 @@
 "use client";
 
-import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, Minus, Plus } from "lucide-react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { ArrowIcon, CompassIcon, GuideIcon, UserIcon } from "@/components/ui/Icons";
+import { money } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-interface JourneyOption {
+interface Option {
     slug: string;
     title: string;
 }
 
+export interface EnquiryPrefill {
+    journey?: string;
+    destination?: string;
+    /** ISO date (YYYY-MM-DD) chosen in the home page booking bar. */
+    date?: string;
+    travellers?: number;
+    packageName?: string;
+    experience?: string;
+}
+
+const STYLES = [
+    { value: "Private journey", Icon: UserIcon, text: "Just you and yours, your own guide" },
+    { value: "Small group", Icon: GuideIcon, text: "Join up to eight like-minded explorers" },
+    { value: "Not sure yet", Icon: CompassIcon, text: "We’ll help you decide" },
+];
+
+const CONTACT = ["Email", "Phone", "WhatsApp"];
+const BUDGET = { min: 5000, max: 40000, step: 1000 };
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 interface FormState {
+    style: string;
+    destination: string;
+    journey: string;
+    month: string;
+    travellers: number;
+    budget: number;
     firstName: string;
     lastName: string;
     email: string;
     phone: string;
-    nationality: string;
-    journey: string;
-    style: string;
-    dates: string;
-    travellers: number;
-    budget: string;
-    interests: string[];
     message: string;
     contactBy: string;
     consent: boolean;
 }
 
-type Errors = Partial<Record<keyof FormState, string>>;
+type Field = "firstName" | "lastName" | "email" | "phone" | "consent";
 
-const STYLES = ["Private journey", "Small group", "Not sure yet"];
-const BUDGETS = [
-    "Prefer to discuss",
-    "Under £5,000 per person",
-    "£5,000 – £10,000 per person",
-    "£10,000 – £20,000 per person",
-    "£20,000+ per person",
-];
-const INTERESTS = [
-    "Food & wine",
-    "Culture & history",
-    "Wildlife & nature",
-    "Slow travel & wellness",
-    "Adventure & activity",
-    "Family",
-];
-
-function validate(v: FormState): Errors {
-    const e: Errors = {};
-    if (!v.firstName.trim()) e.firstName = "Please tell us your first name.";
-    if (!v.lastName.trim()) e.lastName = "Please tell us your last name.";
-    if (!v.email.trim()) e.email = "We'll need an email address to reply.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) e.email = "That email address doesn't look quite right.";
-    if (v.phone && !/^[+\d\s()-]{6,}$/.test(v.phone)) e.phone = "Please check the phone number.";
-    if (!v.consent) e.consent = "Please confirm we may contact you about your enquiry.";
+function validate(v: FormState): Partial<Record<Field, string>> {
+    const e: Partial<Record<Field, string>> = {};
+    if (!v.firstName.trim()) e.firstName = "Add your first name so we know who to ask for.";
+    if (!v.lastName.trim()) e.lastName = "Add your last name too.";
+    if (!EMAIL.test(v.email.trim())) e.email = "Enter an email like name@example.com.";
+    if (v.phone.trim() && v.phone.replace(/\D/g, "").length < 7) e.phone = "Check the phone number.";
+    if ((v.contactBy === "Phone" || v.contactBy === "WhatsApp") && !v.phone.trim())
+        e.phone = `Add a number so we can reach you by ${v.contactBy}.`;
+    if (!v.consent) e.consent = "Please confirm we may contact you about this enquiry.";
     return e;
 }
 
-export function EnquiryForm({ journeys, initialJourney }: { journeys: JourneyOption[]; initialJourney?: string }) {
+/** "2026-11-14" → a local date (not UTC midnight, which can land on the previous day). */
+function parseLocalDate(value?: string): Date | null {
+    const m = value?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return null;
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/** The next six months as chips, computed on the client so they never go stale. */
+function upcomingMonths(): string[] {
+    const now = new Date();
+    return Array.from({ length: 6 }, (_, k) => {
+        const d = new Date(now.getFullYear(), now.getMonth() + k + 1, 1);
+        return d.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+    });
+}
+
+export function EnquiryForm({
+    journeys,
+    destinations,
+    prefill,
+}: {
+    journeys: Option[];
+    destinations: Option[];
+    prefill: EnquiryPrefill;
+}) {
     const router = useRouter();
-    const [values, setValues] = useState<FormState>({
+    const formRef = useRef<HTMLFormElement>(null);
+    const [step, setStep] = useState(0);
+    const [months, setMonths] = useState<string[]>([]);
+    const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
+    const [showErrors, setShowErrors] = useState(false);
+    const [honeypot, setHoneypot] = useState("");
+
+    const exactDate = parseLocalDate(prefill.date);
+    const dateLabel = exactDate
+        ? `Departing ${exactDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+        : null;
+
+    const [v, setV] = useState<FormState>(() => ({
+        style: "Small group",
+        destination: destinations.some((d) => d.slug === prefill.destination) ? prefill.destination! : "",
+        journey: journeys.some((j) => j.slug === prefill.journey) ? prefill.journey! : "bespoke",
+        month: dateLabel ?? "Flexible",
+        travellers: Math.min(Math.max(prefill.travellers ?? 2, 1), 20),
+        budget: 15000,
         firstName: "",
         lastName: "",
         email: "",
         phone: "",
-        nationality: "",
-        journey: journeys.some((j) => j.slug === initialJourney) ? initialJourney! : "bespoke",
-        style: "Private journey",
-        dates: "",
-        travellers: 2,
-        budget: BUDGETS[0],
-        interests: [],
         message: "",
         contactBy: "Email",
         consent: false,
-    });
-    const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});
-    const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-    const [honeypot, setHoneypot] = useState("");
-    const formRef = useRef<HTMLFormElement>(null);
+    }));
 
-    const errors = validate(values);
-    const showError = (k: keyof FormState) => (touched[k] ? errors[k] : undefined);
+    useEffect(() => setMonths(upcomingMonths()), []);
 
-    const set = <K extends keyof FormState>(key: K, value: FormState[K]) => setValues((v) => ({ ...v, [key]: value }));
-    const touch = (key: keyof FormState) => setTouched((t) => ({ ...t, [key]: true }));
-    const toggleInterest = (interest: string) =>
-        setValues((v) => ({
-            ...v,
-            interests: v.interests.includes(interest)
-                ? v.interests.filter((i) => i !== interest)
-                : [...v.interests, interest],
-        }));
+    const set = <K extends keyof FormState>(k: K, value: FormState[K]) => setV((s) => ({ ...s, [k]: value }));
+    const errors = validate(v);
+    const err = (k: Field) => (showErrors ? errors[k] : undefined);
 
-    async function submit(e: FormEvent) {
-        e.preventDefault();
+    const go = (n: number) => {
+        setStep(n);
+        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    async function submit() {
         if (honeypot.trim()) return;
-        const all = Object.keys(values).reduce((acc, k) => ({ ...acc, [k]: true }), {});
-        setTouched(all);
-        if (Object.keys(errors).length) {
-            const first = Object.keys(errors)[0];
+        setShowErrors(true);
+        const first = (Object.keys(errors) as Field[])[0];
+        if (first) {
             formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
             return;
         }
         setStatus("sending");
+        const destination = destinations.find((d) => d.slug === v.destination);
+        const interests = prefill.experience ? [prefill.experience] : [];
         try {
             const res = await fetch("/api/enquiry", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...values, companyWebsite: honeypot }),
+                body: JSON.stringify({
+                    firstName: v.firstName.trim(),
+                    lastName: v.lastName.trim(),
+                    email: v.email.trim(),
+                    phone: v.phone.trim(),
+                    journey: v.journey,
+                    destination: destination?.slug,
+                    packageName: prefill.packageName,
+                    style: v.style,
+                    dates: v.month,
+                    travellers: v.travellers,
+                    budget: `Up to ${money(v.budget)} per person`,
+                    interests,
+                    message: v.message.trim(),
+                    contactBy: v.contactBy,
+                    consent: v.consent,
+                    companyWebsite: honeypot,
+                }),
             });
             if (!res.ok) throw new Error("Request failed");
-            setStatus("sent");
             router.push(
-                `/enquire/thank-you?name=${encodeURIComponent(values.firstName)}&contact=${encodeURIComponent(values.contactBy)}`,
+                `/enquire/thank-you?name=${encodeURIComponent(v.firstName.trim())}&contact=${encodeURIComponent(v.contactBy)}`,
             );
         } catch {
             setStatus("error");
         }
     }
 
+    const budgetPct = ((v.budget - BUDGET.min) / (BUDGET.max - BUDGET.min)) * 100;
+    const steps = ["Your trip", "When & who", "Your details"];
+    const summary = [
+        v.style,
+        destinations.find((d) => d.slug === v.destination)?.title ?? "Destination open",
+        v.month,
+        `${v.travellers} ${v.travellers === 1 ? "person" : "people"}`,
+        `up to ${money(v.budget)} each`,
+    ].join(" · ");
+
     return (
-        <form ref={formRef} onSubmit={submit} noValidate className="space-y-12">
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -left-[9999px] top-auto h-0 w-0 overflow-hidden"
-            >
+        <form
+            ref={formRef}
+            className="form glass-strong shadow-deep scroll-mt-28"
+            noValidate
+            onSubmit={(e) => {
+                e.preventDefault();
+                if (step < 2) go(step + 1);
+                else submit();
+            }}
+        >
+            <div aria-hidden className="pointer-events-none absolute -left-[9999px] h-0 w-0 overflow-hidden">
                 <label htmlFor="companyWebsite">Company website</label>
                 <input
                     id="companyWebsite"
                     name="companyWebsite"
-                    type="text"
                     tabIndex={-1}
                     autoComplete="off"
                     value={honeypot}
@@ -138,237 +203,246 @@ export function EnquiryForm({ journeys, initialJourney }: { journeys: JourneyOpt
                 />
             </div>
 
-            <Fieldset legend="About you">
-                <div className="grid gap-8 sm:grid-cols-2">
-                    <TextField
-                        label="First name"
-                        name="firstName"
-                        required
-                        autoComplete="given-name"
-                        value={values.firstName}
-                        onChange={(v) => set("firstName", v)}
-                        onBlur={() => touch("firstName")}
-                        error={showError("firstName")}
-                    />
-                    <TextField
-                        label="Last name"
-                        name="lastName"
-                        required
-                        autoComplete="family-name"
-                        value={values.lastName}
-                        onChange={(v) => set("lastName", v)}
-                        onBlur={() => touch("lastName")}
-                        error={showError("lastName")}
-                    />
-                    <TextField
-                        label="Email"
-                        name="email"
-                        type="email"
-                        required
-                        autoComplete="email"
-                        value={values.email}
-                        onChange={(v) => set("email", v)}
-                        onBlur={() => touch("email")}
-                        error={showError("email")}
-                    />
-                    <TextField
-                        label="Phone"
-                        name="phone"
-                        type="tel"
-                        autoComplete="tel"
-                        hint="Optional"
-                        value={values.phone}
-                        onChange={(v) => set("phone", v)}
-                        onBlur={() => touch("phone")}
-                        error={showError("phone")}
-                    />
-                    <TextField
-                        label="Nationality"
-                        name="nationality"
-                        autoComplete="country-name"
-                        hint="Optional"
-                        value={values.nationality}
-                        onChange={(v) => set("nationality", v)}
-                    />
-                </div>
-            </Fieldset>
+            <ol className="steps" aria-label="Progress">
+                {steps.map((label, k) => (
+                    <li key={label} className={cn("s", k === step && "on", k < step && "done")} aria-current={k === step ? "step" : undefined}>
+                        <div className="bar">
+                            <i />
+                        </div>
+                        <small>
+                            {k + 1} · {label}
+                        </small>
+                    </li>
+                ))}
+            </ol>
 
-            <Fieldset legend="Your journey">
-                <div className="grid gap-8">
-                    <SelectField
-                        label="Journey of interest"
-                        name="journey"
-                        value={values.journey}
-                        onChange={(v) => set("journey", v)}
-                        options={[
-                            { value: "bespoke", label: "Something entirely bespoke" },
-                            ...journeys.map((j) => ({ value: j.slug, label: j.title })),
-                        ]}
-                    />
+            {(prefill.packageName || prefill.experience) && (
+                <p className="mono -mb-2 text-ember">
+                    Enquiring about: {[prefill.packageName, prefill.experience].filter(Boolean).join(" · ")}
+                </p>
+            )}
 
-                    <ChoiceGroup
-                        label="How would you like to travel?"
-                        name="style"
-                        options={STYLES}
-                        value={values.style}
-                        onChange={(v) => set("style", v)}
-                    />
-
-                    <div className="grid gap-8 sm:grid-cols-2">
-                        <TextField
-                            label="When are you thinking of travelling?"
-                            name="dates"
-                            hint="e.g. late October, for about two weeks"
-                            value={values.dates}
-                            onChange={(v) => set("dates", v)}
+            {step === 0 && (
+                <div className="fstep" key="s0">
+                    <h3 className="h-md">What kind of trip?</h3>
+                    <div className="choice" role="group" aria-label="Travel style">
+                        {STYLES.map(({ value, Icon, text }) => (
+                            <button
+                                key={value}
+                                type="button"
+                                aria-pressed={v.style === value}
+                                onClick={() => set("style", value)}
+                            >
+                                <Icon />
+                                <b>{value}</b>
+                                <small>{text}</small>
+                            </button>
+                        ))}
+                    </div>
+                    <div className="two">
+                        <SelectField
+                            label="Destination"
+                            value={v.destination}
+                            onChange={(x) => set("destination", x)}
+                            options={[{ value: "", label: "Not sure yet" }, ...destinations.map((d) => ({ value: d.slug, label: d.title }))]}
                         />
-                        <Stepper
-                            label="Number of travellers"
-                            value={values.travellers}
-                            min={1}
-                            max={12}
-                            onChange={(v) => set("travellers", v)}
+                        <SelectField
+                            label="Journey"
+                            value={v.journey}
+                            onChange={(x) => set("journey", x)}
+                            options={[
+                                { value: "bespoke", label: "Something bespoke" },
+                                ...journeys.map((j) => ({ value: j.slug, label: j.title })),
+                            ]}
                         />
                     </div>
-
-                    <SelectField
-                        label="Approximate budget"
-                        name="budget"
-                        hint="Optional — it helps us suggest the right places to stay"
-                        value={values.budget}
-                        onChange={(v) => set("budget", v)}
-                        options={BUDGETS.map((b) => ({ value: b, label: b }))}
-                    />
-
-                    <MultiChoiceGroup
-                        label="What draws you to travel?"
-                        hint="Optional — choose as many as apply"
-                        options={INTERESTS}
-                        value={values.interests}
-                        onChange={toggleInterest}
-                    />
-
-                    <TextArea
-                        label="Tell us about the journey you imagine"
-                        name="message"
-                        hint="Places, interests, celebrations, the pace you enjoy — anything at all."
-                        value={values.message}
-                        onChange={(v) => set("message", v)}
-                    />
                 </div>
-            </Fieldset>
+            )}
 
-            <Fieldset legend="Staying in touch">
-                <ChoiceGroup
-                    label="How should we reply?"
-                    name="contactBy"
-                    options={["Email", "Phone"]}
-                    value={values.contactBy}
-                    onChange={(v) => set("contactBy", v)}
-                />
+            {step === 1 && (
+                <div className="fstep" key="s1">
+                    <h3 className="h-md">When and who?</h3>
+                    <div className="field">
+                        <span className="k" id="month-label">
+                            Travel month
+                        </span>
+                        <div className="exp-filters" role="group" aria-labelledby="month-label">
+                            {[...(dateLabel ? [dateLabel] : []), "Flexible", ...months].map((m) => (
+                                <button
+                                    key={m}
+                                    type="button"
+                                    className="chip"
+                                    aria-pressed={v.month === m}
+                                    onClick={() => set("month", m)}
+                                >
+                                    {m}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="field">
+                        <span className="k" id="group-label">
+                            Group size
+                        </span>
+                        <div className="stepper" role="group" aria-labelledby="group-label">
+                            <button
+                                type="button"
+                                aria-label="Fewer travellers"
+                                disabled={v.travellers <= 1}
+                                onClick={() => set("travellers", v.travellers - 1)}
+                            >
+                                −
+                            </button>
+                            <output aria-live="polite">{v.travellers}</output>
+                            <button
+                                type="button"
+                                aria-label="More travellers"
+                                disabled={v.travellers >= 20}
+                                onClick={() => set("travellers", v.travellers + 1)}
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
+                    <div className="field">
+                        <label htmlFor="budget">Budget per person</label>
+                        <input
+                            id="budget"
+                            type="range"
+                            className="range"
+                            min={BUDGET.min}
+                            max={BUDGET.max}
+                            step={BUDGET.step}
+                            value={v.budget}
+                            onChange={(e) => set("budget", Number(e.target.value))}
+                            style={{ ["--p" as string]: `${budgetPct}%` }}
+                            aria-valuetext={`Up to ${money(v.budget)}`}
+                        />
+                        <div className="range-val">
+                            <span>{money(BUDGET.min)}</span>
+                            <b>Up to {money(v.budget)}</b>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                <label className="mt-8 flex cursor-pointer items-start gap-4 text-sm text-ink-soft">
-                    <input
-                        type="checkbox"
-                        name="consent"
-                        checked={values.consent}
-                        onChange={(e) => {
-                            set("consent", e.target.checked);
-                            touch("consent");
-                        }}
-                        aria-invalid={!!showError("consent")}
-                        aria-describedby={showError("consent") ? "consent-error" : undefined}
-                        className="mt-0.5 size-5 shrink-0 cursor-pointer appearance-none border border-ink/40 bg-transparent bg-center bg-no-repeat checked:border-ink checked:bg-ink checked:bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%23eef1ec%22%20stroke-width=%222%22><path%20d=%22M5%2012l5%205L20%207%22/></svg>')]"
-                    />
-                    <span>
-                        I&apos;m happy to be contacted about this enquiry. We never share your details, and won&apos;t
-                        add you to a mailing list without asking.
-                    </span>
-                </label>
-                {showError("consent") && <FieldError id="consent-error">{showError("consent")}</FieldError>}
-            </Fieldset>
-
-            <div className="flex flex-col gap-6 border-t border-ink/15 pt-10 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm text-stone">
-                    {status === "error" ? (
-                        <span className="text-clay">Something went wrong sending that — please try again.</span>
-                    ) : (
-                        "We reply to every enquiry personally, within two working days."
+            {step === 2 && (
+                <div className="fstep" key="s2">
+                    <h3 className="h-md">Where can we reach you?</h3>
+                    <div className="two">
+                        <TextField
+                            label="First name"
+                            name="firstName"
+                            required
+                            autoComplete="given-name"
+                            value={v.firstName}
+                            onChange={(x) => set("firstName", x)}
+                            error={err("firstName")}
+                        />
+                        <TextField
+                            label="Last name"
+                            name="lastName"
+                            required
+                            autoComplete="family-name"
+                            value={v.lastName}
+                            onChange={(x) => set("lastName", x)}
+                            error={err("lastName")}
+                        />
+                    </div>
+                    <div className="two">
+                        <TextField
+                            label="Email"
+                            name="email"
+                            type="email"
+                            required
+                            autoComplete="email"
+                            placeholder="you@example.com"
+                            value={v.email}
+                            onChange={(x) => set("email", x)}
+                            error={err("email")}
+                        />
+                        <TextField
+                            label="Phone"
+                            name="phone"
+                            type="tel"
+                            autoComplete="tel"
+                            placeholder="Optional"
+                            value={v.phone}
+                            onChange={(x) => set("phone", x)}
+                            error={err("phone")}
+                        />
+                    </div>
+                    <div className="field">
+                        <span className="k" id="reply-label">
+                            How should we reply?
+                        </span>
+                        <div className="exp-filters" role="group" aria-labelledby="reply-label">
+                            {CONTACT.map((c) => (
+                                <button
+                                    key={c}
+                                    type="button"
+                                    className="chip"
+                                    aria-pressed={v.contactBy === c}
+                                    onClick={() => set("contactBy", c)}
+                                >
+                                    {c}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="field">
+                        <label htmlFor="notes">Anything else?</label>
+                        <textarea
+                            id="notes"
+                            name="message"
+                            placeholder="Dates, interests, celebrations, dietary needs…"
+                            value={v.message}
+                            onChange={(e) => set("message", e.target.value)}
+                        />
+                    </div>
+                    <label className={cn("check", err("consent") && "bad")}>
+                        <input
+                            type="checkbox"
+                            name="consent"
+                            checked={v.consent}
+                            onChange={(e) => set("consent", e.target.checked)}
+                            aria-invalid={!!err("consent")}
+                            aria-describedby={err("consent") ? "consent-error" : undefined}
+                        />
+                        <span>
+                            I’m happy to be contacted about this enquiry. We never share your details or add you to a
+                            mailing list without asking.
+                        </span>
+                    </label>
+                    {err("consent") && (
+                        <p id="consent-error" className="-mt-2 text-[12.5px] text-danger">
+                            {err("consent")}
+                        </p>
                     )}
-                </p>
-                <button
-                    type="submit"
-                    disabled={status === "sending"}
-                    className="group inline-flex items-center justify-center gap-3 bg-ink px-8 py-4 text-[0.75rem] font-medium uppercase tracking-[0.18em] text-paper transition-colors duration-500 hover:bg-clay disabled:opacity-60"
-                >
-                    {status === "sending" ? "Sending…" : "Send enquiry"}
-                    <ArrowUpRight
-                        aria-hidden
-                        strokeWidth={1.25}
-                        className="size-4 transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                    />
+                    <p className="text-[12.5px] text-dim">{summary}</p>
+                </div>
+            )}
+
+            <div className="fnav">
+                {step > 0 ? (
+                    <button type="button" className="btn btn-glass" onClick={() => go(step - 1)}>
+                        Back
+                    </button>
+                ) : (
+                    <span />
+                )}
+                <button type="submit" className="btn btn-ember" disabled={status === "sending"}>
+                    {step < 2 ? "Continue" : status === "sending" ? "Sending…" : "Send enquiry"}
+                    <ArrowIcon />
                 </button>
             </div>
+            {status === "error" && (
+                <p role="alert" className="text-sm text-danger">
+                    Something went wrong sending that. Please try again, or call us instead.
+                </p>
+            )}
         </form>
     );
-}
-
-const inputBase =
-    "mt-3 block w-full border-0 border-b bg-transparent px-0 py-3 text-lg text-ink placeholder:text-stone/60 transition-colors duration-300 focus:outline-none focus:ring-0";
-
-function Fieldset({ legend, children }: { legend: string; children: ReactNode }) {
-    return (
-        <fieldset>
-            <legend className="eyebrow mb-8 text-clay">{legend}</legend>
-            {children}
-        </fieldset>
-    );
-}
-
-function FieldError({ id, children }: { id: string; children: ReactNode }) {
-    return (
-        <p id={id} className="mt-2 text-sm text-clay">
-            {children}
-        </p>
-    );
-}
-
-function Label({
-    htmlFor,
-    children,
-    required,
-    hint,
-}: {
-    htmlFor: string;
-    children: ReactNode;
-    required?: boolean;
-    hint?: string;
-}) {
-    return (
-        <label htmlFor={htmlFor} className="block text-sm text-ink-soft">
-            {children}
-            {required && (
-                <span aria-hidden className="text-clay">
-                    {" "}
-                    *
-                </span>
-            )}
-            {hint && <span className="mt-1 block text-xs text-stone">{hint}</span>}
-        </label>
-    );
-}
-
-interface TextFieldProps {
-    label: string;
-    name: string;
-    value: string;
-    onChange: (v: string) => void;
-    onBlur?: () => void;
-    type?: string;
-    required?: boolean;
-    autoComplete?: string;
-    hint?: string;
-    error?: string;
 }
 
 function TextField({
@@ -376,19 +450,29 @@ function TextField({
     name,
     value,
     onChange,
-    onBlur,
     type = "text",
     required,
     autoComplete,
-    hint,
+    placeholder,
     error,
-}: TextFieldProps) {
+}: {
+    label: string;
+    name: Field;
+    value: string;
+    onChange: (v: string) => void;
+    type?: string;
+    required?: boolean;
+    autoComplete?: string;
+    placeholder?: string;
+    error?: string;
+}) {
     const id = useId();
     return (
-        <div>
-            <Label htmlFor={id} required={required} hint={hint}>
+        <div className={cn("field", error && "bad")}>
+            <label htmlFor={id}>
                 {label}
-            </Label>
+                {required && <span aria-hidden> *</span>}
+            </label>
             <input
                 id={id}
                 name={name}
@@ -396,221 +480,42 @@ function TextField({
                 value={value}
                 required={required}
                 autoComplete={autoComplete}
+                placeholder={placeholder}
                 onChange={(e) => onChange(e.target.value)}
-                onBlur={onBlur}
                 aria-invalid={!!error}
                 aria-describedby={error ? `${id}-error` : undefined}
-                className={cn(inputBase, error ? "border-clay" : "border-ink/25 focus:border-ink")}
             />
-            {error && <FieldError id={`${id}-error`}>{error}</FieldError>}
-        </div>
-    );
-}
-
-function TextArea({
-    label,
-    name,
-    value,
-    onChange,
-    hint,
-}: {
-    label: string;
-    name: string;
-    value: string;
-    onChange: (v: string) => void;
-    hint?: string;
-}) {
-    const id = useId();
-    return (
-        <div>
-            <Label htmlFor={id} hint={hint}>
-                {label}
-            </Label>
-            <textarea
-                id={id}
-                name={name}
-                rows={5}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className={cn(inputBase, "resize-y border-ink/25 focus:border-ink")}
-            />
+            {error && (
+                <span id={`${id}-error`} className="err">
+                    {error}
+                </span>
+            )}
         </div>
     );
 }
 
 function SelectField({
     label,
-    name,
     value,
     onChange,
     options,
-    hint,
 }: {
     label: string;
-    name: string;
     value: string;
     onChange: (v: string) => void;
     options: { value: string; label: string }[];
-    hint?: string;
-}) {
+}): ReactNode {
     const id = useId();
     return (
-        <div>
-            <Label htmlFor={id} hint={hint}>
-                {label}
-            </Label>
-            <select
-                id={id}
-                name={name}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className={cn(
-                    inputBase,
-                    "cursor-pointer appearance-none border-ink/25 bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%2312191a%22%20stroke-width=%221.25%22><path%20d=%22M6%209l6%206%206-6%22/></svg>')] bg-[length:1.1rem] bg-[right_0.25rem_center] bg-no-repeat pr-8 focus:border-ink",
-                )}
-            >
+        <div className="field">
+            <label htmlFor={id}>{label}</label>
+            <select id={id} value={value} onChange={(e) => onChange(e.target.value)}>
                 {options.map((o) => (
                     <option key={o.value} value={o.value}>
                         {o.label}
                     </option>
                 ))}
             </select>
-        </div>
-    );
-}
-
-function ChoiceGroup({
-    label,
-    name,
-    options,
-    value,
-    onChange,
-}: {
-    label: string;
-    name: string;
-    options: string[];
-    value: string;
-    onChange: (v: string) => void;
-}) {
-    return (
-        <div role="radiogroup" aria-label={label}>
-            <p className="text-sm text-ink-soft">{label}</p>
-            <div className="mt-4 flex flex-wrap gap-3">
-                {options.map((opt) => {
-                    const checked = opt === value;
-                    return (
-                        <label
-                            key={opt}
-                            className={cn(
-                                "cursor-pointer border px-5 py-3 text-sm transition-colors duration-300 has-[:focus-visible]:outline has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-4",
-                                checked ? "border-ink bg-ink text-paper" : "border-ink/20 hover:border-ink/60",
-                            )}
-                        >
-                            <input
-                                type="radio"
-                                name={name}
-                                value={opt}
-                                checked={checked}
-                                onChange={() => onChange(opt)}
-                                className="sr-only"
-                            />
-                            {opt}
-                        </label>
-                    );
-                })}
-            </div>
-        </div>
-    );
-}
-
-function MultiChoiceGroup({
-    label,
-    hint,
-    options,
-    value,
-    onChange,
-}: {
-    label: string;
-    hint?: string;
-    options: string[];
-    value: string[];
-    onChange: (option: string) => void;
-}) {
-    const id = useId();
-    return (
-        <div role="group" aria-labelledby={id}>
-            <p id={id} className="text-sm text-ink-soft">
-                {label}
-                {hint && <span className="mt-1 block text-xs text-stone">{hint}</span>}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3">
-                {options.map((opt) => {
-                    const checked = value.includes(opt);
-                    return (
-                        <label
-                            key={opt}
-                            className={cn(
-                                "cursor-pointer border px-5 py-3 text-sm transition-colors duration-300 has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-4",
-                                checked ? "border-ink bg-ink text-paper" : "border-ink/20 hover:border-ink/60",
-                            )}
-                        >
-                            <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => onChange(opt)}
-                                className="sr-only"
-                            />
-                            {opt}
-                        </label>
-                    );
-                })}
-            </div>
-        </div>
-    );
-}
-
-function Stepper({
-    label,
-    value,
-    min,
-    max,
-    onChange,
-}: {
-    label: string;
-    value: number;
-    min: number;
-    max: number;
-    onChange: (v: number) => void;
-}) {
-    const id = useId();
-    return (
-        <div>
-            <p id={id} className="text-sm text-ink-soft">
-                {label}
-            </p>
-            <div className="mt-3 flex items-center border-b border-ink/25 py-1.5" role="group" aria-labelledby={id}>
-                <button
-                    type="button"
-                    onClick={() => onChange(Math.max(min, value - 1))}
-                    disabled={value <= min}
-                    aria-label="Fewer travellers"
-                    className="flex size-10 items-center justify-center transition-opacity disabled:opacity-30"
-                >
-                    <Minus strokeWidth={1.25} className="size-4" />
-                </button>
-                <output aria-live="polite" className="flex-1 text-center text-lg">
-                    {value} {value === 1 ? "traveller" : "travellers"}
-                </output>
-                <button
-                    type="button"
-                    onClick={() => onChange(Math.min(max, value + 1))}
-                    disabled={value >= max}
-                    aria-label="More travellers"
-                    className="flex size-10 items-center justify-center transition-opacity disabled:opacity-30"
-                >
-                    <Plus strokeWidth={1.25} className="size-4" />
-                </button>
-            </div>
         </div>
     );
 }

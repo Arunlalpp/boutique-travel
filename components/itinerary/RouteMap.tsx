@@ -79,7 +79,7 @@ export function RouteMap({ points, country }: RouteMapProps) {
                     <ellipse cx="56" cy="52" rx="22" ry="14" />
                 </g>
 
-                <g transform="translate(98 2)" className="text-stone" fill="currentColor">
+                <g transform="translate(98 2)" fill="var(--color-dim)">
                     <path d="M0 -3 L1.4 2 L0 1 L-1.4 2 Z" />
                     <text y="7" textAnchor="middle" fontSize="2.6" letterSpacing="0.3">
                         N
@@ -89,7 +89,7 @@ export function RouteMap({ points, country }: RouteMapProps) {
                 <path
                     d={path}
                     fill="none"
-                    stroke="var(--color-clay)"
+                    stroke="var(--color-ember)"
                     strokeWidth="0.45"
                     strokeDasharray="1.2 1.2"
                     opacity="0.35"
@@ -98,7 +98,7 @@ export function RouteMap({ points, country }: RouteMapProps) {
                     data-route-line
                     d={path}
                     fill="none"
-                    stroke="var(--color-clay)"
+                    stroke="var(--color-ember)"
                     strokeWidth="0.55"
                     strokeLinecap="round"
                 />
@@ -111,8 +111,8 @@ export function RouteMap({ points, country }: RouteMapProps) {
                                 cx={p.x}
                                 cy={p.y}
                                 r="2.6"
-                                fill="var(--color-paper)"
-                                stroke="var(--color-ink)"
+                                fill="var(--color-night)"
+                                stroke="var(--color-ember)"
                                 strokeWidth="0.3"
                             />
                             <text
@@ -121,7 +121,7 @@ export function RouteMap({ points, country }: RouteMapProps) {
                                 textAnchor="middle"
                                 fontSize="2.3"
                                 fontFamily="var(--font-sans)"
-                                fill="var(--color-ink)"
+                                fill="var(--color-fg)"
                             >
                                 {i + 1}
                             </text>
@@ -130,8 +130,8 @@ export function RouteMap({ points, country }: RouteMapProps) {
                                 y={p.y + 1}
                                 textAnchor={labelLeft ? "end" : "start"}
                                 fontSize="3.3"
-                                fontFamily="var(--font-serif)"
-                                fill="var(--color-ink)"
+                                fontFamily="var(--font-display)"
+                                fill="var(--color-fg)"
                             >
                                 {p.name}
                             </text>

@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
         loaderFile: "./lib/image-loader.ts",
         qualities: [65, 70, 75, 80, 85],
     },
+    async redirects() {
+        return [{ source: "/contact", destination: "/enquire", permanent: true }];
+    },
 };
 
 export default nextConfig;

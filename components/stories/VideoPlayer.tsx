@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Play, Film } from "lucide-react";
+import { PlayIcon } from "@/components/ui/Icons";
 import type { ImageAsset, VideoEmbed } from "@/lib/types";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ export function VideoPlayer({ video, poster, title, className }: VideoPlayerProp
     const [state, setState] = useState<"idle" | "playing" | "pending">("idle");
 
     return (
-        <div className={cn("relative aspect-video overflow-hidden bg-night", className)}>
+        <div className={cn("relative aspect-video overflow-hidden rounded-[32px] bg-night-3 shadow-[0_24px_60px_-20px_rgba(0,0,0,.55)]", className)}>
             {state === "playing" && video ? (
                 <iframe
                     src={embedUrl(video)}
@@ -36,7 +36,7 @@ export function VideoPlayer({ video, poster, title, className }: VideoPlayerProp
                 <button
                     type="button"
                     onClick={() => setState(video ? "playing" : "pending")}
-                    className="group absolute inset-0 text-paper"
+                    className="group absolute inset-0 text-fg"
                     aria-label={`Play film: ${title}`}
                 >
                     <SmartImage
@@ -48,8 +48,8 @@ export function VideoPlayer({ video, poster, title, className }: VideoPlayerProp
                         aria-hidden
                         className="absolute inset-0 bg-night/30 transition-colors duration-700 group-hover:bg-night/20"
                     />
-                    <span className="absolute left-1/2 top-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-paper/60 backdrop-blur-sm transition-all duration-700 ease-[var(--ease-out-soft)] group-hover:scale-110 group-hover:bg-paper group-hover:text-ink md:size-28">
-                        <Play aria-hidden strokeWidth={1} className="ml-1 size-6 fill-current md:size-8" />
+                    <span className="absolute left-1/2 top-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ember text-ember-ink shadow-[0_10px_30px_-10px_rgba(245,158,61,.7)] transition-all duration-700 ease-[var(--ease-out-soft)] group-hover:scale-110 group-hover:bg-ember-soft md:size-24">
+                        <PlayIcon className="ml-1 size-7 md:size-8" />
                     </span>
                 </button>
             )}
@@ -57,17 +57,17 @@ export function VideoPlayer({ video, poster, title, className }: VideoPlayerProp
             {state === "pending" && (
                 <div
                     role="status"
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-night/85 px-6 text-center text-paper backdrop-blur-sm"
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-night/85 px-6 text-center text-fg backdrop-blur-sm"
                 >
-                    <Film aria-hidden strokeWidth={1} className="size-8 text-clay-soft" />
-                    <p className="font-serif text-2xl font-light">The guest film will play here.</p>
-                    <p className="max-w-sm text-sm text-paper/60">
+                    <PlayIcon className="size-8 text-ember" />
+                    <p className="font-display text-2xl">The guest film will play here.</p>
+                    <p className="max-w-sm text-sm text-mist">
                         Films are hosted on YouTube or Vimeo and embedded once supplied by the client.
                     </p>
                     <button
                         type="button"
                         onClick={() => setState("idle")}
-                        className="eyebrow mt-2 border-b border-paper/40 pb-1 text-paper/80 hover:text-paper"
+                        className="btn btn-glass btn-sm mt-2"
                     >
                         Close
                     </button>

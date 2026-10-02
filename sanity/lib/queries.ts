@@ -99,6 +99,7 @@ const itineraryCardProjection = /* groq */ `{
   "destination": destination->{"slug": slug.current, name, country, region},
   style,
   duration,
+  startingPrice,
   featured
 }`;
 
@@ -123,6 +124,8 @@ const destinationCardProjection = /* groq */ `{
   region,
   shortDescription,
   heroImage,
+  "thumbs": gallery[0...2],
+  "journeyCount": count(*[_type == "itinerary" && references(^._id)]),
   featured
 }`;
 

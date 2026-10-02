@@ -1,38 +1,44 @@
 import Link from "next/link";
-import { Play } from "lucide-react";
 import type { GuestStoryCard } from "@/lib/types";
 import { SmartImage } from "@/components/ui/SmartImage";
+import { PlayIcon, QuoteIcon } from "@/components/ui/Icons";
 
 export function StoryEntry({ story }: { story: GuestStoryCard }) {
     return (
-        <article className="group">
-            <Link href={`/stories/${story.slug}`} className="block">
-                <div data-reveal="mask" className="relative aspect-[4/3] overflow-hidden bg-night">
-                    <SmartImage
-                        image={story.poster}
-                        sizes="(min-width: 768px) 45vw, 100vw"
-                        className="transition-transform duration-[1600ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.04]"
-                    />
-                    <span aria-hidden className="absolute inset-0 bg-night/20" />
-                    <span className="absolute bottom-5 left-5 flex size-14 items-center justify-center rounded-full border border-paper/70 text-paper backdrop-blur-sm transition-all duration-700 group-hover:bg-paper group-hover:text-ink">
-                        <Play aria-hidden strokeWidth={1} className="ml-0.5 size-5 fill-current" />
+        <article className="group relative overflow-hidden rounded-[32px] glass shadow-deep transition-transform duration-500 ease-[var(--ease)] hover:-translate-y-1.5">
+            <div className="relative aspect-[4/3] overflow-hidden bg-night-3">
+                <SmartImage
+                    image={story.poster}
+                    sizes="(min-width: 768px) 45vw, 100vw"
+                    className="transition-transform duration-[900ms] ease-[var(--ease)] group-hover:scale-[1.05]"
+                />
+                <span className="play glass-strong absolute left-[18px] top-[18px] z-[2] flex h-11 items-center gap-2.5 rounded-full pl-1.5 pr-4 text-[13px] font-semibold">
+                    <i className="grid size-8 place-items-center rounded-full bg-fg text-night">
+                        <PlayIcon className="size-[13px]" />
+                    </i>
+                    {story.video ? "Watch story" : "Read story"}
+                </span>
+            </div>
+            <div className="grid gap-5 p-[clamp(22px,3vw,32px)]">
+                <QuoteIcon width={32} height={32} className="text-ember" />
+                <blockquote className="font-display text-[clamp(20px,2vw,24px)] italic leading-[1.35]">
+                    <Link href={`/stories/${story.slug}`} className="after:absolute after:inset-0 after:z-[1]">
+                        “{story.quote}”
+                    </Link>
+                </blockquote>
+                <div className="q-who">
+                    <div className="avatar">
+                        <SmartImage image={story.portrait} sizes="48px" quality={65} />
+                    </div>
+                    <span className="text-sm leading-snug">
+                        <b>{story.guestName}</b>
+                        <br />
+                        <small className="text-dim">
+                            {story.journeyTitle ?? "Private journey"} · {story.travelled}
+                        </small>
                     </span>
                 </div>
-                <div data-reveal className="mt-7">
-                    <p className="font-serif text-2xl font-light leading-snug md:text-[1.75rem]">“{story.quote}”</p>
-                    <div className="mt-6 flex items-center gap-4">
-                        <span className="relative size-11 shrink-0 overflow-hidden rounded-full bg-paper-deep">
-                            <SmartImage image={story.portrait} sizes="44px" tone="light" quality={65} />
-                        </span>
-                        <p className="text-sm leading-snug">
-                            <span className="block text-ink">{story.guestName}</span>
-                            <span className="block text-stone">
-                                {story.journeyTitle ?? "Private journey"} · {story.travelled}
-                            </span>
-                        </p>
-                    </div>
-                </div>
-            </Link>
+            </div>
         </article>
     );
 }
