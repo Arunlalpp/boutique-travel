@@ -3,7 +3,10 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Analytics } from "@/components/analytics/Analytics";
 import { SiteProviders } from "@/components/providers/SiteProviders";
+import { Cursor } from "@/components/ui/Cursor";
 import { SanityLive } from "@/sanity/lib/live";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { organization, website } from "@/lib/seo";
 import { getSiteSettings } from "@/sanity/lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,6 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
             type: "website",
             url: "/",
             siteName: settings.name,
+            locale: "en_IN",
         },
         twitter: {
             card: "summary_large_image",
@@ -48,9 +52,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
             >
                 Skip to content
             </a>
+            <JsonLd data={[organization(settings), website(settings)]} />
             <Header siteName={settings.name} />
             <main id="main">{children}</main>
             <Footer settings={settings} />
+            <Cursor />
             <Analytics />
             <SanityLive />
         </SiteProviders>

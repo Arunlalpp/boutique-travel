@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { PageHero } from "@/components/ui/PageHero";
 import { Reveal } from "@/components/motion/Reveal";
@@ -7,15 +8,19 @@ import { StoryEntry } from "@/components/stories/StoryEntry";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { CtaBand } from "@/components/home/CtaBand";
 import { media } from "@/lib/data/media";
-import { getAllStories, pickFeaturedStory } from "@/sanity/lib/queries";
+import { getAllStories, getSiteSettings, pickFeaturedStory } from "@/sanity/lib/queries";
 import { emptyState, eyebrow, hLg, hMd, lede, sec, secHead, secHeadTitle, wrap } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
-    title: "Guest Stories",
-    description: "Films and words from guests who have travelled with us.",
-    alternates: { canonical: "/stories" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const settings = await getSiteSettings();
+    return pageMetadata({
+        title: "Guest Stories",
+        description: "Films and words from guests who have travelled with us.",
+        path: "/stories",
+        siteName: settings.name,
+    });
+}
 
 export default async function StoriesPage() {
     const allStories = await getAllStories();

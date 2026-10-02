@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { absolute, breadcrumbs, pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/ui/PageHero";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -7,7 +9,7 @@ import { Rail } from "@/components/ui/Rail";
 import { Gallery } from "@/components/itinerary/Gallery";
 import { JourneyCard } from "@/components/itinerary/JourneyCard";
 import { CtaBand } from "@/components/home/CtaBand";
-import { getDestination, getDestinationSlugs, getItinerariesForDestination } from "@/sanity/lib/queries";
+import { getDestination, getDestinationSlugs, getItinerariesForDestination, getSiteSettings } from "@/sanity/lib/queries";
 import { eyebrow, hLg, hMd, sec, secHead, secHeadTitle, wrap } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
@@ -24,24 +26,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     if (!destination) return {};
     const title = destination.seo?.metaTitle || destination.name;
     const description = destination.seo?.metaDescription || destination.shortDescription;
-    const ogImage = destination.seo?.ogImage ?? destination.heroImage;
-    return {
+    const settings = await getSiteSettings();
+    return pageMetadata({
         title,
         description,
-        alternates: { canonical: `/destinations/${destination.slug}` },
-        openGraph: {
-            title,
-            description,
-            url: `/destinations/${destination.slug}`,
-            images: [{ url: ogImage.src, width: 1200, height: 630, alt: ogImage.alt }],
-        },
-        twitter: {
-            card: "summary_large_image",
-            title,
-            description,
-            images: [ogImage.src],
-        },
-    };
+        path: `/destinations/${destination.slug}`,
+        siteName: settings.name,
+        type: "article",
+    });
 }
 
 export default async function DestinationPage({ params }: { params: Params }) {
@@ -49,11 +41,28 @@ export default async function DestinationPage({ params }: { params: Params }) {
     const destination = await getDestination(slug);
     if (!destination) notFound();
 
-    const journeys = await getItinerariesForDestination(destination.slug);
+    const [journeys, settings] = await Promise.all([getItinerariesForDestination(destination.slug), getSiteSettings()]);
+    const structuredData = [
+        {
+            "@context": "https://schema.org",
+            "@type": "TouristDestination",
+            name: destination.name,
+            description: destination.description || destination.shortDescription,
+            url: absolute(settings, `/destinations/${destination.slug}`),
+            image: destination.heroImage.src,
+            containedInPlace: { "@type": "Country", name: destination.country },
+        },
+        breadcrumbs(settings, [
+            ["Home", "/"],
+            ["Destinations", "/destinations"],
+            [destination.name, `/destinations/${destination.slug}`],
+        ]),
+    ];
     const enquireHref = `/enquire?destination=${destination.slug}`;
 
     return (
         <article>
+            <JsonLd data={structuredData} />
             <PageHero
                 image={destination.heroImage}
                 tall

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/ui/PageHero";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -6,13 +7,17 @@ import { Reveal } from "@/components/motion/Reveal";
 import { DestinationIndex } from "@/components/destination/DestinationIndex";
 import { media } from "@/lib/data/media";
 import { eyebrow, factLabel, factValue, hLg, lede, mediaFill, sec, wrap } from "@/lib/ui";
-import { getAllDestinations } from "@/sanity/lib/queries";
+import { getAllDestinations, getSiteSettings } from "@/sanity/lib/queries";
 
-export const metadata: Metadata = {
-    title: "Destinations",
-    description: "From misty hills to high-altitude deserts. Pick a landscape and we’ll build the journey around it.",
-    alternates: { canonical: "/destinations" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const settings = await getSiteSettings();
+    return pageMetadata({
+        title: "Destinations",
+        description: "From misty hills to high-altitude deserts. Pick a landscape and we’ll build the journey around it.",
+        path: "/destinations",
+        siteName: settings.name,
+    });
+}
 
 export default async function DestinationsPage() {
     const destinations = await getAllDestinations();

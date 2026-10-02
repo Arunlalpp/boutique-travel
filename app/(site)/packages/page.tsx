@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { getSiteSettings } from "@/sanity/lib/queries";
 import { PageHero } from "@/components/ui/PageHero";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Reveal } from "@/components/motion/Reveal";
@@ -11,17 +14,28 @@ import { media } from "@/lib/data/media";
 import { eyebrow, hLg, hMd, iconTile, lede, sec, secHead, secHeadTitle, wrap } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
-    title: "Packages",
-    description: "All-inclusive packages with guides, meals, stays and transfers. Simple, honest pricing with no hidden costs.",
-    alternates: { canonical: "/packages" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const settings = await getSiteSettings();
+    return pageMetadata({
+        title: "Packages",
+        description: "All-inclusive packages with guides, meals, stays and transfers. Simple, honest pricing with no hidden costs.",
+        path: "/packages",
+        siteName: settings.name,
+    });
+}
 
 const icons = { tent: TentIcon, food: FoodIcon, bus: BusIcon, guide: GuideIcon };
+
+const faqData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+};
 
 export default function PackagesPage() {
     return (
         <>
+            <JsonLd data={faqData} />
             <PageHero
                 image={media.alpineLake}
                 center

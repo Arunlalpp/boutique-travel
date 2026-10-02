@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { absolute, breadcrumbs, pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
@@ -12,7 +14,7 @@ import { Gallery } from "@/components/itinerary/Gallery";
 import { SaveJourneyButton } from "@/components/itinerary/SaveJourneyButton";
 import { ArrowIcon, CheckIcon, QuoteIcon } from "@/components/ui/Icons";
 import { ctaPanel, ctaShell } from "@/components/home/CtaBand";
-import { getItinerary, getItinerarySlugs, getNextItinerary, getStoriesForJourney } from "@/sanity/lib/queries";
+import { getItinerary, getItinerarySlugs, getNextItinerary, getSiteSettings, getStoriesForJourney } from "@/sanity/lib/queries";
 import { btn, checkDot, checklist, eyebrow, factLabel, hLg, hMd, lede, mediaFill, mono, sec, secHead, secHeadTitle, wrap } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
@@ -35,24 +37,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     if (!journey) return {};
     const title = journey.seo?.metaTitle || journey.title;
     const description = journey.seo?.metaDescription || journey.hook;
-    const ogImage = journey.seo?.ogImage ?? journey.heroImage;
-    return {
+    const settings = await getSiteSettings();
+    return pageMetadata({
         title,
         description,
-        alternates: { canonical: `/itineraries/${journey.slug}` },
-        openGraph: {
-            title,
-            description,
-            url: `/itineraries/${journey.slug}`,
-            images: [{ url: ogImage.src, width: 1200, height: 630, alt: ogImage.alt }],
-        },
-        twitter: {
-            card: "summary_large_image",
-            title,
-            description,
-            images: [ogImage.src],
-        },
-    };
+        path: `/itineraries/${journey.slug}`,
+        siteName: settings.name,
+        type: "article",
+    });
 }
 
 export default async function ItineraryPage({ params }: { params: Params }) {
@@ -60,10 +52,35 @@ export default async function ItineraryPage({ params }: { params: Params }) {
     const journey = await getItinerary(slug);
     if (!journey) notFound();
 
-    const [next, story] = await Promise.all([
+    const [next, story, settings] = await Promise.all([
         getNextItinerary(journey.slug),
         getStoriesForJourney(journey.slug).then((stories) => stories[0]),
+        getSiteSettings(),
     ]);
+    const url = absolute(settings, `/itineraries/${journey.slug}`);
+    const structuredData = [
+        {
+            "@context": "https://schema.org",
+            "@type": "TouristTrip",
+            name: journey.title,
+            description: journey.hook,
+            url,
+            image: journey.heroImage.src,
+            touristType: journey.style,
+            itinerary: {
+                "@type": "ItemList",
+                itemListElement: (journey.route.length ? journey.route.map((p) => p.name) : journey.days.map((d) => d.title)).map(
+                    (name, i) => ({ "@type": "ListItem", position: i + 1, name }),
+                ),
+            },
+            provider: { "@id": absolute(settings, "/#organization") },
+        },
+        breadcrumbs(settings, [
+            ["Home", "/"],
+            ["Journeys", "/itineraries"],
+            [journey.title, `/itineraries/${journey.slug}`],
+        ]),
+    ];
     const enquireHref = `/enquire?journey=${journey.slug}`;
 
     const facts = [
@@ -75,6 +92,7 @@ export default async function ItineraryPage({ params }: { params: Params }) {
 
     return (
         <article>
+            <JsonLd data={structuredData} />
             <PageHero
                 image={journey.heroImage}
                 tall

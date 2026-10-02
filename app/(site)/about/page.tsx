@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
+import { getSiteSettings } from "@/sanity/lib/queries";
 import { PageHero } from "@/components/ui/PageHero";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { Reveal } from "@/components/motion/Reveal";
@@ -10,12 +12,15 @@ import { media } from "@/lib/data/media";
 import { eyebrow, hLg, hMd, iconTile, lede, mono, sec, secHead, secHeadTitle, wrap } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
-    title: "About",
-    description:
-        "Built by campers, for curious souls. Meet the guides, naturalists and hosts behind our small-group adventures.",
-    alternates: { canonical: "/about" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const settings = await getSiteSettings();
+    return pageMetadata({
+        title: "About",
+        description: "Built by campers, for curious souls. Meet the guides, naturalists and hosts behind our small-group adventures.",
+        path: "/about",
+        siteName: settings.name,
+    });
+}
 
 const valueIcons = { leaf: LeafIcon, shield: ShieldIcon, heart: HeartIcon, compass: CompassIcon };
 

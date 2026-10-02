@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { getSiteSettings } from "@/sanity/lib/queries";
 import { hLg, lede, sec, wrap } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
-    title: "Thank You",
-    description: "Your enquiry has been received.",
-    robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const settings = await getSiteSettings();
+    return pageMetadata({
+        title: "Thank You",
+        description: "Your enquiry has been received.",
+        path: "/enquire/thank-you",
+        siteName: settings.name,
+        noindex: true,
+    });
+}
 
 type SearchParams = Promise<{ name?: string | string[]; contact?: string | string[] }>;
 

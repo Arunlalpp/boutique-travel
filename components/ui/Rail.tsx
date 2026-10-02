@@ -143,6 +143,7 @@ export function Rail({ head, toolbar, label, children, className, resetKey, tone
                     )}
                     role="region"
                     aria-label={label}
+                    data-cursor="drag"
                     tabIndex={0}
                     onKeyDown={(e) => {
                         if (e.target !== e.currentTarget) return;

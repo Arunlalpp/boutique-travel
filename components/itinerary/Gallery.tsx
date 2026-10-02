@@ -59,6 +59,7 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                                 lastTrigger.current = e.currentTarget;
                                 setActive(i);
                             }}
+                            data-cursor="view"
                             className="group absolute inset-0 overflow-hidden"
                             aria-label={`Open image ${i + 1} of ${images.length}: ${image.alt}`}
                         >

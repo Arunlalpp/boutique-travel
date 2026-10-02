@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { breadcrumbs, pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/motion/Reveal";
@@ -6,7 +8,7 @@ import { VideoPlayer } from "@/components/stories/VideoPlayer";
 import { StoryEntry } from "@/components/stories/StoryEntry";
 import { JourneyCard } from "@/components/itinerary/JourneyCard";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { getStory, getStorySlugs, getAllStories, getItineraryCard } from "@/sanity/lib/queries";
+import { getAllStories, getItineraryCard, getSiteSettings, getStory, getStorySlugs } from "@/sanity/lib/queries";
 import { eyebrow, hLg, lede, sec, secHead, secHeadTitle, wrap } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
@@ -24,24 +26,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     const defaultTitle = `${story.guestName} — Guest Story`;
     const title = story.seo?.metaTitle || defaultTitle;
     const description = story.seo?.metaDescription || story.excerpt;
-    const ogImage = story.seo?.ogImage ?? story.poster;
-    return {
+    const settings = await getSiteSettings();
+    return pageMetadata({
         title,
         description,
-        alternates: { canonical: `/stories/${story.slug}` },
-        openGraph: {
-            title,
-            description,
-            url: `/stories/${story.slug}`,
-            images: [{ url: ogImage.src, width: 1200, height: 630, alt: ogImage.alt }],
-        },
-        twitter: {
-            card: "summary_large_image",
-            title,
-            description,
-            images: [ogImage.src],
-        },
-    };
+        path: `/stories/${story.slug}`,
+        siteName: settings.name,
+        type: "article",
+    });
 }
 
 export default async function StoryPage({ params }: { params: Params }) {
@@ -49,14 +41,21 @@ export default async function StoryPage({ params }: { params: Params }) {
     const story = await getStory(slug);
     if (!story) notFound();
 
-    const [journey, allStories] = await Promise.all([
+    const [journey, allStories, settings] = await Promise.all([
         story.journeySlug ? getItineraryCard(story.journeySlug) : Promise.resolve(undefined),
         getAllStories(),
+        getSiteSettings(),
+    ]);
+    const structuredData = breadcrumbs(settings, [
+        ["Home", "/"],
+        ["Stories", "/stories"],
+        [story.guestName, `/stories/${story.slug}`],
     ]);
     const more = allStories.filter((s) => s.slug !== story.slug).slice(0, 2);
 
     return (
         <article>
+            <JsonLd data={structuredData} />
             <header className="relative isolate overflow-hidden pt-[150px] pb-12">
                 <div
                     aria-hidden

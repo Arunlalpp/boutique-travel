@@ -151,6 +151,13 @@
         cursor: pointer;
     }
 
+    /* The custom cursor (components/ui/Cursor.tsx) sets data-cursor on <html>
+       only for mouse users; text fields keep the normal I-beam. */
+    html[data-cursor],
+    html[data-cursor] *:not(input, textarea, [contenteditable="true"]) {
+        cursor: none;
+    }
+
     @media (prefers-reduced-motion: reduce) {
         *,
         *::before,

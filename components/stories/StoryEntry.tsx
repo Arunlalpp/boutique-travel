@@ -22,7 +22,7 @@ export function StoryEntry({ story }: { story: GuestStoryCard }) {
             <div className="grid gap-5 p-[clamp(22px,3vw,32px)]">
                 <QuoteIcon width={32} height={32} className="text-ember" />
                 <blockquote className="font-display text-[clamp(20px,2vw,24px)] italic leading-[1.35]">
-                    <Link href={`/stories/${story.slug}`} className="after:absolute after:inset-0 after:z-1">
+                    <Link href={`/stories/${story.slug}`} data-cursor="view" className="after:absolute after:inset-0 after:z-1">
                         “{story.quote}”
                     </Link>
                 </blockquote>

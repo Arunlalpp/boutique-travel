@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { Suspense } from "react";
 import { PageHero } from "@/components/ui/PageHero";
 import { JourneyIndex } from "@/components/itinerary/JourneyIndex";
 import { CtaBand } from "@/components/home/CtaBand";
 import { media } from "@/lib/data/media";
-import { getAllItineraries } from "@/sanity/lib/queries";
+import { getAllItineraries, getSiteSettings } from "@/sanity/lib/queries";
 
-export const metadata: Metadata = {
-    title: "Journeys",
-    description: "Sample private and small-group journeys, each a starting point for a trip designed around you.",
-    alternates: { canonical: "/itineraries" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const settings = await getSiteSettings();
+    return pageMetadata({
+        title: "Journeys",
+        description: "Sample private and small-group journeys, each a starting point for a trip designed around you.",
+        path: "/itineraries",
+        siteName: settings.name,
+    });
+}
 
 export default async function ItinerariesPage() {
     const itineraries = await getAllItineraries();

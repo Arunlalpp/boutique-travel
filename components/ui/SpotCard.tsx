@@ -30,7 +30,7 @@ export function SpotCard({ href, title, image, sizes, priority, badge, action, l
                 className,
             )}
         >
-            <Link href={href} aria-label={title} className="absolute inset-0 z-1 rounded-[inherit]" />
+            <Link href={href} aria-label={title} data-cursor="view" className="absolute inset-0 z-1 rounded-[inherit]" />
             <div className={cn(mediaFill, "transition-transform duration-[900ms] ease-soft group-hover:scale-[1.06]")}>
                 <SmartImage image={image} sizes={sizes} priority={priority} />
                 <div className="absolute inset-0 bg-linear-to-b from-black/25 via-transparent via-30% to-black/45" />

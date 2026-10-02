@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/ui/PageHero";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { PinIcon } from "@/components/ui/Icons";
@@ -8,11 +9,15 @@ import { getAllDestinations, getAllItineraries, getSiteSettings } from "@/sanity
 import { lede, sec, wrap } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
-    title: "Plan a Trip",
-    description: "Tell us about your dream trip in three quick steps. A trip designer replies personally.",
-    alternates: { canonical: "/enquire" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const settings = await getSiteSettings();
+    return pageMetadata({
+        title: "Plan a Trip",
+        description: "Tell us about your dream trip in three quick steps. A trip designer replies personally.",
+        path: "/enquire",
+        siteName: settings.name,
+    });
+}
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
