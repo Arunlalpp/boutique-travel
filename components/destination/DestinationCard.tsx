@@ -1,8 +1,6 @@
-import Link from "next/link";
 import type { DestinationCard as DestinationCardType } from "@/lib/types";
-import { SmartImage } from "@/components/ui/SmartImage";
-import { ArrowIcon, PinIcon } from "@/components/ui/Icons";
-import { cn } from "@/lib/utils";
+import { SpotCard } from "@/components/ui/SpotCard";
+import { price, priceNote } from "@/lib/ui";
 
 export function DestinationCard({
     destination,
@@ -15,32 +13,22 @@ export function DestinationCard({
 }) {
     const journeys = destination.journeyCount;
     return (
-        <article className={cn("spot shadow-deep", className)}>
-            <Link href={`/destinations/${destination.slug}`} className="spot-link" aria-label={destination.name} />
-            <div className="media-fill">
-                <SmartImage image={destination.heroImage} sizes={sizes} />
-            </div>
-            <div className="top">
-                <span className="pill glass-strong">{destination.region}</span>
-            </div>
-            <div className="info glass-strong">
-                <span className="loc">
-                    <PinIcon />
-                    {destination.country}
+        <SpotCard
+            href={`/destinations/${destination.slug}`}
+            title={destination.name}
+            image={destination.heroImage}
+            sizes={sizes}
+            className={className}
+            badge={destination.region}
+            location={destination.country}
+            tagline={destination.shortDescription}
+            meta={
+                <span className={price}>
+                    <small className={priceNote}>
+                        {journeys > 0 ? `${journeys} journey${journeys === 1 ? "" : "s"}` : "Designed to order"}
+                    </small>
                 </span>
-                <h3>{destination.name}</h3>
-                <span className="tagline">{destination.shortDescription}</span>
-                <div className="meta">
-                    <span className="price">
-                        <small>
-                            {journeys > 0 ? `${journeys} journey${journeys === 1 ? "" : "s"}` : "Designed to order"}
-                        </small>
-                    </span>
-                    <span className="go" aria-hidden>
-                        <ArrowIcon />
-                    </span>
-                </div>
-            </div>
-        </article>
+            }
+        />
     );
 }

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { GuestStoryCard } from "@/lib/types";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { ArrowIcon, PlayIcon, QuoteIcon } from "@/components/ui/Icons";
+import { iconBtn, mediaFill } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 const AUTOPLAY = 8000;
@@ -42,10 +43,11 @@ export function StoryCarousel({ stories }: { stories: GuestStoryCard[] }) {
 
     if (!count) return null;
     const s = stories[shown];
+    const swap = cn("transition-[opacity,translate] duration-350 ease-soft", out && "translate-y-2 opacity-0");
 
     return (
         <div
-            className="quotes"
+            className="mt-[clamp(56px,7vw,100px)] grid grid-cols-[minmax(0,420px)_minmax(0,1fr)] items-center max-tab:grid-cols-1"
             aria-roledescription="carousel"
             aria-label="Traveller stories"
             onMouseEnter={() => setHovered(true)}
@@ -53,25 +55,28 @@ export function StoryCarousel({ stories }: { stories: GuestStoryCard[] }) {
             onFocus={() => setHovered(true)}
             onBlur={() => setHovered(false)}
         >
-            <div className="q-photo shadow-deep">
-                <div className={cn("media-fill swap", out && "out")}>
+            <div className="relative aspect-9/10 max-w-full overflow-hidden rounded-[32px] bg-night-3 shadow-deep">
+                <div className={cn(mediaFill, swap)}>
                     <SmartImage image={s.poster} sizes="(min-width: 860px) 420px, 100vw" />
                 </div>
-                <Link href={`/stories/${s.slug}`} className="play glass-strong">
-                    <i>
+                <Link
+                    href={`/stories/${s.slug}`}
+                    className="glass-strong absolute top-[18px] left-[18px] z-2 flex h-11 items-center gap-2.5 rounded-full pr-4 pl-1.5 text-[13px] font-semibold"
+                >
+                    <i className="grid size-8 place-items-center rounded-full bg-fg text-night [&_svg]:size-[13px]">
                         <PlayIcon />
                     </i>
                     <span>{s.video ? "Watch story" : "Read story"}</span>
                 </Link>
             </div>
-            <div className="q-card glass-strong shadow-deep">
+            <div className="glass-strong relative z-2 -ml-20 grid gap-[22px] rounded-[32px] p-[clamp(28px,4vw,48px)] shadow-deep max-tab:mx-3 max-tab:-mt-[60px]">
                 <QuoteIcon width={40} height={40} className="text-ember" />
-                <div className={cn("swap", out && "out")} aria-live="polite">
-                    <blockquote>“{s.quote}”</blockquote>
+                <div className={swap} aria-live="polite">
+                    <blockquote className="font-display text-[clamp(20px,2.2vw,27px)] leading-[1.35] italic">“{s.quote}”</blockquote>
                 </div>
-                <div className="q-foot">
-                    <div className={cn("q-who swap", out && "out")}>
-                        <div className="avatar">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className={cn("flex items-center gap-3.5", swap)}>
+                        <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-night-3">
                             <SmartImage image={s.portrait} sizes="48px" quality={65} />
                         </div>
                         <span>
@@ -84,7 +89,7 @@ export function StoryCarousel({ stories }: { stories: GuestStoryCard[] }) {
                     </div>
                     {count > 1 && (
                         <div className="flex items-center gap-3.5">
-                            <div className="qdots">
+                            <div className="flex gap-2">
                                 {stories.map((story, k) => (
                                     <button
                                         key={story.slug}
@@ -92,12 +97,13 @@ export function StoryCarousel({ stories }: { stories: GuestStoryCard[] }) {
                                         aria-label={`Story ${k + 1}`}
                                         aria-current={k === index}
                                         onClick={() => show(k)}
+                                        className="relative h-2 w-2 rounded-full bg-white/30 transition-all duration-350 ease-soft before:absolute before:-inset-x-1 before:-inset-y-2.5 aria-[current=true]:w-7 aria-[current=true]:bg-ember"
                                     />
                                 ))}
                             </div>
                             <button
                                 type="button"
-                                className="icon-btn border border-line-2"
+                                className={cn(iconBtn, "border border-line-2")}
                                 onClick={() => show(index + 1)}
                                 aria-label="Next story"
                             >

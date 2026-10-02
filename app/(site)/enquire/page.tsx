@@ -5,6 +5,8 @@ import { PinIcon } from "@/components/ui/Icons";
 import { ContactCards } from "@/components/enquire/ContactCards";
 import { EnquiryForm, type EnquiryPrefill } from "@/components/enquire/EnquiryForm";
 import { getAllDestinations, getAllItineraries, getSiteSettings } from "@/sanity/lib/queries";
+import { lede, sec, wrap } from "@/lib/ui";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
     title: "Plan a Trip",
@@ -49,16 +51,16 @@ export default async function EnquirePage({ searchParams }: { searchParams: Sear
     return (
         <>
             <PageHero
-                className="pb-15"
+                className="pb-15!"
                 crumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
                 eyebrow="Say hello"
                 title="Let’s plan your next escape."
             />
 
-            <section className="sec pt-5" aria-label="Enquiry">
-                <div className="wrap contact">
+            <section className={cn(sec, "pt-5!")} aria-label="Enquiry">
+                <div className={cn(wrap, "grid grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] items-start gap-[clamp(28px,5vw,64px)] max-desk:grid-cols-1")}>
                     <div className="grid gap-5.5">
-                        <p className="lede">
+                        <p className={lede}>
                             Tell us a little about your dream trip in three quick steps. A trip designer replies
                             personally, usually within the hour during studio hours.
                         </p>
@@ -78,9 +80,9 @@ export default async function EnquirePage({ searchParams }: { searchParams: Sear
             </section>
 
             {settings.studio && (
-                <section className="sec pt-0" aria-label="Find the studio">
-                    <div className="wrap">
-                        <div className="mapcard shadow-deep">
+                <section className={cn(sec, "pt-0!")} aria-label="Find the studio">
+                    <div className={wrap}>
+                        <div className="relative h-[440px] overflow-hidden rounded-[36px] shadow-deep">
                             <svg
                                 viewBox="0 0 1200 440"
                                 preserveAspectRatio="xMidYMid slice"
@@ -104,7 +106,7 @@ export default async function EnquirePage({ searchParams }: { searchParams: Sear
                                     <rect x="960" y="90" width="80" height="50" rx="6" />
                                 </g>
                             </svg>
-                            <div className="pinbox glass-strong shadow-deep">
+                            <div className="glass-strong absolute top-[44%] left-1/2 grid max-w-[calc(100%-32px)] -translate-x-1/2 -translate-y-full gap-1 rounded-[22px] px-5 py-4 shadow-deep">
                                 <b className="flex items-center gap-2">
                                     <PinIcon width={16} height={16} className="text-ember" />
                                     {settings.name} Studio
@@ -114,9 +116,9 @@ export default async function EnquirePage({ searchParams }: { searchParams: Sear
                                     {settings.hours && ` · ${settings.hours}`}
                                 </span>
                             </div>
-                            <span className="pt" aria-hidden />
+                            <span aria-hidden className="absolute top-[calc(44%+18px)] left-1/2 size-5 -translate-x-1/2 animate-beacon rounded-full border-4 border-fg bg-ember" />
                             {mapsHref && (
-                                <ButtonLink href={mapsHref} external variant="glass" arrow={false} className="dir">
+                                <ButtonLink href={mapsHref} external variant="glass" arrow={false} className="absolute! top-5 right-5">
                                     Get directions
                                 </ButtonLink>
                             )}

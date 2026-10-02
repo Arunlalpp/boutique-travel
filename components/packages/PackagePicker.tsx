@@ -1,37 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GROUP_MIN, plans, pricingModes, type PricingMode } from "@/lib/data/packages";
 import { money } from "@/lib/format";
 import { CheckIcon, XIcon } from "@/components/ui/Icons";
 import { useToast } from "@/components/providers/SiteProviders";
+import { btn, checkDot, price, sec, stepper, stepperBtn, stepperValue, wrap } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
-const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+/** Indicator offset per tab; the three tabs are equal width so a translate is exact. */
+const INDICATOR = ["translate-x-0", "translate-x-full", "translate-x-[200%]"];
 
 export function PricingToggle({ mode, onChange }: { mode: PricingMode; onChange: (m: PricingMode) => void }) {
-    const group = useRef<HTMLDivElement>(null);
-    const [ind, setInd] = useState<{ left: number; width: number } | null>(null);
-
-    useIsoLayoutEffect(() => {
-        const place = () => {
-            const on = group.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
-            if (on) setInd({ left: on.offsetLeft, width: on.offsetWidth });
-        };
-        place();
-        window.addEventListener("resize", place);
-        document.fonts?.ready.then(place);
-        return () => window.removeEventListener("resize", place);
-    }, [mode]);
-
+    const active = pricingModes.findIndex((m) => m.id === mode);
     return (
-        <div ref={group} className="seg glass-strong" role="group" aria-label="Pricing type">
-            <span className="thumb-ind" style={ind ? { left: ind.left, width: ind.width } : { opacity: 0 }} aria-hidden />
+        <div className="glass-strong relative grid max-w-full grid-cols-3 rounded-full p-[5px]" role="group" aria-label="Pricing type">
+            <span
+                aria-hidden
+                className={cn(
+                    "absolute inset-y-[5px] left-[5px] w-[calc((100%-10px)/3)] rounded-full bg-fg transition-transform duration-400 ease-soft",
+                    INDICATOR[active],
+                )}
+            />
             {pricingModes.map((m) => (
-                <button key={m.id} type="button" aria-pressed={m.id === mode} onClick={() => onChange(m.id)}>
+                <button
+                    key={m.id}
+                    type="button"
+                    aria-pressed={m.id === mode}
+                    onClick={() => onChange(m.id)}
+                    className="group/tab relative z-1 h-[42px] rounded-full px-5 text-sm font-semibold whitespace-nowrap text-mist transition-colors duration-300 aria-pressed:text-night max-xs:px-3 max-xs:text-[13px]"
+                >
                     {m.label}
-                    {m.note && <small>{m.note}</small>}
+                    {m.note && (
+                        <small className="ml-1 text-[11px] text-ember group-aria-pressed/tab:text-ember-deep">{m.note}</small>
+                    )}
                 </button>
             ))}
         </div>
@@ -45,13 +48,13 @@ export function PackagePicker() {
     const [people, setPeople] = useState(2);
     const [flip, setFlip] = useState(false);
     const [sticky, setSticky] = useState(false);
-    const section = useRef<HTMLDivElement>(null);
+    const section = useRef<HTMLElement>(null);
 
     const multiplier = pricingModes.find((m) => m.id === mode)!.multiplier;
     const plan = plans.find((p) => p.id === selected)!;
     const perPerson = Math.round(plan.price * multiplier);
 
-    // Show the sticky booking bar only while the plans are in or above view.
+    // Show the sticky booking bar once the plans are in or above view.
     useEffect(() => {
         const el = section.current;
         if (!el) return;
@@ -94,43 +97,58 @@ export function PackagePicker() {
 
     return (
         <>
-            <div className="mt-2 flex justify-center">
+            <div className="mt-2 flex justify-center px-(--gutter)">
                 <PricingToggle mode={mode} onChange={changeMode} />
             </div>
 
-            <section className="sec pt-5" aria-label="Packages" ref={section}>
-                <div className="wrap">
-                    <div className="plans">
+            <section className={cn(sec, "pt-5!")} aria-label="Packages" ref={section}>
+                <div className={wrap}>
+                    <div className="grid grid-cols-3 items-stretch gap-[22px] max-desk:-mx-(--gutter) max-desk:flex max-desk:snap-x max-desk:snap-mandatory max-desk:overflow-x-auto max-desk:px-(--gutter) max-desk:pt-2.5 max-desk:pb-6 max-desk:scrollbar-none">
                         {plans.map((p) => {
                             const on = p.id === selected;
                             return (
                                 <article
                                     key={p.id}
-                                    className={cn("plan glass", on && "on")}
+                                    data-on={on || undefined}
+                                    className="glass relative flex cursor-pointer flex-col gap-5 rounded-[32px] p-8 text-left transition-[translate,border-color,background-color] duration-400 ease-soft hover:-translate-y-1.5 data-on:border-ember! data-on:bg-ember/8! data-on:shadow-[0_0_0_1px_var(--color-ember),0_30px_70px_-30px_rgb(245_158_61/0.45)] max-desk:w-[min(320px,82vw)] max-desk:shrink-0 max-desk:snap-center"
                                     onClick={(e) => choose(p.id, e.currentTarget)}
                                 >
-                                    <div className="hd">
-                                        <h3>{p.name}</h3>
-                                        {p.popular && <span className="badge">MOST POPULAR</span>}
+                                    <div className="flex items-center justify-between gap-3">
+                                        <h3 className="text-[28px]">{p.name}</h3>
+                                        {p.popular && (
+                                            <span className="rounded-full bg-ember px-2.5 py-[5px] text-[11px] font-bold tracking-[0.06em] whitespace-nowrap text-ember-ink">
+                                                MOST POPULAR
+                                            </span>
+                                        )}
                                     </div>
                                     <span className="-mt-2.5 text-sm text-dim">{p.duration}</span>
-                                    <div className="amt">
-                                        <b className={cn(flip && "opacity-0")}>{money(p.price * multiplier)}</b>
-                                        <span>/ person</span>
+                                    <div className="flex flex-wrap items-baseline gap-2">
+                                        <b
+                                            className={cn(
+                                                "font-display text-[54px] leading-none font-normal tabular-nums transition-opacity duration-250",
+                                                flip && "opacity-0",
+                                            )}
+                                        >
+                                            {money(p.price * multiplier)}
+                                        </b>
+                                        <span className="text-[13px] text-dim">/ person</span>
                                     </div>
                                     <p className="text-[14.5px] text-mist">{p.description}</p>
-                                    <ul>
+                                    <ul className="grid gap-3 border-t border-line pt-[18px]">
                                         {p.included.map((i) => (
-                                            <li key={i}>
-                                                <i>
+                                            <li key={i} className="flex items-center gap-2.5 text-sm text-mist">
+                                                <i className={cn(checkDot, "mt-0! size-[22px]!")}>
                                                     <CheckIcon />
                                                 </i>
                                                 {i}
                                             </li>
                                         ))}
                                         {p.excluded.map((i) => (
-                                            <li key={i} className="no">
-                                                <i>
+                                            <li
+                                                key={i}
+                                                className="flex items-center gap-2.5 text-sm text-dim line-through decoration-white/25"
+                                            >
+                                                <i className={cn(checkDot, "mt-0! size-[22px]! bg-white/7! text-dim!")}>
                                                     <XIcon />
                                                 </i>
                                                 <span className="sr-only">Not included: </span>
@@ -140,12 +158,12 @@ export function PackagePicker() {
                                     </ul>
                                     <button
                                         type="button"
-                                        className="sel"
                                         aria-pressed={on}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             choose(p.id, e.currentTarget.closest("article")!);
                                         }}
+                                        className="mt-auto flex h-12 items-center justify-center gap-2.5 rounded-full border border-line-2 font-semibold aria-pressed:border-ember aria-pressed:bg-ember aria-pressed:text-ember-ink"
                                     >
                                         {on ? "Selected" : `Choose ${p.name}`}
                                     </button>
@@ -156,23 +174,30 @@ export function PackagePicker() {
                 </div>
             </section>
 
-            <div className={cn("stickybar glass-strong shadow-deep", sticky && "on")} aria-label="Booking summary">
-                <div className="sum">
-                    <small>{pricingModes.find((m) => m.id === mode)!.summary}</small>
-                    <b>
+            <div
+                aria-label="Booking summary"
+                className={cn(
+                    "glass-strong fixed bottom-[calc(20px+env(safe-area-inset-bottom,0px))] left-1/2 z-55 flex w-[min(860px,calc(100vw-24px))] -translate-x-1/2 items-center justify-between gap-4 rounded-full bg-[#141820]/80! py-2 pr-2 pl-[26px] shadow-deep transition-[translate,visibility] duration-500 ease-soft max-tab:bottom-[calc(88px+env(safe-area-inset-bottom,0px))] max-tab:rounded-3xl max-tab:pl-[18px]",
+                    sticky ? "visible translate-y-0" : "invisible translate-y-[140%]",
+                )}
+            >
+                <div className="grid min-w-0 leading-[1.3]">
+                    <small className="text-xs text-dim">{pricingModes.find((m) => m.id === mode)!.summary}</small>
+                    <b className="truncate text-base">
                         {plan.name} · {plan.short}
                     </b>
                 </div>
-                <div className="right">
-                    <div className="stepper">
-                        <button type="button" aria-label="Fewer travellers" disabled={people <= 1} onClick={fewer}>
+                <div className="flex items-center gap-3.5">
+                    <div className={cn(stepper, "max-tab:hidden")}>
+                        <button type="button" className={stepperBtn} aria-label="Fewer travellers" disabled={people <= 1} onClick={fewer}>
                             −
                         </button>
-                        <output aria-live="polite" aria-label="Travellers">
+                        <output aria-live="polite" aria-label="Travellers" className={stepperValue}>
                             {people}
                         </output>
                         <button
                             type="button"
+                            className={stepperBtn}
                             aria-label="More travellers"
                             disabled={people >= 12}
                             onClick={() => setPeople(people + 1)}
@@ -180,10 +205,10 @@ export function PackagePicker() {
                             +
                         </button>
                     </div>
-                    <span className="price" aria-live="polite">
+                    <span className={price} aria-live="polite">
                         {money(perPerson * people)}
                     </span>
-                    <Link className="btn btn-ember" href={bookHref}>
+                    <Link className={btn("ember")} href={bookHref}>
                         Book now
                     </Link>
                 </div>

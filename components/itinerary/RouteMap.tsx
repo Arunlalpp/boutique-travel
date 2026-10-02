@@ -1,9 +1,6 @@
-"use client";
-
-import { useRef } from "react";
-import { gsap, useGSAP, motion } from "@/lib/gsap";
+import { Reveal } from "@/components/motion/Reveal";
 import type { RoutePoint } from "@/lib/types";
-import { pad } from "@/lib/utils";
+import { cn, pad } from "@/lib/utils";
 
 function smoothPath(points: RoutePoint[]): string {
     if (points.length < 2) return "";
@@ -26,40 +23,23 @@ interface RouteMapProps {
     country: string;
 }
 
+/** Stop markers appear one after another as the line draws. */
+const STOP_DELAYS = [
+    "delay-[200ms]",
+    "delay-[500ms]",
+    "delay-[800ms]",
+    "delay-[1100ms]",
+    "delay-[1400ms]",
+    "delay-[1700ms]",
+    "delay-[2000ms]",
+    "delay-[2300ms]",
+];
+
 export function RouteMap({ points, country }: RouteMapProps) {
-    const root = useRef<HTMLDivElement>(null);
     const path = smoothPath(points);
 
-    useGSAP(
-        () => {
-            const mm = gsap.matchMedia();
-            mm.add(motion.full, () => {
-                const line = root.current?.querySelector<SVGPathElement>("[data-route-line]");
-                if (!line) return;
-                const length = line.getTotalLength();
-                const tl = gsap.timeline({ scrollTrigger: { trigger: root.current, start: "top 75%", once: true } });
-                tl.fromTo(
-                    line,
-                    { strokeDasharray: length, strokeDashoffset: length },
-                    { strokeDashoffset: 0, duration: 2.4, ease: "power2.inOut" },
-                ).fromTo(
-                    "[data-route-stop]",
-                    { opacity: 0, scale: 0.6, transformOrigin: "center" },
-                    { opacity: 1, scale: 1, duration: 0.8, stagger: 2.4 / points.length, ease: "back.out(2)" },
-                    0.1,
-                );
-            });
-            mm.add(motion.reduced, () => {
-                const line = root.current?.querySelector<SVGPathElement>("[data-route-line]");
-                if (line) gsap.set(line, { strokeDasharray: "none", strokeDashoffset: 0 });
-                gsap.set("[data-route-stop]", { opacity: 1, scale: 1 });
-            });
-        },
-        { scope: root },
-    );
-
     return (
-        <div ref={root} className="relative">
+        <Reveal className="group/route relative">
             <svg
                 viewBox="-8 -8 116 116"
                 role="img"
@@ -95,18 +75,26 @@ export function RouteMap({ points, country }: RouteMapProps) {
                     opacity="0.35"
                 />
                 <path
-                    data-route-line
                     d={path}
+                    pathLength={1}
                     fill="none"
                     stroke="var(--color-ember)"
                     strokeWidth="0.55"
                     strokeLinecap="round"
+                    strokeDasharray="1"
+                    className="transition-[stroke-dashoffset] duration-[2400ms] ease-in-out in-[.js]:motion-safe:[stroke-dashoffset:1] group-data-in/route:[stroke-dashoffset:0]!"
                 />
 
                 {points.map((p, i) => {
                     const labelLeft = p.x > 70;
                     return (
-                        <g key={p.name} data-route-stop>
+                        <g
+                            key={p.name}
+                            className={cn(
+                                "transition-opacity duration-700 in-[.js]:motion-safe:opacity-0 group-data-in/route:opacity-100!",
+                                STOP_DELAYS[Math.min(i, STOP_DELAYS.length - 1)],
+                            )}
+                        >
                             <circle
                                 cx={p.x}
                                 cy={p.y}
@@ -147,6 +135,6 @@ export function RouteMap({ points, country }: RouteMapProps) {
                     </li>
                 ))}
             </ol>
-        </div>
+        </Reveal>
     );
 }

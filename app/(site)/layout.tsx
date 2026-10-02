@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Preloader } from "@/components/motion/Preloader";
 import { Analytics } from "@/components/analytics/Analytics";
 import { SiteProviders } from "@/components/providers/SiteProviders";
 import { SanityLive } from "@/sanity/lib/live";
@@ -43,7 +42,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
     return (
         <SiteProviders>
-            <Preloader siteName={settings.name} />
             <a
                 href="#main"
                 className="sr-only z-70 rounded-full bg-fg px-4 py-3 text-night focus:not-sr-only focus:fixed focus:left-4 focus:top-4"

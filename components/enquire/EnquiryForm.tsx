@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { ArrowIcon, CompassIcon, GuideIcon, UserIcon } from "@/components/ui/Icons";
 import { money } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { btn, chip, field, fieldLabel, hMd, input, mono, stepper, stepperBtn, stepperValue } from "@/lib/ui";
 
 interface Option {
     slug: string;
@@ -170,7 +171,6 @@ export function EnquiryForm({
         }
     }
 
-    const budgetPct = ((v.budget - BUDGET.min) / (BUDGET.max - BUDGET.min)) * 100;
     const steps = ["Your trip", "When & who", "Your details"];
     const summary = [
         v.style,
@@ -183,7 +183,7 @@ export function EnquiryForm({
     return (
         <form
             ref={formRef}
-            className="form glass-strong shadow-deep scroll-mt-28"
+            className="glass-strong relative grid scroll-mt-28 gap-6 rounded-[36px] p-[clamp(24px,3.6vw,44px)] shadow-deep"
             noValidate
             onSubmit={(e) => {
                 e.preventDefault();
@@ -203,13 +203,13 @@ export function EnquiryForm({
                 />
             </div>
 
-            <ol className="steps" aria-label="Progress">
+            <ol className="flex items-center gap-2" aria-label="Progress">
                 {steps.map((label, k) => (
-                    <li key={label} className={cn("s", k === step && "on", k < step && "done")} aria-current={k === step ? "step" : undefined}>
-                        <div className="bar">
-                            <i />
+                    <li key={label} className="grid flex-1 gap-2" aria-current={k === step ? "step" : undefined}>
+                        <div className="h-1 overflow-hidden rounded-full bg-white/14">
+                            <i className={cn("block h-full bg-ember transition-[width] duration-500 ease-soft", k <= step ? "w-full" : "w-0")} />
                         </div>
-                        <small>
+                        <small className={cn("text-xs font-semibold", k === step ? "text-fg" : "text-dim")}>
                             {k + 1} · {label}
                         </small>
                     </li>
@@ -217,29 +217,30 @@ export function EnquiryForm({
             </ol>
 
             {(prefill.packageName || prefill.experience) && (
-                <p className="mono -mb-2 text-ember">
+                <p className={cn(mono, "-mb-2 text-ember")}>
                     Enquiring about: {[prefill.packageName, prefill.experience].filter(Boolean).join(" · ")}
                 </p>
             )}
 
             {step === 0 && (
-                <div className="fstep" key="s0">
-                    <h3 className="h-md">What kind of trip?</h3>
-                    <div className="choice" role="group" aria-label="Travel style">
+                <div className="grid animate-pagein gap-[18px]" key="s0">
+                    <h3 className={hMd}>What kind of trip?</h3>
+                    <div className="grid grid-cols-3 gap-2.5 max-xs:grid-cols-1" role="group" aria-label="Travel style">
                         {STYLES.map(({ value, Icon, text }) => (
                             <button
                                 key={value}
                                 type="button"
                                 aria-pressed={v.style === value}
                                 onClick={() => set("style", value)}
+                                className="grid gap-2 rounded-[20px] border border-line bg-white/4 p-4 text-left transition-all duration-250 hover:border-line-2 aria-pressed:border-ember aria-pressed:bg-ember/10 [&_svg]:size-6 [&_svg]:text-ember"
                             >
                                 <Icon />
-                                <b>{value}</b>
-                                <small>{text}</small>
+                                <b className="text-sm">{value}</b>
+                                <small className="text-xs leading-[1.4] text-dim">{text}</small>
                             </button>
                         ))}
                     </div>
-                    <div className="two">
+                    <div className="grid grid-cols-2 gap-3.5 max-xs:grid-cols-1">
                         <SelectField
                             label="Destination"
                             value={v.destination}
@@ -260,18 +261,18 @@ export function EnquiryForm({
             )}
 
             {step === 1 && (
-                <div className="fstep" key="s1">
-                    <h3 className="h-md">When and who?</h3>
-                    <div className="field">
-                        <span className="k" id="month-label">
+                <div className="grid animate-pagein gap-[18px]" key="s1">
+                    <h3 className={hMd}>When and who?</h3>
+                    <div className={field}>
+                        <span className={fieldLabel} id="month-label">
                             Travel month
                         </span>
-                        <div className="exp-filters" role="group" aria-labelledby="month-label">
+                        <div className="flex flex-wrap gap-2.5" role="group" aria-labelledby="month-label">
                             {[...(dateLabel ? [dateLabel] : []), "Flexible", ...months].map((m) => (
                                 <button
                                     key={m}
                                     type="button"
-                                    className="chip"
+                                    className={chip()}
                                     aria-pressed={v.month === m}
                                     onClick={() => set("month", m)}
                                 >
@@ -280,22 +281,24 @@ export function EnquiryForm({
                             ))}
                         </div>
                     </div>
-                    <div className="field">
-                        <span className="k" id="group-label">
+                    <div className={field}>
+                        <span className={fieldLabel} id="group-label">
                             Group size
                         </span>
-                        <div className="stepper" role="group" aria-labelledby="group-label">
+                        <div className={stepper} role="group" aria-labelledby="group-label">
                             <button
                                 type="button"
+                                className={stepperBtn}
                                 aria-label="Fewer travellers"
                                 disabled={v.travellers <= 1}
                                 onClick={() => set("travellers", v.travellers - 1)}
                             >
                                 −
                             </button>
-                            <output aria-live="polite">{v.travellers}</output>
+                            <output aria-live="polite" className={stepperValue}>{v.travellers}</output>
                             <button
                                 type="button"
+                                className={stepperBtn}
                                 aria-label="More travellers"
                                 disabled={v.travellers >= 20}
                                 onClick={() => set("travellers", v.travellers + 1)}
@@ -304,32 +307,33 @@ export function EnquiryForm({
                             </button>
                         </div>
                     </div>
-                    <div className="field">
-                        <label htmlFor="budget">Budget per person</label>
+                    <div className={field}>
+                        <label htmlFor="budget" className={fieldLabel}>
+                            Budget per person
+                        </label>
                         <input
                             id="budget"
                             type="range"
-                            className="range"
+                            className="h-1.5 w-full cursor-pointer accent-ember"
                             min={BUDGET.min}
                             max={BUDGET.max}
                             step={BUDGET.step}
                             value={v.budget}
                             onChange={(e) => set("budget", Number(e.target.value))}
-                            style={{ ["--p" as string]: `${budgetPct}%` }}
                             aria-valuetext={`Up to ${money(v.budget)}`}
                         />
-                        <div className="range-val">
+                        <div className="flex justify-between font-mono text-xs text-dim">
                             <span>{money(BUDGET.min)}</span>
-                            <b>Up to {money(v.budget)}</b>
+                            <b className="font-medium text-fg">Up to {money(v.budget)}</b>
                         </div>
                     </div>
                 </div>
             )}
 
             {step === 2 && (
-                <div className="fstep" key="s2">
-                    <h3 className="h-md">Where can we reach you?</h3>
-                    <div className="two">
+                <div className="grid animate-pagein gap-[18px]" key="s2">
+                    <h3 className={hMd}>Where can we reach you?</h3>
+                    <div className="grid grid-cols-2 gap-3.5 max-xs:grid-cols-1">
                         <TextField
                             label="First name"
                             name="firstName"
@@ -349,7 +353,7 @@ export function EnquiryForm({
                             error={err("lastName")}
                         />
                     </div>
-                    <div className="two">
+                    <div className="grid grid-cols-2 gap-3.5 max-xs:grid-cols-1">
                         <TextField
                             label="Email"
                             name="email"
@@ -372,16 +376,16 @@ export function EnquiryForm({
                             error={err("phone")}
                         />
                     </div>
-                    <div className="field">
-                        <span className="k" id="reply-label">
+                    <div className={field}>
+                        <span className={fieldLabel} id="reply-label">
                             How should we reply?
                         </span>
-                        <div className="exp-filters" role="group" aria-labelledby="reply-label">
+                        <div className="flex flex-wrap gap-2.5" role="group" aria-labelledby="reply-label">
                             {CONTACT.map((c) => (
                                 <button
                                     key={c}
                                     type="button"
-                                    className="chip"
+                                    className={chip()}
                                     aria-pressed={v.contactBy === c}
                                     onClick={() => set("contactBy", c)}
                                 >
@@ -390,17 +394,20 @@ export function EnquiryForm({
                             ))}
                         </div>
                     </div>
-                    <div className="field">
-                        <label htmlFor="notes">Anything else?</label>
+                    <div className={field}>
+                        <label htmlFor="notes" className={fieldLabel}>
+                            Anything else?
+                        </label>
                         <textarea
                             id="notes"
                             name="message"
                             placeholder="Dates, interests, celebrations, dietary needs…"
                             value={v.message}
                             onChange={(e) => set("message", e.target.value)}
+                            className={cn(input, "h-[120px] resize-y py-3.5")}
                         />
                     </div>
-                    <label className={cn("check", err("consent") && "bad")}>
+                    <label className="flex cursor-pointer items-start gap-3 text-[13.5px] text-mist">
                         <input
                             type="checkbox"
                             name="consent"
@@ -408,6 +415,7 @@ export function EnquiryForm({
                             onChange={(e) => set("consent", e.target.checked)}
                             aria-invalid={!!err("consent")}
                             aria-describedby={err("consent") ? "consent-error" : undefined}
+                            className="mt-px size-[22px] shrink-0 cursor-pointer appearance-none rounded-[7px] border border-line-2 bg-white/6 bg-center bg-no-repeat bg-size-[14px] checked:border-ember checked:bg-ember checked:bg-[url('data:image/svg+xml;utf8,<svg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%231A1208%22_stroke-width=%223%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22><path_d=%22M5_12.5l4.5_4.5L19_7.5%22/></svg>')] aria-invalid:border-danger"
                         />
                         <span>
                             I’m happy to be contacted about this enquiry. We never share your details or add you to a
@@ -423,15 +431,15 @@ export function EnquiryForm({
                 </div>
             )}
 
-            <div className="fnav">
+            <div className="flex justify-between gap-2.5">
                 {step > 0 ? (
-                    <button type="button" className="btn btn-glass" onClick={() => go(step - 1)}>
+                    <button type="button" className={btn("glass")} onClick={() => go(step - 1)}>
                         Back
                     </button>
                 ) : (
                     <span />
                 )}
-                <button type="submit" className="btn btn-ember" disabled={status === "sending"}>
+                <button type="submit" className={btn("ember")} disabled={status === "sending"}>
                     {step < 2 ? "Continue" : status === "sending" ? "Sending…" : "Send enquiry"}
                     <ArrowIcon />
                 </button>
@@ -468,8 +476,8 @@ function TextField({
 }) {
     const id = useId();
     return (
-        <div className={cn("field", error && "bad")}>
-            <label htmlFor={id}>
+        <div className={field}>
+            <label htmlFor={id} className={fieldLabel}>
                 {label}
                 {required && <span aria-hidden> *</span>}
             </label>
@@ -484,9 +492,10 @@ function TextField({
                 onChange={(e) => onChange(e.target.value)}
                 aria-invalid={!!error}
                 aria-describedby={error ? `${id}-error` : undefined}
+                className={input}
             />
             {error && (
-                <span id={`${id}-error`} className="err">
+                <span id={`${id}-error`} className="text-[12.5px] text-danger">
                     {error}
                 </span>
             )}
@@ -507,9 +516,11 @@ function SelectField({
 }): ReactNode {
     const id = useId();
     return (
-        <div className="field">
-            <label htmlFor={id}>{label}</label>
-            <select id={id} value={value} onChange={(e) => onChange(e.target.value)}>
+        <div className={field}>
+            <label htmlFor={id} className={fieldLabel}>
+                {label}
+            </label>
+            <select id={id} value={value} onChange={(e) => onChange(e.target.value)} className={input}>
                 {options.map((o) => (
                     <option key={o.value} value={o.value}>
                         {o.label}

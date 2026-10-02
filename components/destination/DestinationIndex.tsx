@@ -4,6 +4,23 @@ import { useMemo, useState } from "react";
 import type { DestinationCard as DestinationCardType } from "@/lib/types";
 import { DestinationCard } from "./DestinationCard";
 import { SearchIcon } from "@/components/ui/Icons";
+import {
+    btn,
+    cardGrid,
+    chip,
+    chipRow,
+    emptyState,
+    hMd,
+    lede,
+    mono,
+    resultLine,
+    searchBox,
+    searchInput,
+    toolbar,
+    toolbarSelect,
+    wrap,
+} from "@/lib/ui";
+import { cn } from "@/lib/utils";
 
 type Sort = "az" | "journeys" | "featured";
 
@@ -36,9 +53,9 @@ export function DestinationIndex({ destinations }: { destinations: DestinationCa
     };
 
     return (
-        <div className="wrap">
-            <div className="toolbar glass-strong shadow-deep" role="search">
-                <label className="search">
+        <div className={wrap}>
+            <div className={toolbar} role="search">
+                <label className={searchBox}>
                     <SearchIcon />
                     <input
                         type="search"
@@ -46,48 +63,54 @@ export function DestinationIndex({ destinations }: { destinations: DestinationCa
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search places, countries or regions"
                         aria-label="Search destinations"
+                        className={searchInput}
                     />
                 </label>
-                <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort by">
+                <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value as Sort)}
+                    aria-label="Sort by"
+                    className={toolbarSelect}
+                >
                     <option value="featured">Most loved</option>
                     <option value="az">Name: A to Z</option>
                     <option value="journeys">Most journeys</option>
                 </select>
             </div>
 
-            <div className="cats" role="group" aria-label="Region">
+            <div className={chipRow} role="group" aria-label="Region">
                 {regions.map((r) => (
-                    <button key={r} type="button" className="chip" aria-pressed={r === region} onClick={() => setRegion(r)}>
+                    <button key={r} type="button" className={chip()} aria-pressed={r === region} onClick={() => setRegion(r)}>
                         {r}
                     </button>
                 ))}
             </div>
 
-            <div className="result-line">
+            <div className={resultLine}>
                 <span aria-live="polite">
                     {visible.length} destination{visible.length === 1 ? "" : "s"}
                     {region !== "All" && ` · ${region}`}
                 </span>
                 {filtered && (
-                    <button type="button" className="mono text-ember" onClick={reset}>
+                    <button type="button" className={cn(mono, "text-ember")} onClick={reset}>
                         Clear all filters
                     </button>
                 )}
             </div>
 
             {visible.length > 0 ? (
-                <div className="card-grid">
+                <div className={cardGrid}>
                     {visible.map((d) => (
                         <DestinationCard key={d.slug} destination={d} />
                     ))}
                 </div>
             ) : (
-                <div className="empty glass">
-                    <h3 className="h-md">No places match yet</h3>
-                    <p className="lede text-center">
+                <div className={emptyState}>
+                    <h3 className={hMd}>No places match yet</h3>
+                    <p className={cn(lede, "text-center")}>
                         Try a different region or search term. We also build custom routes from scratch.
                     </p>
-                    <button type="button" className="btn btn-glass" onClick={reset}>
+                    <button type="button" className={btn("glass")} onClick={reset}>
                         Reset filters
                     </button>
                 </div>

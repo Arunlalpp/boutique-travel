@@ -1,12 +1,13 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowIcon } from "./Icons";
+import { btn, type ButtonVariant } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 interface ButtonLinkProps {
     href: string;
     children: ReactNode;
-    variant?: "ember" | "glass" | "light" | "dark";
+    variant?: ButtonVariant;
     size?: "md" | "sm";
     arrow?: boolean;
     className?: string;
@@ -22,7 +23,7 @@ export function ButtonLink({
     className,
     external,
 }: ButtonLinkProps) {
-    const classes = cn("btn", `btn-${variant}`, size === "sm" && "btn-sm", className);
+    const classes = cn(btn(variant, size), className);
     const content = (
         <>
             {children}

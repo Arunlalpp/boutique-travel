@@ -1,23 +1,18 @@
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { eyebrow, hXl, lede, sec, wrap } from "@/lib/ui";
+import { cn } from "@/lib/utils";
 
 export default function NotFound() {
     return (
-        <section className="sec flex min-h-[80svh] items-center overflow-hidden pt-40">
+        <section className={cn(sec, "flex min-h-[80svh] items-center overflow-hidden pt-40!")}>
             <div
                 aria-hidden
-                className="glow"
-                style={{
-                    width: 700,
-                    height: 700,
-                    left: -200,
-                    top: -200,
-                    background: "radial-gradient(circle, rgba(245,158,61,.16), transparent 70%)",
-                }}
+                className="pointer-events-none absolute -top-[200px] -left-[200px] size-[700px] rounded-full bg-[radial-gradient(circle,rgb(245_158_61/0.16),transparent_70%)] blur-[10px]"
             />
-            <div className="wrap relative grid gap-6">
-                <span className="eyebrow">Page not found</span>
-                <h1 className="h-xl max-w-[14ch]">Even the best trails take a wrong turn.</h1>
-                <p className="lede">
+            <div className={cn(wrap, "relative grid gap-6")}>
+                <span className={eyebrow}>Page not found</span>
+                <h1 className={cn(hXl, "max-w-[14ch]")}>Even the best trails take a wrong turn.</h1>
+                <p className={lede}>
                     The page you were looking for has moved, or never existed. Let us point you somewhere better.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2.5">

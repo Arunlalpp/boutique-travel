@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { contactHref, isActive, mainNav } from "@/lib/data/site";
 import { useSaved, useToast } from "@/components/providers/SiteProviders";
 import { ArrowIcon, BagIcon, ChatIcon, CompassIcon, HeartIcon, HomeIcon, LogoMark, RouteIcon } from "@/components/ui/Icons";
+import { btn, iconBtn, logoClass } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -22,7 +23,6 @@ export function Header({ siteName }: { siteName: string }) {
     const toast = useToast();
     const { saved, bumps } = useSaved();
     const [scrolled, setScrolled] = useState(false);
-    const savedBtn = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 30);
@@ -30,14 +30,6 @@ export function Header({ siteName }: { siteName: string }) {
         window.addEventListener("scroll", onScroll, { passive: true });
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
-
-    useEffect(() => {
-        const el = savedBtn.current;
-        if (!el || !bumps) return;
-        el.classList.remove("bump");
-        void el.offsetWidth;
-        el.classList.add("bump");
-    }, [bumps]);
 
     const openSaved = () => {
         if (!saved.length) {
@@ -49,46 +41,66 @@ export function Header({ siteName }: { siteName: string }) {
 
     return (
         <>
-            <header className={cn("nav", scrolled && "scrolled")}>
-                <div className="nav-in glass">
-                    <Link className="logo" href="/" aria-label={`${siteName} home`}>
+            <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-(--gutter) pt-[calc(14px+env(safe-area-inset-top,0px))]">
+                <div
+                    className={cn(
+                        "glass pointer-events-auto mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-4 rounded-full pr-2.5 pl-[22px] transition-[background-color,box-shadow] duration-300 max-tab:h-14 max-tab:pl-4",
+                        scrolled && "bg-night/60! shadow-[0_16px_40px_-20px_rgb(0_0_0/0.7)]",
+                    )}
+                >
+                    <Link className={logoClass} href="/" aria-label={`${siteName} home`}>
                         <LogoMark />
                         {siteName}
                     </Link>
-                    <nav className="links" aria-label="Main">
+                    <nav className="flex gap-1 max-tab:hidden" aria-label="Main">
                         {mainNav.map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}
                                 aria-current={isActive(pathname, item.href) ? "page" : undefined}
+                                className="rounded-full px-3.5 py-[9px] text-sm font-medium text-mist transition-colors hover:bg-white/7 hover:text-fg aria-[current=page]:bg-white/12 aria-[current=page]:text-fg max-[1060px]:px-2.5 max-[1060px]:text-[13.5px]"
                             >
                                 {item.label}
                             </Link>
                         ))}
                     </nav>
-                    <div className="nav-right">
+                    <div className="flex items-center gap-2">
                         <button
-                            ref={savedBtn}
+                            key={bumps}
                             type="button"
-                            className="icon-btn saved"
+                            className={cn(iconBtn, "relative", bumps > 0 && "animate-bump")}
                             onClick={openSaved}
                             aria-label={`Saved journeys (${saved.length})`}
                         >
                             <HeartIcon />
-                            <span className={cn("count", saved.length > 0 && "on")} aria-hidden>
+                            <span
+                                aria-hidden
+                                className={cn(
+                                    "absolute top-1 right-[3px] grid h-[18px] min-w-[18px] place-items-center rounded-full bg-ember px-1 text-[11px] font-bold text-ember-ink transition-transform duration-300 ease-soft",
+                                    saved.length > 0 ? "scale-100" : "scale-0",
+                                )}
+                            >
                                 {saved.length}
                             </span>
                         </button>
-                        <Link className="btn btn-light btn-sm" href={contactHref}>
+                        <Link className={cn(btn("light", "sm"), "max-tab:hidden")} href={contactHref}>
                             Plan a Trip <ArrowIcon />
                         </Link>
                     </div>
                 </div>
             </header>
 
-            <nav className="tabbar glass" aria-label="Mobile">
+            <nav
+                className="glass fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom,0px))] z-60 hidden h-[66px] items-center justify-between rounded-full bg-[#141820]/72! px-2 max-tab:flex"
+                aria-label="Mobile"
+            >
                 {tabs.map(({ label, href, Icon }) => (
-                    <Link key={href} href={href} aria-current={isActive(pathname, href) ? "page" : undefined}>
+                    <Link
+                        key={href}
+                        href={href}
+                        aria-current={isActive(pathname, href) ? "page" : undefined}
+                        className="grid h-[52px] flex-1 place-items-center gap-0.5 rounded-full text-[10.5px] font-semibold text-dim transition-all duration-300 ease-soft aria-[current=page]:flex aria-[current=page]:flex-[1.7] aria-[current=page]:justify-center aria-[current=page]:gap-[7px] aria-[current=page]:bg-ember aria-[current=page]:text-[13px] aria-[current=page]:text-ember-ink [&_svg]:size-[21px]"
+                    >
                         <Icon />
                         {label}
                     </Link>

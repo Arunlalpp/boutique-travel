@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowIcon, ArrowLeftIcon, ExpandIcon, XIcon } from "@/components/ui/Icons";
 import type { ImageAsset } from "@/lib/types";
 import { SmartImage } from "@/components/ui/SmartImage";
+import { iconBtn, mono, wrap } from "@/lib/ui";
 import { cn, pad } from "@/lib/utils";
 
 const spans = [
@@ -64,7 +65,7 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                             <SmartImage
                                 image={image}
                                 sizes="(min-width: 768px) 60vw, 100vw"
-                                className="transition-transform duration-[1600ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.03]"
+                                className="transition-transform duration-[1600ms] ease-soft group-hover:scale-[1.03]"
                             />
                             <span className="glass-strong absolute bottom-4 right-4 flex size-10 items-center justify-center rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
                                 <ExpandIcon className="size-4" />
@@ -79,11 +80,11 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                     role="dialog"
                     aria-modal="true"
                     aria-label={`${title} — gallery`}
-                    className="fixed inset-0 z-[130] flex flex-col bg-night/95 text-fg backdrop-blur-xl"
+                    className="fixed inset-0 z-130 flex flex-col bg-night/95 text-fg backdrop-blur-xl"
                     onClick={(e) => e.target === e.currentTarget && close()}
                 >
-                    <div className="wrap flex h-20 items-center justify-between">
-                        <p className="mono text-dim">
+                    <div className={cn(wrap, "flex h-20 items-center justify-between")}>
+                        <p className={cn(mono, "text-dim")}>
                             {pad(active + 1)} / {pad(images.length)}
                         </p>
                         <button
@@ -91,7 +92,7 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                             type="button"
                             onClick={close}
                             aria-label="Close gallery"
-                            className="icon-btn glass"
+                            className={cn(iconBtn, "glass")}
                         >
                             <XIcon />
                         </button>
@@ -101,14 +102,14 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                         <SmartImage key={active} image={images[active]} sizes="100vw" className="!object-contain" />
                     </div>
 
-                    <div className="wrap flex items-center justify-between gap-6 pb-8">
+                    <div className={cn(wrap, "flex items-center justify-between gap-6 pb-8")}>
                         <p className="max-w-xl text-sm text-mist">{images[active].alt}</p>
                         <div className="flex gap-2">
                             <button
                                 type="button"
                                 onClick={() => step(-1)}
                                 aria-label="Previous image"
-                                className="icon-btn glass"
+                                className={cn(iconBtn, "glass")}
                             >
                                 <ArrowLeftIcon />
                             </button>
@@ -116,7 +117,7 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                                 type="button"
                                 onClick={() => step(1)}
                                 aria-label="Next image"
-                                className="icon-btn glass"
+                                className={cn(iconBtn, "glass")}
                             >
                                 <ArrowIcon />
                             </button>

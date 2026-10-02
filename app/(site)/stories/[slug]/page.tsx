@@ -7,6 +7,8 @@ import { StoryEntry } from "@/components/stories/StoryEntry";
 import { JourneyCard } from "@/components/itinerary/JourneyCard";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { getStory, getStorySlugs, getAllStories, getItineraryCard } from "@/sanity/lib/queries";
+import { eyebrow, hLg, lede, sec, secHead, secHeadTitle, wrap } from "@/lib/ui";
+import { cn } from "@/lib/utils";
 
 type Params = Promise<{ slug: string }>;
 
@@ -55,31 +57,24 @@ export default async function StoryPage({ params }: { params: Params }) {
 
     return (
         <article>
-            <header className="phero pb-12">
+            <header className="relative isolate overflow-hidden pt-[150px] pb-12">
                 <div
                     aria-hidden
-                    className="glow"
-                    style={{
-                        width: 700,
-                        height: 700,
-                        left: -200,
-                        top: -260,
-                        background: "radial-gradient(circle, rgba(245,158,61,.14), transparent 70%)",
-                    }}
+                    className="pointer-events-none absolute -top-[260px] -left-[200px] size-[700px] rounded-full bg-[radial-gradient(circle,rgb(245_158_61/0.14),transparent_70%)] blur-[10px]"
                 />
-                <div className="wrap">
-                    <div className="copy max-w-[960px]">
-                        <nav aria-label="Breadcrumb" className="crumb glass">
+                <div className={wrap}>
+                    <div className="grid max-w-[960px] gap-5">
+                        <nav aria-label="Breadcrumb" className="glass inline-flex h-[34px] w-max max-w-full items-center gap-2 rounded-full px-3.5 text-[13px] text-mist [&_a:hover]:text-fg [&_b]:truncate [&_b]:font-semibold [&_b]:text-ember">
                             <Link href="/">Home</Link>
                             <span aria-hidden>/</span>
                             <Link href="/stories">Stories</Link>
                             <span aria-hidden>/</span>
                             <b aria-current="page">{story.guestName}</b>
                         </nav>
-                        <span className="eyebrow">Guest story · {story.travelled}</span>
-                        <h1 className="h-lg italic leading-[1.15]">“{story.quote}”</h1>
-                        <div className="q-who">
-                            <div className="avatar size-14">
+                        <span className={eyebrow}>Guest story · {story.travelled}</span>
+                        <h1 className={cn(hLg, "leading-[1.15]! italic")}>“{story.quote}”</h1>
+                        <div className="flex items-center gap-3.5">
+                            <div className="relative size-14 shrink-0 overflow-hidden rounded-full bg-night-3">
                                 <SmartImage image={story.portrait} sizes="56px" quality={65} />
                             </div>
                             <span>
@@ -92,12 +87,12 @@ export default async function StoryPage({ params }: { params: Params }) {
                 </div>
             </header>
 
-            <div className="wrap">
+            <div className={wrap}>
                 <VideoPlayer video={story.video} poster={story.poster} title={`${story.guestName}: guest film`} />
             </div>
 
-            <section className="sec">
-                <div className="wrap grid gap-[clamp(28px,5vw,64px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+            <section className={sec}>
+                <div className={cn(wrap, "grid gap-[clamp(28px,5vw,64px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]")}>
                     <aside>
                         <dl className="glass grid gap-5 rounded-[28px] p-7 text-sm">
                             <div>
@@ -130,7 +125,7 @@ export default async function StoryPage({ params }: { params: Params }) {
                             {story.excerpt}
                         </p>
                         {story.body.map((para, i) => (
-                            <p key={i} className="lede mt-6 max-w-[64ch]" data-reveal>
+                            <p key={i} className={cn(lede, "mt-6 max-w-[64ch]!")} data-reveal>
                                 {para}
                             </p>
                         ))}
@@ -141,16 +136,15 @@ export default async function StoryPage({ params }: { params: Params }) {
             {journey && (
                 <section
                     aria-labelledby="journey-title"
-                    className="sec"
-                    style={{ background: "linear-gradient(180deg,var(--color-night),var(--color-night-2))" }}
+                    className={cn(sec, "bg-linear-to-b from-night to-night-2")}
                 >
-                    <div className="wrap grid items-center gap-[clamp(28px,5vw,64px)] md:grid-cols-[minmax(0,1fr)_auto]">
+                    <div className={cn(wrap, "grid items-center gap-[clamp(28px,5vw,64px)] md:grid-cols-[minmax(0,1fr)_auto]")}>
                         <div className="grid gap-4">
-                            <span className="eyebrow">The journey behind the story</span>
-                            <h2 id="journey-title" className="h-lg">
+                            <span className={eyebrow}>The journey behind the story</span>
+                            <h2 id="journey-title" className={hLg}>
                                 Travel this way
                             </h2>
-                            <p className="lede">Every journey is reshaped for each guest, but this is where theirs began.</p>
+                            <p className={lede}>Every journey is reshaped for each guest, but this is where theirs began.</p>
                         </div>
                         <JourneyCard journey={journey} className="mx-auto md:mx-0" />
                     </div>
@@ -158,12 +152,12 @@ export default async function StoryPage({ params }: { params: Params }) {
             )}
 
             {more.length > 0 && (
-                <section aria-labelledby="more-title" className="sec">
-                    <div className="wrap">
-                        <div className="sec-head">
-                            <div className="t">
-                                <span className="eyebrow">Keep reading</span>
-                                <h2 id="more-title" className="h-lg">
+                <section aria-labelledby="more-title" className={sec}>
+                    <div className={wrap}>
+                        <div className={secHead}>
+                            <div className={secHeadTitle}>
+                                <span className={eyebrow}>Keep reading</span>
+                                <h2 id="more-title" className={hLg}>
                                     More guest stories
                                 </h2>
                             </div>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { getSiteSettings } from "@/sanity/lib/queries";
+import { hLg, lede, sec, wrap } from "@/lib/ui";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
     title: "Thank You",
@@ -23,29 +25,21 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Sea
     const tel = settings.phone.replace(/[^+\d]/g, "");
 
     return (
-        <section className="sec flex min-h-[80svh] items-center pt-40">
+        <section className={cn(sec, "flex min-h-[80svh] items-center overflow-hidden pt-40!")}>
             <div
                 aria-hidden
-                className="glow"
-                style={{
-                    width: 700,
-                    height: 700,
-                    left: "50%",
-                    top: -200,
-                    marginLeft: -350,
-                    background: "radial-gradient(circle, rgba(123,211,137,.14), transparent 70%)",
-                }}
+                className="pointer-events-none absolute -top-[200px] left-1/2 size-[700px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(123_211_137/0.14),transparent_70%)] blur-[10px]"
             />
-            <div className="wrap">
-                <div className="form glass-strong shadow-deep mx-auto max-w-160">
-                    <div className="success">
-                        <div className="tick">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <div className={wrap}>
+                <div className="glass-strong mx-auto grid max-w-160 gap-6 rounded-[36px] p-[clamp(24px,3.6vw,44px)] shadow-deep">
+                    <div className="grid justify-items-center gap-3.5 py-3 text-center">
+                        <div className="grid size-[72px] place-items-center rounded-full bg-ok/15 text-ok">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="size-[34px] animate-draw [stroke-dasharray:30] [stroke-dashoffset:30]">
                                 <path d="M5 12.5l4.5 4.5L19 7.5" />
                             </svg>
                         </div>
-                        <h1 className="h-lg">Thanks{name ? `, ${name}` : ""}!</h1>
-                        <p className="lede text-center">
+                        <h1 className={hLg}>Thanks{name ? `, ${name}` : ""}!</h1>
+                        <p className={cn(lede, "text-center")}>
                             Your enquiry is with our trip designers. Expect to hear from us by {contactBy} soon, usually
                             within the hour during studio hours.
                         </p>

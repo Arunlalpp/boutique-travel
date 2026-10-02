@@ -35,16 +35,22 @@ export function NewsletterForm() {
     }
 
     return (
-        <form className="news glass" onSubmit={submit} noValidate>
+        <form className="glass mt-3 flex h-[54px] items-center gap-1.5 rounded-full py-1.5 pr-1.5 pl-[18px]" onSubmit={submit} noValidate>
             <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email"
+                className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-0 placeholder:text-dim"
                 aria-label="Email for newsletter"
                 autoComplete="email"
             />
-            <button type="submit" aria-label="Subscribe" disabled={sending}>
+            <button
+                type="submit"
+                aria-label="Subscribe"
+                disabled={sending}
+                className="grid size-[42px] shrink-0 place-items-center rounded-full bg-ember text-ember-ink disabled:opacity-60 [&_svg]:size-4"
+            >
                 <ArrowIcon />
             </button>
         </form>

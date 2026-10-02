@@ -19,7 +19,7 @@ export default async function ItinerariesPage() {
         <>
             <PageHero
                 image={media.icelandCoast}
-                className="pb-27.5"
+                className="pb-27.5!"
                 crumbs={[{ label: "Home", href: "/" }, { label: "Journeys" }]}
                 eyebrow="Sample journeys"
                 title="Routes we know by heart"

@@ -8,6 +8,8 @@ import { Gallery } from "@/components/itinerary/Gallery";
 import { JourneyCard } from "@/components/itinerary/JourneyCard";
 import { CtaBand } from "@/components/home/CtaBand";
 import { getDestination, getDestinationSlugs, getItinerariesForDestination } from "@/sanity/lib/queries";
+import { eyebrow, hLg, hMd, sec, secHead, secHeadTitle, wrap } from "@/lib/ui";
+import { cn } from "@/lib/utils";
 
 type Params = Promise<{ slug: string }>;
 
@@ -75,9 +77,9 @@ export default async function DestinationPage({ params }: { params: Params }) {
             </PageHero>
 
             {destination.description && (
-                <section aria-labelledby="about-title" className="sec">
-                    <Reveal className="wrap grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-                        <span className="eyebrow self-start" id="about-title" data-reveal>
+                <section aria-labelledby="about-title" className={sec}>
+                    <Reveal className={cn(wrap, "grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]")}>
+                        <span className={cn(eyebrow, "self-start")} id="about-title" data-reveal>
                             About {destination.name}
                         </span>
                         <p className="font-display text-[clamp(22px,2.6vw,32px)] leading-[1.35]" data-reveal>
@@ -88,12 +90,12 @@ export default async function DestinationPage({ params }: { params: Params }) {
             )}
 
             {destination.gallery.length > 0 && (
-                <section aria-labelledby="gallery-title" className="sec pt-0">
-                    <div className="wrap">
-                        <div className="sec-head">
-                            <div className="t">
-                                <span className="eyebrow">In pictures</span>
-                                <h2 id="gallery-title" className="h-md">
+                <section aria-labelledby="gallery-title" className={cn(sec, "pt-0!")}>
+                    <div className={wrap}>
+                        <div className={secHead}>
+                            <div className={secHeadTitle}>
+                                <span className={eyebrow}>In pictures</span>
+                                <h2 id="gallery-title" className={hMd}>
                                     {destination.name}, up close
                                 </h2>
                             </div>
@@ -104,13 +106,13 @@ export default async function DestinationPage({ params }: { params: Params }) {
             )}
 
             {journeys.length > 0 && (
-                <section id="journeys" aria-labelledby="journeys-title" className="sec scroll-mt-24 pt-0">
+                <section id="journeys" aria-labelledby="journeys-title" className={cn(sec, "scroll-mt-24 pt-0!")}>
                     <Rail
                         label={`Journeys in ${destination.name}`}
                         head={
-                            <div className="t">
-                                <span className="eyebrow">Journeys here</span>
-                                <h2 id="journeys-title" className="h-lg">
+                            <div className={secHeadTitle}>
+                                <span className={eyebrow}>Journeys here</span>
+                                <h2 id="journeys-title" className={hLg}>
                                     Ways to see {destination.name}
                                 </h2>
                             </div>

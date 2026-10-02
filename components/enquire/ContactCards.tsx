@@ -2,6 +2,7 @@
 
 import { useState, type ComponentType, type SVGProps } from "react";
 import { useToast } from "@/components/providers/SiteProviders";
+import { iconTile } from "@/lib/ui";
 import { ClockIcon, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/Icons";
 
 interface Card {
@@ -21,15 +22,15 @@ export function ContactCards({ phone, email, studio, hours }: { phone: string; e
     ].filter((c) => c.value);
 
     return (
-        <div className="cards">
+        <div className="grid gap-3">
             {cards.map((c) => (
-                <div key={c.label} className="ccard glass">
-                    <div className="ib">
+                <div key={c.label} className="glass flex items-center gap-4 rounded-[22px] px-[18px] py-4">
+                    <div className={iconTile}>
                         <c.icon />
                     </div>
-                    <div className="t">
-                        <small>{c.label}</small>
-                        <b>{c.href ? <a href={c.href}>{c.value}</a> : c.value}</b>
+                    <div className="min-w-0 flex-1">
+                        <small className="block text-[12.5px] text-dim">{c.label}</small>
+                        <b className="text-base font-semibold break-words">{c.href ? <a href={c.href}>{c.value}</a> : c.value}</b>
                     </div>
                     {c.copy && <CopyButton value={c.value} />}
                 </div>
@@ -45,7 +46,7 @@ function CopyButton({ value }: { value: string }) {
     return (
         <button
             type="button"
-            className="copy-btn"
+            className="h-9 shrink-0 rounded-full border border-line-2 px-3.5 text-[13px] font-semibold transition-colors hover:bg-white/10"
             aria-label={`Copy ${value}`}
             onClick={async () => {
                 try {

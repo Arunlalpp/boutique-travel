@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import type { ItineraryCard } from "@/lib/types";
-import { SmartImage } from "@/components/ui/SmartImage";
-import { ArrowIcon, HeartIcon, PinIcon } from "@/components/ui/Icons";
+import { SpotCard } from "@/components/ui/SpotCard";
+import { HeartIcon } from "@/components/ui/Icons";
 import { useSaved } from "@/components/providers/SiteProviders";
+import { mono, price, priceNote } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 interface JourneyCardProps {
@@ -14,58 +14,54 @@ interface JourneyCardProps {
     priority?: boolean;
 }
 
-/** The prototype's "spot" card: a tall photo with glass pill, save heart and info panel. */
 export function JourneyCard({ journey, sizes = "(min-width: 1024px) 340px, 80vw", className, priority }: JourneyCardProps) {
     const { isSaved, toggle } = useSaved();
     const saved = isSaved(journey.slug);
 
     return (
-        <article className={cn("spot shadow-deep", className)}>
-            <Link href={`/itineraries/${journey.slug}`} className="spot-link" aria-label={journey.title} />
-            <div className="media-fill">
-                <SmartImage image={journey.cardImage} sizes={sizes} priority={priority} />
-            </div>
-            <div className="top">
-                <span className="pill glass-strong">{journey.style}</span>
+        <SpotCard
+            href={`/itineraries/${journey.slug}`}
+            title={journey.title}
+            image={journey.cardImage}
+            sizes={sizes}
+            priority={priority}
+            className={className}
+            badge={journey.style}
+            action={
                 <button
                     type="button"
-                    className="heart glass-strong"
+                    className="glass-strong grid size-10 place-items-center rounded-full transition-transform duration-300 ease-soft active:scale-85 [&_svg]:size-[19px] [&_svg]:transition-colors aria-pressed:[&_svg]:fill-ember aria-pressed:[&_svg]:text-ember"
                     aria-pressed={saved}
                     aria-label={saved ? `Remove ${journey.title} from saved` : `Save ${journey.title}`}
                     onClick={() => toggle(journey.slug, journey.title)}
                 >
                     <HeartIcon />
                 </button>
-            </div>
-            <div className="info glass-strong">
-                <span className="loc">
-                    <PinIcon />
+            }
+            location={
+                <>
                     {journey.country}
                     {journey.duration && (
                         <>
                             {" · "}
-                            <span className="mono">{journey.duration}</span>
+                            <span className={mono}>{journey.duration}</span>
                         </>
                     )}
+                </>
+            }
+            tagline={journey.hook}
+            meta={
+                <span className={price}>
+                    {journey.startingPrice ? (
+                        <>
+                            <small className={priceNote}>From </small>
+                            {journey.startingPrice}
+                        </>
+                    ) : (
+                        <small className={cn(priceNote)}>Priced to your plans</small>
+                    )}
                 </span>
-                <h3>{journey.title}</h3>
-                <span className="tagline">{journey.hook}</span>
-                <div className="meta">
-                    <span className="price">
-                        {journey.startingPrice ? (
-                            <>
-                                <small>From </small>
-                                {journey.startingPrice}
-                            </>
-                        ) : (
-                            <small>Priced to your plans</small>
-                        )}
-                    </span>
-                    <span className="go" aria-hidden>
-                        <ArrowIcon />
-                    </span>
-                </div>
-            </div>
-        </article>
+            }
+        />
     );
 }

@@ -7,6 +7,7 @@ import { JourneyCard } from "./JourneyCard";
 import { useSaved, useToast } from "@/components/providers/SiteProviders";
 import { FilterIcon, SearchIcon, XIcon } from "@/components/ui/Icons";
 import { cn } from "@/lib/utils";
+import { btn, cardGrid, chip, chipRow, emptyState, factLabel, hMd, iconBtn, lede, mono, resultLine, searchBox, searchInput, toolbar, toolbarSelect, wrap } from "@/lib/ui";
 
 type Sort = "featured" | "short" | "long" | "az";
 type Length = "short" | "mid" | "long";
@@ -96,54 +97,55 @@ export function JourneyIndex({ journeys }: { journeys: ItineraryCard[] }) {
     };
 
     return (
-        <div className="wrap">
-            <div className="toolbar glass-strong shadow-deep" role="search">
-                <label className="search">
+        <div className={wrap}>
+            <div className={toolbar} role="search">
+                <label className={searchBox}>
                     <SearchIcon />
                     <input
                         type="search"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search journeys, countries or styles"
+                        className={searchInput}
                         aria-label="Search journeys"
                     />
                 </label>
-                <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort by">
+                <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort by" className={toolbarSelect}>
                     <option value="featured">Most loved</option>
                     <option value="short">Shortest first</option>
                     <option value="long">Longest first</option>
                     <option value="az">Name: A to Z</option>
                 </select>
-                <button type="button" className="btn btn-glass filter-btn" onClick={openDrawer} aria-haspopup="dialog">
+                <button type="button" className={cn(btn("glass"), "relative")} onClick={openDrawer} aria-haspopup="dialog">
                     <FilterIcon />
                     Filters
-                    {activeFilters > 0 && <span className="n">{activeFilters}</span>}
+                    {activeFilters > 0 && <span className="absolute -top-0.5 -right-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-ember text-[11px] font-bold text-ember-ink">{activeFilters}</span>}
                 </button>
             </div>
 
-            <div className="cats" role="group" aria-label="Region">
+            <div className={chipRow} role="group" aria-label="Region">
                 {regions.map((r) => (
-                    <button key={r} type="button" className="chip" aria-pressed={r === region} onClick={() => setRegion(r)}>
+                    <button key={r} type="button" className={chip()} aria-pressed={r === region} onClick={() => setRegion(r)}>
                         {r}
                     </button>
                 ))}
             </div>
 
-            <div className="result-line">
+            <div className={resultLine}>
                 <span aria-live="polite">
                     {sorted.length} journey{sorted.length === 1 ? "" : "s"}
                     {savedOnly && " saved"}
                     {region !== "All" && ` · ${region}`}
                 </span>
                 {anything && (
-                    <button type="button" className="mono text-ember" onClick={resetAll}>
+                    <button type="button" className={cn(mono, "text-ember")} onClick={resetAll}>
                         Clear all filters
                     </button>
                 )}
             </div>
 
             {sorted.length > 0 ? (
-                <div className="card-grid">
+                <div className={cardGrid}>
                     {sorted.map((j) => (
                         <JourneyCard
                             key={j.slug}
@@ -153,14 +155,14 @@ export function JourneyIndex({ journeys }: { journeys: ItineraryCard[] }) {
                     ))}
                 </div>
             ) : (
-                <div className="empty glass">
-                    <h3 className="h-md">{savedOnly ? "Nothing saved yet" : "No journeys match yet"}</h3>
-                    <p className="lede text-center">
+                <div className={emptyState}>
+                    <h3 className={hMd}>{savedOnly ? "Nothing saved yet" : "No journeys match yet"}</h3>
+                    <p className={cn(lede, "text-center")}>
                         {savedOnly
                             ? "Tap ♥ on any journey to keep it here for later."
                             : "Try a different region or length. We also build custom routes from scratch."}
                     </p>
-                    <button type="button" className="btn btn-glass" onClick={resetAll}>
+                    <button type="button" className={btn("glass")} onClick={resetAll}>
                         {savedOnly ? "Show all journeys" : "Reset filters"}
                     </button>
                 </div>
@@ -229,10 +231,23 @@ function FilterDrawer({
 
     return (
         <>
-            {mounted && <div className={cn("scrim", shown && "on")} onClick={onClose} aria-hidden />}
+            {mounted && (
+                <div
+                    onClick={onClose}
+                    aria-hidden
+                    className={cn(
+                        "fixed inset-0 z-80 bg-[#05070a]/55 backdrop-blur-xs transition-opacity duration-350",
+                        shown ? "opacity-100" : "opacity-0",
+                    )}
+                />
+            )}
             <aside
                 ref={panel}
-                className={cn("drawer glass-strong shadow-deep", shown && "on")}
+                className={cn(
+                    "glass-strong fixed inset-y-3 right-3 z-90 flex w-[min(420px,calc(100vw-24px))] flex-col gap-6 overflow-auto rounded-[32px] bg-[#181c25]/92! p-7 shadow-deep transition-[translate,visibility] duration-450 ease-soft",
+                    "max-tab:inset-x-0 max-tab:top-auto max-tab:bottom-0 max-tab:max-h-[86vh] max-tab:w-full max-tab:rounded-b-none max-tab:pb-[calc(28px+env(safe-area-inset-bottom,0px))]",
+                    shown ? "visible translate-0" : "invisible translate-x-[110%] max-tab:translate-x-0 max-tab:translate-y-[105%]",
+                )}
                 role="dialog"
                 aria-modal="true"
                 aria-label="Filters"
@@ -253,21 +268,21 @@ function FilterDrawer({
                     if (dy > 110) onClose();
                 }}
             >
-                <div className="handle" />
-                <header>
-                    <h3>Filters</h3>
-                    <button type="button" className="icon-btn" onClick={onClose} aria-label="Close filters">
+                <div className="-mt-3 mx-auto hidden h-[5px] w-11 rounded-full bg-line-2 max-tab:block" />
+                <header className="flex items-center justify-between">
+                    <h3 className="text-[28px]">Filters</h3>
+                    <button type="button" className={iconBtn} onClick={onClose} aria-label="Close filters">
                         <XIcon />
                     </button>
                 </header>
-                <div className="grp">
-                    <div className="k">Travel style</div>
-                    <div className="chips">
+                <div className="grid gap-3">
+                    <div className={factLabel}>Travel style</div>
+                    <div className="flex flex-wrap gap-2">
                         {STYLES.map((s) => (
                             <button
                                 key={s}
                                 type="button"
-                                className="chip"
+                                className={chip()}
                                 aria-pressed={draft.style === s}
                                 onClick={() => setDraft({ ...draft, style: draft.style === s ? null : s })}
                             >
@@ -276,14 +291,14 @@ function FilterDrawer({
                         ))}
                     </div>
                 </div>
-                <div className="grp">
-                    <div className="k">Trip length</div>
-                    <div className="chips">
+                <div className="grid gap-3">
+                    <div className={factLabel}>Trip length</div>
+                    <div className="flex flex-wrap gap-2">
                         {LENGTHS.map((l) => (
                             <button
                                 key={l.id}
                                 type="button"
-                                className="chip"
+                                className={chip()}
                                 aria-pressed={draft.length === l.id}
                                 onClick={() => setDraft({ ...draft, length: draft.length === l.id ? null : l.id })}
                             >
@@ -292,11 +307,11 @@ function FilterDrawer({
                         ))}
                     </div>
                 </div>
-                <footer>
-                    <button type="button" className="btn btn-glass" onClick={() => setDraft({ style: null, length: null })}>
+                <footer className="mt-auto flex gap-2.5 *:flex-1">
+                    <button type="button" className={btn("glass")} onClick={() => setDraft({ style: null, length: null })}>
                         Reset
                     </button>
-                    <button type="button" className="btn btn-ember" onClick={onApply}>
+                    <button type="button" className={btn("ember")} onClick={onApply}>
                         Show {count} journey{count === 1 ? "" : "s"}
                     </button>
                 </footer>
