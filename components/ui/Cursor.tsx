@@ -10,7 +10,7 @@ const INTERACTIVE = "a, button, summary, label, select, [role='button'], [data-c
 const TEXT = "input:not([type='checkbox']):not([type='radio']):not([type='range']), textarea, [contenteditable='true']";
 
 /**
- * Campfire cursor: an ember dot that follows the pointer exactly, and a ring
+ * Custom cursor: an ink dot that follows the pointer exactly, and a ring
  * that trails behind it. Only for a real mouse (fine pointer with hover) and
  * when the visitor hasn't asked for reduced motion; everyone else keeps the
  * system cursor. Text fields always show the normal I-beam.
@@ -96,16 +96,16 @@ export function Cursor() {
                 <div
                     className={cn(
                         "grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border transition-[width,height,background-color,border-color,opacity,scale] duration-300 ease-soft",
-                        mode === "default" && "size-9 border-fg/45",
-                        mode === "link" && "size-14 border-ember/70 bg-ember/10",
-                        labelled && "size-[72px] border-transparent bg-ember text-ember-ink",
+                        mode === "default" && "size-8 border-ink/30",
+                        mode === "link" && "size-12 border-ink/50 bg-ink/5",
+                        labelled && "size-[68px] border-transparent bg-ink text-paper",
                         pressed && "scale-85",
                         hidden ? "opacity-0" : "opacity-100",
                     )}
                 >
                     <span
                         className={cn(
-                            "text-[11px] font-bold tracking-[0.14em] uppercase transition-opacity duration-200",
+                            "text-[10px] font-medium tracking-[0.14em] uppercase transition-opacity duration-200",
                             labelled ? "opacity-100" : "opacity-0",
                         )}
                     >
@@ -116,7 +116,7 @@ export function Cursor() {
             <div ref={dot} className="absolute top-0 left-0 will-change-[translate]">
                 <div
                     className={cn(
-                        "size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember shadow-[0_0_12px_2px_rgb(245_158_61/0.6)] transition-[opacity,scale] duration-200",
+                        "size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink transition-[opacity,scale] duration-200",
                         (hidden || labelled) && "opacity-0",
                         mode === "link" && "scale-150",
                     )}

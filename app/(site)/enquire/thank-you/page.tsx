@@ -58,7 +58,7 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Sea
                         {settings.phone && (
                             <p className="mt-4 text-sm text-dim">
                                 Prefer to talk?{" "}
-                                <a href={`tel:${tel}`} className="text-fg underline-offset-4 hover:underline">
+                                <a href={`tel:${tel}`} className="text-ink underline-offset-4 hover:underline">
                                     {settings.phone}
                                 </a>
                             </p>

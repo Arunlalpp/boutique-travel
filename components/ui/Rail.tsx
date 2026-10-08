@@ -15,8 +15,6 @@ interface RailProps {
     className?: string;
     /** Changes whenever the visible cards change, so the progress bar resets. */
     resetKey?: string;
-    /** Controls drawn for the cream "light" section. */
-    tone?: "dark" | "light";
 }
 
 /**
@@ -24,7 +22,7 @@ interface RailProps {
  * arrow buttons, a progress bar, mouse drag-to-scroll (touch scrolls
  * natively) and arrow-key support once the track has focus.
  */
-export function Rail({ head, toolbar, label, children, className, resetKey, tone = "dark" }: RailProps) {
+export function Rail({ head, toolbar, label, children, className, resetKey }: RailProps) {
     const track = useRef<HTMLDivElement>(null);
     const prev = useRef<HTMLButtonElement>(null);
     const next = useRef<HTMLButtonElement>(null);
@@ -107,27 +105,21 @@ export function Rail({ head, toolbar, label, children, className, resetKey, tone
         };
     }, [update, resetKey]);
 
-    const ctrlBtn = cn(
-        iconBtn,
-        "border",
-        tone === "dark" ? "border-line-2" : "border-cream-ink/20 text-cream-ink hover:bg-cream-ink/6",
-    );
-
     return (
         <div className={cn("relative", className)}>
             <div className={cn(wrap, secHead)}>
                 {head}
-                <div className="flex items-center gap-3.5">
-                    <div
-                        aria-hidden
-                        className={cn("h-[3px] w-[120px] overflow-hidden rounded-full", tone === "dark" ? "bg-white/14" : "bg-cream-ink/12")}
-                    >
-                        <i ref={bar} className="block h-full w-[30%] rounded-full bg-ember transition-[transform,width] duration-200" />
-                    </div>
-                    <button ref={prev} type="button" className={ctrlBtn} onClick={() => step(-1)} aria-label="Scroll left">
+                <div className="flex items-center gap-1.5">
+                    <button ref={prev} type="button" className={iconBtn} onClick={() => step(-1)} aria-label="Scroll left">
                         <ArrowLeftIcon />
                     </button>
-                    <button ref={next} type="button" className={ctrlBtn} onClick={() => step(1)} aria-label="Scroll right">
+                    <button
+                        ref={next}
+                        type="button"
+                        className={cn(iconBtn, "bg-ink text-paper hover:bg-ink/85")}
+                        onClick={() => step(1)}
+                        aria-label="Scroll right"
+                    >
                         <ArrowIcon />
                     </button>
                 </div>
@@ -137,8 +129,8 @@ export function Rail({ head, toolbar, label, children, className, resetKey, tone
                 <div
                     ref={track}
                     className={cn(
-                        "flex cursor-grab snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain pt-2 pb-7 scrollbar-none",
-                        "scroll-px-(--gutter) px-[max(var(--gutter),calc((100%-1240px)/2+var(--gutter)))]",
+                        "flex cursor-grab snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain pt-1 pb-8 scrollbar-none",
+                        "scroll-px-[max(var(--gutter),calc((100%-1280px)/2+var(--gutter)))] px-[max(var(--gutter),calc((100%-1280px)/2+var(--gutter)))]",
                         "*:shrink-0 *:snap-start data-drag:cursor-grabbing data-drag:snap-none data-drag:**:pointer-events-none",
                     )}
                     role="region"
@@ -158,6 +150,11 @@ export function Rail({ head, toolbar, label, children, className, resetKey, tone
                     }}
                 >
                     {children}
+                </div>
+            </div>
+            <div className={wrap} aria-hidden>
+                <div className="h-px overflow-hidden bg-line">
+                    <i ref={bar} className="block h-full w-[30%] bg-ink transition-[transform,width] duration-200" />
                 </div>
             </div>
         </div>

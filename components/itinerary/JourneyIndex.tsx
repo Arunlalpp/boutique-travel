@@ -119,7 +119,7 @@ export function JourneyIndex({ journeys }: { journeys: ItineraryCard[] }) {
                 <button type="button" className={cn(btn("glass"), "relative")} onClick={openDrawer} aria-haspopup="dialog">
                     <FilterIcon />
                     Filters
-                    {activeFilters > 0 && <span className="absolute -top-0.5 -right-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-ember text-[11px] font-bold text-ember-ink">{activeFilters}</span>}
+                    {activeFilters > 0 && <span className="absolute -top-0.5 -right-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-accent text-[11px] font-bold text-accent-ink">{activeFilters}</span>}
                 </button>
             </div>
 
@@ -138,7 +138,7 @@ export function JourneyIndex({ journeys }: { journeys: ItineraryCard[] }) {
                     {region !== "All" && ` · ${region}`}
                 </span>
                 {anything && (
-                    <button type="button" className={cn(mono, "text-ember")} onClick={resetAll}>
+                    <button type="button" className={cn(mono, "text-accent")} onClick={resetAll}>
                         Clear all filters
                     </button>
                 )}
@@ -311,7 +311,7 @@ function FilterDrawer({
                     <button type="button" className={btn("glass")} onClick={() => setDraft({ style: null, length: null })}>
                         Reset
                     </button>
-                    <button type="button" className={btn("ember")} onClick={onApply}>
+                    <button type="button" className={btn("primary")} onClick={onApply}>
                         Show {count} journey{count === 1 ? "" : "s"}
                     </button>
                 </footer>

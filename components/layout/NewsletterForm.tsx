@@ -35,7 +35,7 @@ export function NewsletterForm() {
     }
 
     return (
-        <form className="glass mt-3 flex h-[54px] items-center gap-1.5 rounded-full py-1.5 pr-1.5 pl-[18px]" onSubmit={submit} noValidate>
+        <form className="mt-3 flex h-11 items-center gap-1.5 border-b border-line-2 focus-within:border-ink" onSubmit={submit} noValidate>
             <input
                 type="email"
                 value={email}
@@ -49,7 +49,7 @@ export function NewsletterForm() {
                 type="submit"
                 aria-label="Subscribe"
                 disabled={sending}
-                className="grid size-[42px] shrink-0 place-items-center rounded-full bg-ember text-ember-ink disabled:opacity-60 [&_svg]:size-4"
+                className="grid size-9 shrink-0 place-items-center rounded-full transition-colors hover:bg-ink/6 disabled:opacity-60 [&_svg]:size-4"
             >
                 <ArrowIcon />
             </button>

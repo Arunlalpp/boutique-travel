@@ -7,44 +7,22 @@ import { media } from "./media";
  * and must be replaced with the client's real numbers before launch.
  */
 
-export interface HeroSlide {
-    image: ImageAsset;
-    title: string;
-    sub: string;
-    lede: string;
-    place: string;
-    href?: string;
-}
-
-/** The brand slide always leads; featured journeys from Sanity follow it. */
-export const brandSlide: HeroSlide = {
-    image: media.nightSky,
-    title: "Your Adventure Begins Here!",
-    sub: "Explore the Great Outdoors",
-    lede: "Discover untouched landscapes with curated camps, small-group treks and wildlife trails, each one hand-built by local experts.",
-    place: "Under the stars",
+/** Home hero copy (minimal redesign). */
+export const hero = {
+    title: "Your adventure begins here.",
+    lede: "Curated camps, small-group treks and wildlife trails, each one hand-built by local experts.",
+    image: media.heroMountains,
 };
 
-/** PLACEHOLDER figures from the design. */
-export const trustChips = ["★ 4.9 on Google · 2,140 reviews", "12,000+ campers hosted", "Eco-certified camps"];
-
-export const wildlife = {
-    eyebrow: "Wildlife trails",
-    title: "Discover captivating wildlife",
-    lede: "Join naturalist-led safaris at dawn and dusk. Track elephants, spot rare mountain goats on misty slopes, and listen to the forest come alive after dark.",
-    chips: ["Naturalist guides", "Night safaris", "Max 8 per group"],
-    ring: "PERIYAR · KABINI · NAGARHOLE · BANDIPUR · SILENT VALLEY · ",
-    image: media.safariWildlife,
-    /** PLACEHOLDER */
-    badge: { value: "120+", label: "species spotted" },
+/** The statement under the hero. */
+export const intro = {
+    eyebrow: "Who we are",
+    text: "We plan small-group journeys into India’s quiet places. Lakeside camps, ridge treks and dawn safaris, never more than eight people at a time.",
 };
 
 /** PLACEHOLDER figures from the design. */
 export const impact = {
     eyebrow: "Our impact",
-    title: "Nights well spent, stories well told.",
-    image: media.valleyLight,
-    place: "Gandikota Canyon · 14.81° N",
     stats: [
         { value: "836", label: "Daily guided visits" },
         { value: "98%", label: "Visitor satisfaction" },
@@ -122,7 +100,7 @@ export const experiences: Experience[] = [
 
 export const cta = {
     eyebrow: "Start planning",
-    title: "Your exploration starts here",
+    title: "Your exploration starts here.",
     lede: "Tell us where you want to wake up. We’ll handle the permits, gear, guides and the campfire stories.",
-    image: media.heroMountains,
+    image: media.valleyLight,
 };

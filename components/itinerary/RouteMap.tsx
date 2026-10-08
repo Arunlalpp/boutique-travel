@@ -69,7 +69,7 @@ export function RouteMap({ points, country }: RouteMapProps) {
                 <path
                     d={path}
                     fill="none"
-                    stroke="var(--color-ember)"
+                    stroke="var(--color-accent)"
                     strokeWidth="0.45"
                     strokeDasharray="1.2 1.2"
                     opacity="0.35"
@@ -78,7 +78,7 @@ export function RouteMap({ points, country }: RouteMapProps) {
                     d={path}
                     pathLength={1}
                     fill="none"
-                    stroke="var(--color-ember)"
+                    stroke="var(--color-accent)"
                     strokeWidth="0.55"
                     strokeLinecap="round"
                     strokeDasharray="1"
@@ -99,8 +99,8 @@ export function RouteMap({ points, country }: RouteMapProps) {
                                 cx={p.x}
                                 cy={p.y}
                                 r="2.6"
-                                fill="var(--color-night)"
-                                stroke="var(--color-ember)"
+                                fill="var(--color-paper)"
+                                stroke="var(--color-accent)"
                                 strokeWidth="0.3"
                             />
                             <text
@@ -109,7 +109,7 @@ export function RouteMap({ points, country }: RouteMapProps) {
                                 textAnchor="middle"
                                 fontSize="2.3"
                                 fontFamily="var(--font-sans)"
-                                fill="var(--color-fg)"
+                                fill="var(--color-ink)"
                             >
                                 {i + 1}
                             </text>
@@ -119,7 +119,7 @@ export function RouteMap({ points, country }: RouteMapProps) {
                                 textAnchor={labelLeft ? "end" : "start"}
                                 fontSize="3.3"
                                 fontFamily="var(--font-display)"
-                                fill="var(--color-fg)"
+                                fill="var(--color-ink)"
                             >
                                 {p.name}
                             </text>

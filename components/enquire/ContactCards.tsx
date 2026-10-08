@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, type ComponentType, type SVGProps } from "react";
+import { useState } from "react";
 import { useToast } from "@/components/providers/SiteProviders";
-import { iconTile } from "@/lib/ui";
-import { ClockIcon, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/Icons";
+import { fieldLabel } from "@/lib/ui";
 
 interface Card {
-    icon: ComponentType<SVGProps<SVGSVGElement>>;
     label: string;
     value: string;
     href?: string;
@@ -15,22 +13,27 @@ interface Card {
 
 export function ContactCards({ phone, email, studio, hours }: { phone: string; email: string; studio: string; hours: string }) {
     const cards: Card[] = [
-        { icon: PhoneIcon, label: "Call or WhatsApp", value: phone, href: `tel:${phone.replace(/[^+\d]/g, "")}`, copy: true },
-        { icon: MailIcon, label: "Email", value: email, href: `mailto:${email}`, copy: true },
-        { icon: PinIcon, label: "Studio", value: studio },
-        { icon: ClockIcon, label: "Hours", value: hours },
+        { label: "Call or WhatsApp", value: phone, href: `tel:${phone.replace(/[^+\d]/g, "")}`, copy: true },
+        { label: "Email", value: email, href: `mailto:${email}`, copy: true },
+        { label: "Studio", value: studio },
+        { label: "Hours", value: hours },
     ].filter((c) => c.value);
 
     return (
-        <div className="grid gap-3">
+        <div className="grid border-t border-line">
             {cards.map((c) => (
-                <div key={c.label} className="glass flex items-center gap-4 rounded-[22px] px-[18px] py-4">
-                    <div className={iconTile}>
-                        <c.icon />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                        <small className="block text-[12.5px] text-dim">{c.label}</small>
-                        <b className="text-base font-semibold break-words">{c.href ? <a href={c.href}>{c.value}</a> : c.value}</b>
+                <div key={c.label} className="flex items-end gap-4 border-b border-line py-4">
+                    <div className="grid min-w-0 flex-1 gap-1">
+                        <small className={fieldLabel}>{c.label}</small>
+                        <span className="text-sm font-medium break-words">
+                            {c.href ? (
+                                <a href={c.href} className="underline-offset-4 hover:underline">
+                                    {c.value}
+                                </a>
+                            ) : (
+                                c.value
+                            )}
+                        </span>
                     </div>
                     {c.copy && <CopyButton value={c.value} />}
                 </div>
@@ -46,7 +49,7 @@ function CopyButton({ value }: { value: string }) {
     return (
         <button
             type="button"
-            className="h-9 shrink-0 rounded-full border border-line-2 px-3.5 text-[13px] font-semibold transition-colors hover:bg-white/10"
+            className="shrink-0 text-xs font-medium text-dim transition-colors hover:text-ink"
             aria-label={`Copy ${value}`}
             onClick={async () => {
                 try {

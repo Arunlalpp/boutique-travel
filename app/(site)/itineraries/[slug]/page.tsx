@@ -130,7 +130,7 @@ export default async function ItineraryPage({ params }: { params: Params }) {
                         <span className={eyebrow} id="overview-title" data-reveal>
                             The journey
                         </span>
-                        <div className="mt-6 [&>p]:mt-[18px] [&>p]:max-w-[64ch] [&>p]:text-[17px] [&>p]:text-mist [&>p:first-child]:mt-0 [&>p:first-child]:font-display [&>p:first-child]:text-[clamp(22px,2.6vw,30px)] [&>p:first-child]:leading-[1.3] [&>p:first-child]:text-fg">
+                        <div className="mt-6 [&>p]:mt-[18px] [&>p]:max-w-[64ch] [&>p]:text-[17px] [&>p]:text-mist [&>p:first-child]:mt-0 [&>p:first-child]:font-display [&>p:first-child]:text-[clamp(22px,2.6vw,30px)] [&>p:first-child]:leading-[1.3] [&>p:first-child]:text-ink">
                             <PortableText value={journey.overview} components={overviewComponents} />
                         </div>
                     </Reveal>
@@ -163,7 +163,7 @@ export default async function ItineraryPage({ params }: { params: Params }) {
             {journey.route.length > 0 ? (
                 <section
                     aria-labelledby="route-title"
-                    className={cn(sec, "bg-linear-to-b from-night via-night-2 to-night")}
+                    className={cn(sec, "bg-linear-to-b from-paper via-paper-2 to-paper")}
                 >
                     <div className={cn(wrap, "grid grid-cols-[1.1fr_1fr] items-center gap-[clamp(28px,5vw,72px)] max-[900px]:grid-cols-1")}>
                         <Reveal>
@@ -176,7 +176,7 @@ export default async function ItineraryPage({ params }: { params: Params }) {
                             <ol className="mt-8 grid gap-2" data-reveal>
                                 {journey.route.map((p, i) => (
                                     <li key={p.name} className="flex items-baseline gap-4 border-b border-line pb-3">
-                                        <span className={cn(mono, "w-6 text-ember")}>{String(i + 1).padStart(2, "0")}</span>
+                                        <span className={cn(mono, "w-6 text-accent")}>{String(i + 1).padStart(2, "0")}</span>
                                         <span className="font-display text-xl">{p.name}</span>
                                     </li>
                                 ))}
@@ -274,7 +274,7 @@ export default async function ItineraryPage({ params }: { params: Params }) {
                             href={`/stories/${story.slug}`}
                             className="group glass-strong grid overflow-hidden rounded-[32px] shadow-deep sm:grid-cols-[2fr_3fr]"
                         >
-                            <div className="relative min-h-60 overflow-hidden bg-night-3">
+                            <div className="relative min-h-60 overflow-hidden bg-paper-3">
                                 <SmartImage
                                     image={story.poster}
                                     sizes="(min-width: 1024px) 20vw, (min-width: 640px) 40vw, 100vw"
@@ -282,10 +282,10 @@ export default async function ItineraryPage({ params }: { params: Params }) {
                                 />
                             </div>
                             <div className="grid content-center gap-4 p-7">
-                                <QuoteIcon width={32} height={32} className="text-ember" />
+                                <QuoteIcon width={32} height={32} className="text-accent" />
                                 <p className="font-display text-2xl italic leading-snug">“{story.quote}”</p>
                                 <p className="text-sm text-dim">{story.guestName}</p>
-                                <span className="inline-flex items-center gap-2 text-sm font-semibold text-ember">
+                                <span className="inline-flex items-center gap-2 text-sm font-semibold text-accent">
                                     Read their story <ArrowIcon className="size-4" />
                                 </span>
                             </div>
@@ -304,9 +304,9 @@ export default async function ItineraryPage({ params }: { params: Params }) {
                         />
                     </div>
                     <div className={ctaPanel}>
-                        <span className={cn(eyebrow, "text-ember-soft!")}>Next journey · {next.country}</span>
+                        <span className={cn(eyebrow, "text-accent-soft!")}>Next journey · {next.country}</span>
                         <p className={cn(hLg, "font-display")}>{next.title}</p>
-                        <span className={btn("ember")}>
+                        <span className={btn("primary")}>
                             See the journey <ArrowIcon />
                         </span>
                     </div>
