@@ -63,7 +63,7 @@ export default async function StoryPage({ params }: { params: Params }) {
                 />
                 <div className={wrap}>
                     <div className="grid max-w-[960px] gap-5">
-                        <nav aria-label="Breadcrumb" className="glass inline-flex h-[34px] w-max max-w-full items-center gap-2 rounded-full px-3.5 text-[13px] text-mist [&_a:hover]:text-fg [&_b]:truncate [&_b]:font-semibold [&_b]:text-ember">
+                        <nav aria-label="Breadcrumb" className="glass inline-flex h-[34px] w-max max-w-full items-center gap-2 rounded-full px-3.5 text-[13px] text-mist [&_a:hover]:text-ink [&_b]:truncate [&_b]:font-semibold [&_b]:text-accent">
                             <Link href="/">Home</Link>
                             <span aria-hidden>/</span>
                             <Link href="/stories">Stories</Link>
@@ -73,7 +73,7 @@ export default async function StoryPage({ params }: { params: Params }) {
                         <span className={eyebrow}>Guest story · {story.travelled}</span>
                         <h1 className={cn(hLg, "leading-[1.15]! italic")}>“{story.quote}”</h1>
                         <div className="flex items-center gap-3.5">
-                            <div className="relative size-14 shrink-0 overflow-hidden rounded-full bg-night-3">
+                            <div className="relative size-14 shrink-0 overflow-hidden rounded-full bg-paper-3">
                                 <SmartImage image={story.portrait} sizes="56px" quality={65} />
                             </div>
                             <span>
@@ -98,7 +98,7 @@ export default async function StoryPage({ params }: { params: Params }) {
                                 <dt className="text-[11px] font-bold uppercase tracking-[0.14em] text-dim">Journey</dt>
                                 <dd className="mt-1 text-base">
                                     {journey ? (
-                                        <Link href={`/itineraries/${journey.slug}`} className="text-ember hover:underline">
+                                        <Link href={`/itineraries/${journey.slug}`} className="text-accent hover:underline">
                                             {journey.title}
                                         </Link>
                                     ) : (
@@ -135,7 +135,7 @@ export default async function StoryPage({ params }: { params: Params }) {
             {journey && (
                 <section
                     aria-labelledby="journey-title"
-                    className={cn(sec, "bg-linear-to-b from-night to-night-2")}
+                    className={cn(sec, "bg-linear-to-b from-paper to-paper-2")}
                 >
                     <div className={cn(wrap, "grid items-center gap-[clamp(28px,5vw,64px)] md:grid-cols-[minmax(0,1fr)_auto]")}>
                         <div className="grid gap-4">

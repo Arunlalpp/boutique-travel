@@ -24,7 +24,7 @@ export function VideoPlayer({ video, poster, title, className }: VideoPlayerProp
     const [state, setState] = useState<"idle" | "playing" | "pending">("idle");
 
     return (
-        <div className={cn("relative aspect-video overflow-hidden rounded-[32px] bg-night-3 shadow-deep", className)}>
+        <div className={cn("relative aspect-video overflow-hidden rounded-[32px] bg-paper-3 shadow-deep", className)}>
             {state === "playing" && video ? (
                 <iframe
                     src={embedUrl(video)}
@@ -37,7 +37,7 @@ export function VideoPlayer({ video, poster, title, className }: VideoPlayerProp
                 <button
                     type="button"
                     onClick={() => setState(video ? "playing" : "pending")}
-                    className="group absolute inset-0 text-fg"
+                    className="group absolute inset-0 text-ink"
                     aria-label={`Play film: ${title}`}
                 >
                     <SmartImage
@@ -47,9 +47,9 @@ export function VideoPlayer({ video, poster, title, className }: VideoPlayerProp
                     />
                     <span
                         aria-hidden
-                        className="absolute inset-0 bg-night/30 transition-colors duration-700 group-hover:bg-night/20"
+                        className="absolute inset-0 bg-paper/30 transition-colors duration-700 group-hover:bg-paper/20"
                     />
-                    <span className="absolute left-1/2 top-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ember text-ember-ink shadow-ember transition-all duration-700 ease-soft group-hover:scale-110 group-hover:bg-ember-soft md:size-24">
+                    <span className="absolute left-1/2 top-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-accent text-accent-ink shadow-accent transition-all duration-700 ease-soft group-hover:scale-110 group-hover:bg-accent-soft md:size-24">
                         <PlayIcon className="ml-1 size-7 md:size-8" />
                     </span>
                 </button>
@@ -58,9 +58,9 @@ export function VideoPlayer({ video, poster, title, className }: VideoPlayerProp
             {state === "pending" && (
                 <div
                     role="status"
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-night/85 px-6 text-center text-fg backdrop-blur-sm"
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-paper/85 px-6 text-center text-ink backdrop-blur-sm"
                 >
-                    <PlayIcon className="size-8 text-ember" />
+                    <PlayIcon className="size-8 text-accent" />
                     <p className="font-display text-2xl">The guest film will play here.</p>
                     <p className="max-w-sm text-sm text-mist">
                         Films are hosted on YouTube or Vimeo and embedded once supplied by the client.

@@ -37,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-    themeColor: "#0e1117",
+    themeColor: "#f3f2ed",
     viewportFit: "cover",
 };
 
@@ -48,7 +48,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <SiteProviders>
             <a
                 href="#main"
-                className="sr-only z-70 rounded-full bg-fg px-4 py-3 text-night focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+                className="sr-only z-70 rounded-full bg-ink px-4 py-3 text-paper focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
             >
                 Skip to content
             </a>

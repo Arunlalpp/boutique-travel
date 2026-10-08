@@ -4,14 +4,12 @@ import { media } from "./media";
 
 export const story = {
     eyebrow: "Who we are",
-    title: "A small team with a very big backyard.",
+    statement:
+        "A small team with a very big backyard. Forty guides, naturalists and hosts, still obsessed with helping you feel at home in the wild.",
     paragraphs: [
-        "Boutique Travel began as weekend camps for friends in the Western Ghats. Today we’re 40 guides, naturalists and hosts, still obsessed with helping you feel at home in the wild.",
-        "Every itinerary is scouted on foot, every campsite is run with local communities, and part of every booking funds forest restoration.",
+        "Boutique Travel began as weekend camps for friends in the Western Ghats. Every itinerary is still scouted on foot, every campsite is run with local communities, and part of every booking funds forest restoration.",
     ],
-    image: media.traveller,
-    years: { value: "12", label: "years on the trail" },
-    founders: { names: "Anjali & Arjun Nair", role: "Co-founders", image: media.portraitB },
+    founders: { names: "Anjali & Arjun Nair", role: "Co-founders" },
 };
 
 export const timeline = [

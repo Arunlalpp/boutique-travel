@@ -3,7 +3,7 @@ import { BedIcon, FoodIcon, PinIcon } from "@/components/ui/Icons";
 import type { ItineraryDay } from "@/lib/types";
 
 const tag =
-    "inline-flex h-8 items-center gap-1.5 rounded-full border border-line bg-white/6 px-3 text-[13px] text-mist [&_svg]:size-3.5 [&_svg]:text-ember";
+    "inline-flex h-8 items-center gap-1.5 rounded-full border border-line bg-white/6 px-3 text-[13px] text-mist [&_svg]:size-3.5 [&_svg]:text-accent";
 
 export function DayByDay({ days }: { days: ItineraryDay[] }) {
     return (
@@ -14,7 +14,7 @@ export function DayByDay({ days }: { days: ItineraryDay[] }) {
                     data-reveal
                     className="glass grid grid-cols-[140px_minmax(0,1fr)] gap-6 rounded-[26px] p-[clamp(22px,3vw,32px)] max-[700px]:grid-cols-1 max-[700px]:gap-2"
                 >
-                    <p className="pt-1.5 font-mono text-[13px] text-ember">{day.label}</p>
+                    <p className="pt-1.5 font-mono text-[13px] text-accent">{day.label}</p>
                     <div>
                         <h3 className="text-[clamp(24px,2.4vw,30px)]">{day.title}</h3>
                         <p className="mt-2.5 max-w-[64ch] text-mist">{day.description}</p>

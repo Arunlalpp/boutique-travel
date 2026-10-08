@@ -51,7 +51,7 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                     <li
                         key={image.src + i}
                         data-reveal="mask"
-                        className={cn("relative overflow-hidden rounded-[24px] bg-night-3 md:min-h-80", spans[i % spans.length])}
+                        className={cn("relative overflow-hidden rounded-[24px] bg-paper-3 md:min-h-80", spans[i % spans.length])}
                     >
                         <button
                             type="button"
@@ -81,7 +81,7 @@ export function Gallery({ images, title }: { images: ImageAsset[]; title: string
                     role="dialog"
                     aria-modal="true"
                     aria-label={`${title} — gallery`}
-                    className="fixed inset-0 z-130 flex flex-col bg-night/95 text-fg backdrop-blur-xl"
+                    className="fixed inset-0 z-130 flex flex-col bg-paper/95 text-ink backdrop-blur-xl"
                     onClick={(e) => e.target === e.currentTarget && close()}
                 >
                     <div className={cn(wrap, "flex h-20 items-center justify-between")}>

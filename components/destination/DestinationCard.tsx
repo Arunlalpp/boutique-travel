@@ -1,6 +1,5 @@
 import type { DestinationCard as DestinationCardType } from "@/lib/types";
 import { SpotCard } from "@/components/ui/SpotCard";
-import { price, priceNote } from "@/lib/ui";
 
 export function DestinationCard({
     destination,
@@ -23,10 +22,8 @@ export function DestinationCard({
             location={destination.country}
             tagline={destination.shortDescription}
             meta={
-                <span className={price}>
-                    <small className={priceNote}>
-                        {journeys > 0 ? `${journeys} journey${journeys === 1 ? "" : "s"}` : "Designed to order"}
-                    </small>
+                <span className="tabular-nums">
+                    {journeys > 0 ? `${journeys} journey${journeys === 1 ? "" : "s"}` : "Designed to order"}
                 </span>
             }
         />

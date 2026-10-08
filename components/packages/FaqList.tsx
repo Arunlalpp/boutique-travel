@@ -8,11 +8,11 @@ export function FaqList({ items }: { items: [string, string][] }) {
     const [open, setOpen] = useState(0);
 
     return (
-        <div className="grid content-start gap-3">
+        <div className="grid content-start border-t border-line">
             {items.map(([q, a], k) => (
                 <details
                     key={q}
-                    className="group glass rounded-[22px] transition-colors duration-300 open:bg-white/10!"
+                    className="group border-b border-line"
                     open={open === k}
                     onToggle={(e) => {
                         const isOpen = (e.currentTarget as HTMLDetailsElement).open;
@@ -20,16 +20,16 @@ export function FaqList({ items }: { items: [string, string][] }) {
                         else if (open === k) setOpen(-1);
                     }}
                 >
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-[26px] py-[22px] text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 text-sm font-medium [&::-webkit-details-marker]:hidden">
                         {q}
                         <i
                             aria-hidden
-                            className="grid size-8 shrink-0 place-items-center rounded-full border border-line-2 transition-[rotate,background-color] duration-350 ease-soft group-open:rotate-45 group-open:border-ember group-open:bg-ember group-open:text-ember-ink [&_svg]:size-3.5"
+                            className="grid size-7 shrink-0 place-items-center text-dim transition-[rotate,color] duration-350 ease-soft group-open:rotate-45 group-open:text-ink [&_svg]:size-3.5"
                         >
                             <PlusIcon />
                         </i>
                     </summary>
-                    <p className="max-w-[62ch] px-[26px] pb-[22px] text-mist">{a}</p>
+                    <p className="max-w-[62ch] pb-5 text-[13px] text-mist">{a}</p>
                 </details>
             ))}
         </div>

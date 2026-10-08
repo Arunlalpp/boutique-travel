@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { pageMetadata } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getSiteSettings } from "@/sanity/lib/queries";
 import { PageHero } from "@/components/ui/PageHero";
-import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Reveal } from "@/components/motion/Reveal";
 import { PackagePicker } from "@/components/packages/PackagePicker";
 import { FaqList } from "@/components/packages/FaqList";
-import { BusIcon, FoodIcon, GuideIcon, TentIcon } from "@/components/ui/Icons";
+import { ArrowIcon } from "@/components/ui/Icons";
 import { faq, inclusions } from "@/lib/data/packages";
 import { contactHref } from "@/lib/data/site";
-import { media } from "@/lib/data/media";
-import { eyebrow, hLg, hMd, iconTile, lede, sec, secHead, secHeadTitle, wrap } from "@/lib/ui";
+import { eyebrow, hLg, ruled, sec, textLink, wrap } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,8 +23,6 @@ export async function generateMetadata(): Promise<Metadata> {
     });
 }
 
-const icons = { tent: TentIcon, food: FoodIcon, bus: BusIcon, guide: GuideIcon };
-
 const faqData = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -37,12 +34,9 @@ export default function PackagesPage() {
         <>
             <JsonLd data={faqData} />
             <PageHero
-                image={media.alpineLake}
-                center
-                className="pb-10!"
                 crumbs={[{ label: "Home", href: "/" }, { label: "Packages" }]}
                 eyebrow="Simple, honest pricing"
-                title="Pick your kind of adventure"
+                title="Pick your kind of adventure."
                 lede="All-inclusive packages with guides, meals, stays and transfers. No hidden costs."
             />
 
@@ -50,48 +44,30 @@ export default function PackagesPage() {
 
             <section className={cn(sec, "pt-0!")} aria-labelledby="incl-title">
                 <div className={wrap}>
-                    <div className={secHead}>
-                        <div className={secHeadTitle}>
-                            <span className={eyebrow}>Always included</span>
-                            <h2 id="incl-title" className={hMd}>
-                                Every package comes with
-                            </h2>
-                        </div>
-                    </div>
-                    <Reveal className="grid grid-cols-4 gap-4 max-desk:grid-cols-2 max-tab:grid-cols-1">
-                        {inclusions.map((item) => {
-                            const Icon = icons[item.icon];
-                            return (
-                                <div key={item.title} className="glass flex items-center gap-3.5 rounded-[22px] p-[18px]" data-reveal>
-                                    <div className={iconTile}>
-                                        <Icon />
-                                    </div>
-                                    <span>
-                                        <b>{item.title}</b>
-                                        <small className="block text-[13px] text-dim">{item.text}</small>
-                                    </span>
-                                </div>
-                            );
-                        })}
+                    <h2 id="incl-title" className={cn(eyebrow, "mb-6 font-sans tracking-[0.16em]")}>
+                        Every package comes with
+                    </h2>
+                    <Reveal className="grid grid-cols-4 gap-5 max-desk:grid-cols-2 max-xs:grid-cols-1">
+                        {inclusions.map((item) => (
+                            <div key={item.title} className={cn(ruled, "grid gap-1")} data-reveal>
+                                <b className="text-sm font-semibold">{item.title}</b>
+                                <small className="text-xs text-dim">{item.text}</small>
+                            </div>
+                        ))}
                     </Reveal>
                 </div>
             </section>
 
-            <section className={cn(sec, "pb-40! pt-0!")} aria-labelledby="faq-title">
-                <div className={cn(wrap, "grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-[clamp(32px,6vw,90px)] max-desk:grid-cols-1")}>
-                    <div className="grid content-start gap-[18px]">
+            <section className={cn(sec, "pt-0! pb-40!")} aria-labelledby="faq-title">
+                <div className={cn(wrap, "grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-[clamp(32px,6vw,90px)] max-desk:grid-cols-1")}>
+                    <div className="grid content-start gap-4">
                         <span className={eyebrow}>Good to know</span>
-                        <h2 id="faq-title" className={hLg}>
+                        <h2 id="faq-title" className={cn(hLg, "max-w-[10ch]")}>
                             Questions, answered.
                         </h2>
-                        <p className={lede}>
-                            Can’t find what you need? Our trip designers reply within an hour, 9am to 9pm IST.
-                        </p>
-                        <div>
-                            <ButtonLink href={contactHref} variant="glass" arrow={false}>
-                                Ask a trip designer
-                            </ButtonLink>
-                        </div>
+                        <Link href={contactHref} className={cn(textLink, "text-[13px]")}>
+                            Ask a trip designer <ArrowIcon />
+                        </Link>
                     </div>
                     <FaqList items={faq} />
                 </div>

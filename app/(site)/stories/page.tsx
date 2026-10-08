@@ -61,7 +61,7 @@ export default async function StoriesPage() {
                                                 {" · "}
                                                 <Link
                                                     href={`/itineraries/${featured.journeySlug}`}
-                                                    className="text-fg underline-offset-4 hover:underline"
+                                                    className="text-ink underline-offset-4 hover:underline"
                                                 >
                                                     {featured.journeyTitle}
                                                 </Link>

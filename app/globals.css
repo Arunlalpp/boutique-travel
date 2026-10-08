@@ -9,31 +9,29 @@
  * Tailwind configuration only. Every component is styled with utility
  * classes in its own markup; shared class recipes live in lib/ui.ts.
  *
- * Design tokens: "night camp", from the approved Figma prototype. Dark
- * glass UI over landscapes with one warm ember accent.
+ * Design tokens: "Option B, Minimal", from the approved Figma redesign.
+ * Warm off-white paper, near-black ink, hairline rules and one muted
+ * moss accent. Photography carries the colour.
  */
 @theme {
-    --color-night: #0e1117;
-    --color-night-2: #151922;
-    --color-night-3: #1c212c;
-    --color-night-deep: #0a0c11;
-    --color-fg: #f4efe8;
-    --color-mist: rgb(244 239 232 / 0.72);
-    --color-dim: rgb(244 239 232 / 0.52);
-    --color-ember: #f59e3d;
-    --color-ember-soft: #ffc37a;
-    --color-ember-ink: #1a1208;
-    --color-ember-deep: #b5651d;
-    --color-cream: #f5efe6;
-    --color-cream-ink: #17140f;
-    --color-cream-mist: rgb(23 20 15 / 0.64);
-    --color-line: rgb(255 255 255 / 0.16);
-    --color-line-2: rgb(255 255 255 / 0.28);
-    --color-ok: #7bd389;
-    --color-danger: #ff8a7a;
+    --color-paper: #f3f2ed;
+    --color-paper-2: #eae9e2;
+    --color-paper-3: #dcdad1;
+    --color-ink: #171715;
+    --color-mist: rgb(23 23 21 / 0.68);
+    --color-dim: rgb(23 23 21 / 0.5);
+    --color-accent: #4b6a52;
+    --color-accent-soft: #6f8f74;
+    --color-accent-ink: #f3f2ed;
+    --color-accent-deep: #34503b;
+    --color-line: rgb(23 23 21 / 0.12);
+    --color-line-2: rgb(23 23 21 / 0.24);
+    --color-ok: #3f7a4c;
+    --color-danger: #b4402f;
 
-    --font-display: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
+    --font-display: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-serif: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
     --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
     /* The prototype's own breakpoints, alongside Tailwind's defaults. */
@@ -42,8 +40,8 @@
     --breakpoint-desk: 960px;
 
     --ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
-    --shadow-deep: 0 24px 60px -20px rgb(0 0 0 / 0.55);
-    --shadow-ember: 0 10px 30px -10px rgb(245 158 61 / 0.7);
+    --shadow-deep: 0 24px 60px -28px rgb(23 23 21 / 0.28);
+    --shadow-accent: 0 10px 30px -14px rgb(23 23 21 / 0.4);
 
     --animate-bump: bump 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
     --animate-dot-fill: dot-fill 6.5s linear forwards;
@@ -79,11 +77,11 @@
     }
     @keyframes beacon {
         0% {
-            box-shadow: 0 0 0 0 rgb(245 158 61 / 0.6);
+            box-shadow: 0 0 0 0 rgb(75 106 82 / 0.5);
         }
         70%,
         100% {
-            box-shadow: 0 0 0 22px rgb(245 158 61 / 0);
+            box-shadow: 0 0 0 22px rgb(75 106 82 / 0);
         }
     }
     @keyframes dash {
@@ -93,16 +91,17 @@
     }
 }
 
-/* Frosted panels: used on almost every surface, so they get named utilities. */
+/* Light frosted panels, kept for the few surfaces that sit over photos
+   (journey and story pages). The minimal pages use hairlines instead. */
 @utility glass {
-    background-color: rgb(255 255 255 / 0.075);
+    background-color: rgb(255 255 255 / 0.55);
     border: 1px solid var(--color-line);
-    backdrop-filter: blur(22px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(130%);
 }
 @utility glass-strong {
-    background-color: rgb(255 255 255 / 0.13);
-    border: 1px solid var(--color-line-2);
-    backdrop-filter: blur(30px) saturate(150%);
+    background-color: rgb(255 255 255 / 0.78);
+    border: 1px solid var(--color-line);
+    backdrop-filter: blur(24px) saturate(140%);
 }
 @utility scrollbar-none {
     scrollbar-width: none;
@@ -114,7 +113,7 @@
 @layer base {
     :root {
         --gutter: clamp(16px, 4vw, 40px);
-        color-scheme: dark;
+        color-scheme: light;
     }
 
     html {
@@ -125,14 +124,14 @@
     }
 
     body {
-        @apply bg-night font-sans text-[15px]/[1.6] text-fg antialiased;
+        @apply bg-paper font-sans text-[15px]/[1.6] text-ink antialiased;
     }
 
     h1,
     h2,
     h3,
     h4 {
-        @apply font-display leading-[1.06] font-normal tracking-[-0.01em] text-balance;
+        @apply font-display leading-[1.04] font-light tracking-[-0.035em] text-balance;
     }
 
     p {
@@ -140,11 +139,11 @@
     }
 
     ::selection {
-        @apply bg-ember text-ember-ink;
+        @apply bg-ink text-paper;
     }
 
     :focus-visible {
-        @apply rounded-[10px] outline-2 outline-offset-3 outline-ember;
+        @apply rounded-[4px] outline-2 outline-offset-3 outline-ink;
     }
 
     button {

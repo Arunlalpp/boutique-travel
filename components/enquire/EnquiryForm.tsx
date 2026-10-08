@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { ArrowIcon, CompassIcon, GuideIcon, UserIcon } from "@/components/ui/Icons";
+import { ArrowIcon } from "@/components/ui/Icons";
 import { money } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { btn, chip, field, fieldLabel, hMd, input, mono, stepper, stepperBtn, stepperValue } from "@/lib/ui";
@@ -23,9 +23,9 @@ export interface EnquiryPrefill {
 }
 
 const STYLES = [
-    { value: "Private journey", Icon: UserIcon, text: "Just you and yours, your own guide" },
-    { value: "Small group", Icon: GuideIcon, text: "Join up to eight like-minded explorers" },
-    { value: "Not sure yet", Icon: CompassIcon, text: "We’ll help you decide" },
+    { value: "Small group", text: "Join up to eight like-minded explorers" },
+    { value: "Private journey", text: "Just you and yours, your own guide" },
+    { value: "Not sure yet", text: "We’ll help you decide" },
 ];
 
 const CONTACT = ["Email", "Phone", "WhatsApp"];
@@ -183,7 +183,7 @@ export function EnquiryForm({
     return (
         <form
             ref={formRef}
-            className="glass-strong relative grid scroll-mt-28 gap-6 rounded-[36px] p-[clamp(24px,3.6vw,44px)] shadow-deep"
+            className="relative grid scroll-mt-24 gap-7"
             noValidate
             onSubmit={(e) => {
                 e.preventDefault();
@@ -203,13 +203,13 @@ export function EnquiryForm({
                 />
             </div>
 
-            <ol className="flex items-center gap-2" aria-label="Progress">
+            <ol className="grid grid-cols-3" aria-label="Progress">
                 {steps.map((label, k) => (
-                    <li key={label} className="grid flex-1 gap-2" aria-current={k === step ? "step" : undefined}>
-                        <div className="h-1 overflow-hidden rounded-full bg-white/14">
-                            <i className={cn("block h-full bg-ember transition-[width] duration-500 ease-soft", k <= step ? "w-full" : "w-0")} />
+                    <li key={label} className="grid gap-2.5" aria-current={k === step ? "step" : undefined}>
+                        <div className="h-px bg-line-2">
+                            <i className={cn("block h-0.5 -translate-y-px bg-ink transition-[width] duration-500 ease-soft", k <= step ? "w-full" : "w-0")} />
                         </div>
-                        <small className={cn("text-xs font-semibold", k === step ? "text-fg" : "text-dim")}>
+                        <small className={cn("text-xs font-medium", k === step ? "text-ink" : "text-dim")}>
                             {k + 1} · {label}
                         </small>
                     </li>
@@ -217,7 +217,7 @@ export function EnquiryForm({
             </ol>
 
             {(prefill.packageName || prefill.experience) && (
-                <p className={cn(mono, "-mb-2 text-ember")}>
+                <p className={cn(mono, "-mb-2 text-accent")}>
                     Enquiring about: {[prefill.packageName, prefill.experience].filter(Boolean).join(" · ")}
                 </p>
             )}
@@ -225,20 +225,22 @@ export function EnquiryForm({
             {step === 0 && (
                 <div className="grid animate-pagein gap-[18px]" key="s0">
                     <h3 className={hMd}>What kind of trip?</h3>
-                    <div className="grid grid-cols-3 gap-2.5 max-xs:grid-cols-1" role="group" aria-label="Travel style">
-                        {STYLES.map(({ value, Icon, text }) => (
-                            <button
-                                key={value}
-                                type="button"
-                                aria-pressed={v.style === value}
-                                onClick={() => set("style", value)}
-                                className="grid gap-2 rounded-[20px] border border-line bg-white/4 p-4 text-left transition-all duration-250 hover:border-line-2 aria-pressed:border-ember aria-pressed:bg-ember/10 [&_svg]:size-6 [&_svg]:text-ember"
-                            >
-                                <Icon />
-                                <b className="text-sm">{value}</b>
-                                <small className="text-xs leading-[1.4] text-dim">{text}</small>
-                            </button>
-                        ))}
+                    <div className="grid gap-2.5">
+                        <div className="flex flex-wrap gap-2" role="group" aria-label="Travel style">
+                            {STYLES.map(({ value, text }) => (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    title={text}
+                                    aria-pressed={v.style === value}
+                                    onClick={() => set("style", value)}
+                                    className={chip()}
+                                >
+                                    {value}
+                                </button>
+                            ))}
+                        </div>
+                        <p className="text-xs text-dim">{STYLES.find((x) => x.value === v.style)?.text}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-3.5 max-xs:grid-cols-1">
                         <SelectField
@@ -314,7 +316,7 @@ export function EnquiryForm({
                         <input
                             id="budget"
                             type="range"
-                            className="h-1.5 w-full cursor-pointer accent-ember"
+                            className="h-1 w-full cursor-pointer accent-ink"
                             min={BUDGET.min}
                             max={BUDGET.max}
                             step={BUDGET.step}
@@ -324,7 +326,7 @@ export function EnquiryForm({
                         />
                         <div className="flex justify-between font-mono text-xs text-dim">
                             <span>{money(BUDGET.min)}</span>
-                            <b className="font-medium text-fg">Up to {money(v.budget)}</b>
+                            <b className="font-medium text-ink">Up to {money(v.budget)}</b>
                         </div>
                     </div>
                 </div>
@@ -404,7 +406,7 @@ export function EnquiryForm({
                             placeholder="Dates, interests, celebrations, dietary needs…"
                             value={v.message}
                             onChange={(e) => set("message", e.target.value)}
-                            className={cn(input, "h-[120px] resize-y py-3.5")}
+                            className={cn(input, "h-[96px] resize-y py-2.5")}
                         />
                     </div>
                     <label className="flex cursor-pointer items-start gap-3 text-[13.5px] text-mist">
@@ -415,7 +417,7 @@ export function EnquiryForm({
                             onChange={(e) => set("consent", e.target.checked)}
                             aria-invalid={!!err("consent")}
                             aria-describedby={err("consent") ? "consent-error" : undefined}
-                            className="mt-px size-[22px] shrink-0 cursor-pointer appearance-none rounded-[7px] border border-line-2 bg-white/6 bg-center bg-no-repeat bg-size-[14px] checked:border-ember checked:bg-ember checked:bg-[url('data:image/svg+xml;utf8,<svg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%231A1208%22_stroke-width=%223%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22><path_d=%22M5_12.5l4.5_4.5L19_7.5%22/></svg>')] aria-invalid:border-danger"
+                            className="mt-px size-[18px] shrink-0 cursor-pointer appearance-none rounded-[4px] border border-line-2 bg-transparent bg-center bg-no-repeat bg-size-[12px] checked:border-ink checked:bg-ink checked:bg-[url('data:image/svg+xml;utf8,<svg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23F3F2ED%22_stroke-width=%223%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22><path_d=%22M5_12.5l4.5_4.5L19_7.5%22/></svg>')] aria-invalid:border-danger"
                         />
                         <span>
                             I’m happy to be contacted about this enquiry. We never share your details or add you to a
@@ -431,15 +433,15 @@ export function EnquiryForm({
                 </div>
             )}
 
-            <div className="flex justify-between gap-2.5">
+            <div className="flex items-center justify-between gap-4">
                 {step > 0 ? (
-                    <button type="button" className={btn("glass")} onClick={() => go(step - 1)}>
-                        Back
+                    <button type="button" className="text-[13px] font-medium text-dim hover:text-ink" onClick={() => go(step - 1)}>
+                        ← Back
                     </button>
                 ) : (
-                    <span />
+                    <span className="text-xs text-dim">Takes about a minute. No payment needed.</span>
                 )}
-                <button type="submit" className={btn("ember")} disabled={status === "sending"}>
+                <button type="submit" className={btn("primary")} disabled={status === "sending"}>
                     {step < 2 ? "Continue" : status === "sending" ? "Sending…" : "Send enquiry"}
                     <ArrowIcon />
                 </button>

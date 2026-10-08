@@ -4,8 +4,7 @@ import type { ItineraryCard } from "@/lib/types";
 import { SpotCard } from "@/components/ui/SpotCard";
 import { HeartIcon } from "@/components/ui/Icons";
 import { useSaved } from "@/components/providers/SiteProviders";
-import { mono, price, priceNote } from "@/lib/ui";
-import { cn } from "@/lib/utils";
+import { mono } from "@/lib/ui";
 
 interface JourneyCardProps {
     journey: ItineraryCard;
@@ -30,7 +29,7 @@ export function JourneyCard({ journey, sizes = "(min-width: 1024px) 340px, 80vw"
             action={
                 <button
                     type="button"
-                    className="glass-strong grid size-10 place-items-center rounded-full transition-transform duration-300 ease-soft active:scale-85 [&_svg]:size-[19px] [&_svg]:transition-colors aria-pressed:[&_svg]:fill-ember aria-pressed:[&_svg]:text-ember"
+                    className="grid size-8 place-items-center rounded-full bg-paper/90 text-ink transition-transform duration-300 ease-soft active:scale-85 [&_svg]:size-4 [&_svg]:transition-colors aria-pressed:bg-ink aria-pressed:text-paper aria-pressed:[&_svg]:fill-paper"
                     aria-pressed={saved}
                     aria-label={saved ? `Remove ${journey.title} from saved` : `Save ${journey.title}`}
                     onClick={() => toggle(journey.slug, journey.title)}
@@ -51,16 +50,7 @@ export function JourneyCard({ journey, sizes = "(min-width: 1024px) 340px, 80vw"
             }
             tagline={journey.hook}
             meta={
-                <span className={price}>
-                    {journey.startingPrice ? (
-                        <>
-                            <small className={priceNote}>From </small>
-                            {journey.startingPrice}
-                        </>
-                    ) : (
-                        <small className={cn(priceNote)}>Priced to your plans</small>
-                    )}
-                </span>
+                <span className="tabular-nums">{journey.startingPrice ? `From ${journey.startingPrice}` : "Priced to your plans"}</span>
             }
         />
     );

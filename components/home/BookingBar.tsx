@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { ArrowIcon, CalendarIcon, PinIcon, UserIcon } from "@/components/ui/Icons";
-import { btn, stepper, stepperBtn, stepperValue } from "@/lib/ui";
+import { ArrowIcon } from "@/components/ui/Icons";
+import { stepper, stepperBtn, stepperValue } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 interface DestinationOption {
@@ -30,7 +30,8 @@ function upcomingDepartures(): Date[] {
 const isoDate = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
-export function BookingBar({ destinations }: { destinations: DestinationOption[] }) {
+/** The search strip that sits on the bottom edge of the home hero photo. */
+export function BookingBar({ destinations, className }: { destinations: DestinationOption[]; className?: string }) {
     const router = useRouter();
     const form = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState<PopId | null>(null);
@@ -73,13 +74,15 @@ export function BookingBar({ destinations }: { destinations: DestinationOption[]
             ref={form}
             role="search"
             aria-label="Find a trip"
-            className="glass-strong relative z-5 mx-auto -mt-[70px] grid max-w-[980px] grid-cols-[1.25fr_1fr_1fr_auto] items-stretch gap-1.5 rounded-[32px] p-2.5 shadow-deep max-tab:-mt-10 max-tab:grid-cols-2 max-tab:rounded-[28px]"
+            className={cn(
+                "relative z-5 grid grid-cols-[1.2fr_1fr_1fr_auto] items-stretch bg-paper max-tab:grid-cols-2 max-tab:border max-tab:border-line",
+                className,
+            )}
         >
             <Field
                 id="where"
                 open={open}
                 setOpen={setOpen}
-                icon={<PinIcon />}
                 wide
                 label="Destination"
                 value={chosen ? `${chosen.name}, ${chosen.country}` : "Anywhere wild"}
@@ -91,14 +94,14 @@ export function BookingBar({ destinations }: { destinations: DestinationOption[]
                             type="button"
                             role="option"
                             aria-selected={where === d.slug}
-                            className="flex items-center justify-between gap-4 rounded-[14px] px-3.5 py-3 text-left hover:bg-white/8 aria-selected:bg-white/8"
+                            className="flex items-center justify-between gap-4 px-3.5 py-2.5 text-left text-sm hover:bg-ink/5 aria-selected:bg-ink/5"
                             onClick={() => {
                                 setWhere(d.slug);
                                 setOpen(null);
                             }}
                         >
                             <span>
-                                <b>{d.name}</b>
+                                <span className="font-medium">{d.name}</span>
                             </span>
                             <small className="font-mono text-[11px] text-dim">{d.country}</small>
                         </button>
@@ -110,7 +113,6 @@ export function BookingBar({ destinations }: { destinations: DestinationOption[]
                 id="when"
                 open={open}
                 setOpen={setOpen}
-                icon={<CalendarIcon />}
                 divider
                 label="Departure"
                 value={
@@ -125,7 +127,7 @@ export function BookingBar({ destinations }: { destinations: DestinationOption[]
                             key={d.toISOString()}
                             type="button"
                             aria-pressed={date?.getTime() === d.getTime()}
-                            className="grid w-16 justify-items-center gap-0.5 rounded-2xl border border-line py-2.5 text-xs text-mist transition-all aria-pressed:border-ember aria-pressed:bg-ember aria-pressed:text-ember-ink [&_b]:text-[15px] [&_b]:tabular-nums aria-pressed:[&_b]:text-ember-ink"
+                            className="grid w-16 justify-items-center gap-0.5 border border-line py-2 text-[11px] text-mist transition-all hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper [&_b]:text-sm [&_b]:font-medium [&_b]:tabular-nums"
                             aria-label={d.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
                             onClick={() => {
                                 setDate(d);
@@ -144,7 +146,6 @@ export function BookingBar({ destinations }: { destinations: DestinationOption[]
                 id="who"
                 open={open}
                 setOpen={setOpen}
-                icon={<UserIcon />}
                 divider
                 label="Travellers"
                 value={who}
@@ -155,7 +156,7 @@ export function BookingBar({ destinations }: { destinations: DestinationOption[]
 
             <button
                 type="button"
-                className={cn(btn("ember"), "h-auto min-h-14 rounded-3xl px-7 max-tab:col-span-full max-tab:min-h-[52px]")}
+                className="flex min-h-16 items-center justify-center gap-2 bg-ink px-8 text-sm font-medium text-paper transition-colors hover:bg-ink/85 max-tab:col-span-full max-tab:min-h-13 [&_svg]:size-3.5"
                 onClick={submit}
             >
                 Find my trip <ArrowIcon />
@@ -168,7 +169,6 @@ function Field({
     id,
     open,
     setOpen,
-    icon,
     label,
     value,
     children,
@@ -180,7 +180,6 @@ function Field({
     id: PopId;
     open: PopId | null;
     setOpen: (v: PopId | null) => void;
-    icon: ReactNode;
     label: string;
     value: string;
     children: ReactNode;
@@ -197,11 +196,10 @@ function Field({
     return (
         <div
             className={cn(
-                "relative flex min-w-0 cursor-pointer items-center gap-3.5 rounded-3xl px-[18px] py-3 text-left transition-colors hover:bg-white/8 max-tab:bg-white/5 [&>svg]:size-[22px] [&>svg]:shrink-0 [&>svg]:text-ember",
-                isOpen && "bg-white/8",
-                wide && "max-tab:col-span-full",
-                divider &&
-                    "before:absolute before:inset-y-[22%] before:-left-[3px] before:w-px before:bg-line before:content-[''] max-tab:before:hidden",
+                "relative flex min-w-0 cursor-pointer items-center px-5 py-3 text-left transition-colors hover:bg-ink/4",
+                isOpen && "bg-ink/4",
+                wide && "max-tab:col-span-full max-tab:border-b max-tab:border-line",
+                divider && "border-l border-line",
             )}
             role="button"
             tabIndex={0}
@@ -214,17 +212,16 @@ function Field({
             }}
             onKeyDown={onKey}
         >
-            {icon}
             <span className="min-w-0">
-                <span className="block text-xs text-dim">{label}</span>
-                <span className="block truncate text-[15px] font-semibold">{value}</span>
+                <span className="block text-[10.5px] font-medium tracking-[0.14em] text-dim uppercase">{label}</span>
+                <span className="mt-0.5 block truncate text-[13px] font-medium">{value}</span>
             </span>
             <div
                 id={`pop-${id}`}
                 hidden={!isOpen}
                 role="dialog"
                 aria-label={label}
-                className="glass-strong absolute top-[calc(100%+12px)] left-0 z-20 grid min-w-[280px] cursor-default gap-0.5 rounded-[22px] bg-[#181c25]/92! p-2.5 shadow-deep max-tab:w-[min(320px,calc(100vw-48px))] max-tab:min-w-0"
+                className="absolute top-[calc(100%+8px)] left-0 z-20 grid min-w-[280px] cursor-default gap-0.5 border border-line bg-paper p-2 shadow-deep max-tab:w-[min(320px,calc(100vw-48px))] max-tab:min-w-0"
             >
                 {children}
             </div>
@@ -250,9 +247,9 @@ function Counter({
     return (
         <div className="flex items-center justify-between gap-6 px-3.5 py-3">
             <span>
-                <b>{label}</b>
+                <span className="text-sm font-medium">{label}</span>
                 <br />
-                <small className="font-mono text-xs text-dim">{hint}</small>
+                <small className="text-xs text-dim">{hint}</small>
             </span>
             <div className={stepper}>
                 <button

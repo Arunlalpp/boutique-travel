@@ -88,7 +88,7 @@ export function SiteProviders({ children }: { children: ReactNode }) {
                 <div
                     role="status"
                     aria-live="polite"
-                    className={`glass-strong pointer-events-none fixed bottom-[calc(28px+env(safe-area-inset-bottom,0px))] left-1/2 z-120 flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-2.5 rounded-full bg-[#1e222c]/92! px-5 py-3 text-sm font-semibold transition-all duration-350 ease-soft max-tab:bottom-[calc(96px+env(safe-area-inset-bottom,0px))] [&_svg]:size-[18px] [&_svg]:shrink-0 [&_svg]:text-ember ${visible ? "translate-y-0 opacity-100" : "translate-y-[30px] opacity-0"}`}
+                    className={`pointer-events-none fixed bottom-[calc(28px+env(safe-area-inset-bottom,0px))] left-1/2 z-120 flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-2.5 rounded-full bg-ink px-5 py-3 text-[13px] font-medium text-paper shadow-deep transition-all duration-350 ease-soft max-tab:bottom-[calc(92px+env(safe-area-inset-bottom,0px))] [&_svg]:size-4 [&_svg]:shrink-0 ${visible ? "translate-y-0 opacity-100" : "translate-y-[30px] opacity-0"}`}
                 >
                     <CheckIcon />
                     <span>{message}</span>

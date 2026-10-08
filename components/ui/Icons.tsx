@@ -230,9 +230,9 @@ export const ExpandIcon = (p: IconProps) => (
 export function LogoMark(p: IconProps) {
     return (
         <svg viewBox="0 0 28 28" fill="none" aria-hidden focusable={false} {...p}>
-            <circle cx="14" cy="14" r="13" stroke="var(--color-ember)" strokeWidth="1.5" />
-            <path d="M6 19l5-7 3 4 2-3 6 6H6z" fill="var(--color-ember)" />
-            <circle cx="19" cy="8.5" r="1.6" fill="var(--color-fg)" />
+            <circle cx="14" cy="14" r="13" stroke="var(--color-accent)" strokeWidth="1.5" />
+            <path d="M6 19l5-7 3 4 2-3 6 6H6z" fill="var(--color-accent)" />
+            <circle cx="19" cy="8.5" r="1.6" fill="var(--color-ink)" />
         </svg>
     );
 }
