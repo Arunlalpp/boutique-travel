@@ -17,7 +17,7 @@ interface ButtonLinkProps {
 export function ButtonLink({
     href,
     children,
-    variant = "primary",
+    variant = "ember",
     size = "md",
     arrow = true,
     className,
