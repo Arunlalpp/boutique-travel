@@ -6,34 +6,11 @@ import { SiteProviders } from "@/components/providers/SiteProviders";
 import { Cursor } from "@/components/ui/Cursor";
 import { SanityLive } from "@/sanity/lib/live";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { organization, website } from "@/lib/seo";
+import { organization, siteMetadata, website } from "@/lib/seo";
 import { getSiteSettings } from "@/sanity/lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
-    const settings = await getSiteSettings();
-    return {
-        metadataBase: new URL(settings.siteUrl),
-        title: {
-            default: settings.defaultSeoTitle || `${settings.name} — ${settings.descriptor}`,
-            template: `%s — ${settings.name}`,
-        },
-        description: settings.defaultSeoDescription,
-        alternates: { canonical: "/" },
-        openGraph: {
-            title: settings.name,
-            description: settings.defaultSeoDescription,
-            type: "website",
-            url: "/",
-            siteName: settings.name,
-            locale: "en_IN",
-        },
-        twitter: {
-            card: "summary_large_image",
-            title: settings.name,
-            description: settings.defaultSeoDescription,
-        },
-        robots: settings.allowIndexing ? { index: true, follow: true } : { index: false, follow: false },
-    };
+    return siteMetadata(await getSiteSettings());
 }
 
 export const viewport: Viewport = {
