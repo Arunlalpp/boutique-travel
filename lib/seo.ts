@@ -12,6 +12,33 @@ interface PageSeo {
     noindex?: boolean;
 }
 
+/** Site-wide defaults (title template, description, share cards, indexing), shared by every layout. */
+export function siteMetadata(settings: SiteSettings): Metadata {
+    return {
+        metadataBase: new URL(settings.siteUrl),
+        title: {
+            default: settings.defaultSeoTitle || `${settings.name} — ${settings.descriptor}`,
+            template: `%s — ${settings.name}`,
+        },
+        description: settings.defaultSeoDescription,
+        alternates: { canonical: "/" },
+        openGraph: {
+            title: settings.name,
+            description: settings.defaultSeoDescription,
+            type: "website",
+            url: "/",
+            siteName: settings.name,
+            locale: "en_IN",
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: settings.name,
+            description: settings.defaultSeoDescription,
+        },
+        robots: settings.allowIndexing ? { index: true, follow: true } : { index: false, follow: false },
+    };
+}
+
 /**
  * Consistent metadata for every page: title, description, canonical link and
  * matching Open Graph / X card text. The share image itself comes from the

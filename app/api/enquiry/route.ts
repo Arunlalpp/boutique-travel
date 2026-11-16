@@ -2,31 +2,32 @@ import { NextResponse } from "next/server";
 import { writeClient } from "@/sanity/lib/writeClient";
 
 interface EnquiryPayload {
-    firstName: string;
-    lastName: string;
+    /** Older forms send first and last name; the home-page form sends one `name`. */
+    firstName?: string;
+    lastName?: string;
+    name?: string;
     email: string;
     phone?: string;
     nationality?: string;
-    journey: string;
+    journey?: string;
     destination?: string;
     packageName?: string;
-    style: string;
+    style?: string;
     dates?: string;
     travellers: number;
     budget?: string;
     interests?: string[];
     message?: string;
-    contactBy: string;
+    contactBy?: string;
     consent: boolean;
     companyWebsite?: string; // honeypot
 }
 
+const filled = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
+
 function isValid(body: Partial<EnquiryPayload>): body is EnquiryPayload {
     return (
-        typeof body.firstName === "string" &&
-        body.firstName.trim().length > 0 &&
-        typeof body.lastName === "string" &&
-        body.lastName.trim().length > 0 &&
+        (filled(body.name) || (filled(body.firstName) && filled(body.lastName))) &&
         typeof body.email === "string" &&
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email) &&
         body.consent === true
@@ -65,11 +66,11 @@ export async function POST(request: Request) {
 
     await writeClient.create({
         _type: "enquiry",
-        name: `${body.firstName} ${body.lastName}`.trim(),
+        name: (body.name ?? `${body.firstName} ${body.lastName}`).trim().slice(0, 120),
         email: body.email,
         phone: body.phone || undefined,
         nationality: body.nationality || undefined,
-        travelStyle: body.style,
+        travelStyle: body.style || undefined,
         travelDates: body.dates || undefined,
         groupSize: body.travellers,
         budget: body.budget || undefined,
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
         journey: journeyId ? { _type: "reference", _ref: journeyId } : undefined,
         destination: destinationId ? { _type: "reference", _ref: destinationId } : undefined,
         packageName: typeof body.packageName === "string" ? body.packageName.slice(0, 120) || undefined : undefined,
-        preferredContact: body.contactBy,
+        preferredContact: body.contactBy || undefined,
         submittedAt: new Date().toISOString(),
         status: "New",
     });
