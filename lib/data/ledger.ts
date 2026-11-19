@@ -5,8 +5,8 @@ import type { ImageAsset } from "@/lib/types";
  *
  * Copy in [square brackets] and every photo here are PLACEHOLDERS: the
  * client supplies the real field notes, guest quotes, host names and
- * photography before launch. Entries and guest films are planned as Sanity
- * collections (phase 2); until then they live here so the page is complete.
+ * photography before launch. All site content lives in lib/data; there is
+ * no CMS, so content changes ship with a deploy.
  */
 
 const u = (id: string, alt: string, focal?: string): ImageAsset => ({

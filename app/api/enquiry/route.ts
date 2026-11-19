@@ -1,38 +1,21 @@
 import { NextResponse } from "next/server";
-import { writeClient } from "@/sanity/lib/writeClient";
+import { entries } from "@/lib/data/ledger";
+import { EmailNotConfigured, notifyTeam } from "@/lib/email";
 
 interface EnquiryPayload {
-    /** Older forms send first and last name; the home-page form sends one `name`. */
-    firstName?: string;
-    lastName?: string;
-    name?: string;
+    name: string;
     email: string;
-    phone?: string;
     nationality?: string;
-    journey?: string;
-    destination?: string;
-    packageName?: string;
-    style?: string;
+    travellers?: number;
     dates?: string;
-    travellers: number;
-    budget?: string;
     interests?: string[];
     message?: string;
-    contactBy?: string;
     consent: boolean;
     companyWebsite?: string; // honeypot
 }
 
-const filled = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
-
-function isValid(body: Partial<EnquiryPayload>): body is EnquiryPayload {
-    return (
-        (filled(body.name) || (filled(body.firstName) && filled(body.lastName))) &&
-        typeof body.email === "string" &&
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email) &&
-        body.consent === true
-    );
-}
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
 export async function POST(request: Request) {
     let body: Partial<EnquiryPayload>;
@@ -43,46 +26,42 @@ export async function POST(request: Request) {
     }
 
     // Honeypot: bots that fill in the hidden field are silently accepted and dropped.
-    if (body.companyWebsite) {
-        return NextResponse.json({ ok: true });
-    }
+    if (body.companyWebsite) return NextResponse.json({ ok: true });
 
-    if (!isValid(body)) {
+    const name = str(body.name, 120);
+    const email = str(body.email, 254);
+    if (!name || !EMAIL.test(email) || body.consent !== true) {
         return NextResponse.json({ error: "Missing or invalid required fields" }, { status: 400 });
     }
 
-    const [journeyId, destinationId] = await Promise.all([
-        body.journey && body.journey !== "bespoke"
-            ? writeClient.fetch<string | null>(`*[_type == "itinerary" && slug.current == $slug][0]._id`, {
-                  slug: body.journey,
-              })
-            : null,
-        typeof body.destination === "string" && body.destination
-            ? writeClient.fetch<string | null>(`*[_type == "destination" && slug.current == $slug][0]._id`, {
-                  slug: body.destination,
-              })
-            : null,
-    ]);
+    // Only Entry labels the site itself offers are accepted.
+    const labels = new Set(entries.map((e) => `Entry ${e.no} · ${e.name}`));
+    const chosen = (Array.isArray(body.interests) ? body.interests : []).filter(
+        (i): i is string => typeof i === "string" && labels.has(i),
+    );
+    const travellers = Number(body.travellers);
 
-    await writeClient.create({
-        _type: "enquiry",
-        name: (body.name ?? `${body.firstName} ${body.lastName}`).trim().slice(0, 120),
-        email: body.email,
-        phone: body.phone || undefined,
-        nationality: body.nationality || undefined,
-        travelStyle: body.style || undefined,
-        travelDates: body.dates || undefined,
-        groupSize: body.travellers,
-        budget: body.budget || undefined,
-        interests: body.interests ?? [],
-        message: body.message || undefined,
-        journey: journeyId ? { _type: "reference", _ref: journeyId } : undefined,
-        destination: destinationId ? { _type: "reference", _ref: destinationId } : undefined,
-        packageName: typeof body.packageName === "string" ? body.packageName.slice(0, 120) || undefined : undefined,
-        preferredContact: body.contactBy || undefined,
-        submittedAt: new Date().toISOString(),
-        status: "New",
-    });
+    try {
+        await notifyTeam({
+            subject: `New enquiry: ${name}${chosen.length ? ` · ${chosen.map((c) => c.split(" · ")[0]).join(" + ")}` : ""}`,
+            heading: `${name} has begun an Entry`,
+            replyTo: email,
+            rows: [
+                ["Name", name],
+                ["Email", email],
+                ["Travelling from", str(body.nationality, 80)],
+                ["Travellers", Number.isFinite(travellers) && travellers > 0 ? String(Math.min(travellers, 99)) : ""],
+                ["Entries", chosen.join("\n")],
+                ["Travel window", str(body.dates, 120)],
+                ["Message", str(body.message, 4000)],
+                ["Received", new Date().toUTCString()],
+            ],
+        });
+    } catch (err) {
+        console.error("[enquiry]", err);
+        const status = err instanceof EmailNotConfigured ? 503 : 502;
+        return NextResponse.json({ error: "Could not send your enquiry" }, { status });
+    }
 
     return NextResponse.json({ ok: true });
 }

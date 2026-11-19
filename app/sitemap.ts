@@ -1,52 +1,40 @@
 import type { MetadataRoute } from "next";
 import { entries, entryHref, guestHref } from "@/lib/data/ledger";
-import { guestStories } from "@/lib/data/ledger-pages";
-import { getSiteSettings, getAllItineraries, getAllStories, getAllDestinations } from "@/sanity/lib/queries";
+import { entryDetail, guestStories } from "@/lib/data/ledger-pages";
+import { site } from "@/lib/site";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const [settings, itineraries, stories, destinations] = await Promise.all([
-        getSiteSettings(),
-        getAllItineraries(),
-        getAllStories(),
-        getAllDestinations(),
-    ]);
-    const base = settings.siteUrl;
+/** Content is in code, so "last modified" is the build that published it. */
+const built = new Date();
 
-    const staticRoutes = [
-        "/",
-        "/entries",
-        "/story",
-        "/guest-ledger",
-        "/enquire",
-        "/about",
-        "/itineraries",
-        "/stories",
-        "/destinations",
-        "/packages",
-    ].map((path) => ({
-        url: `${base}${path}`,
-        lastModified: new Date(),
-    }));
+export default function sitemap(): MetadataRoute.Sitemap {
+    const url = (path: string) => `${site.siteUrl}${path === "/" ? "" : path}`;
+    const page = (
+        path: string,
+        priority: number,
+        changeFrequency: "weekly" | "monthly",
+        images: string[] = [],
+    ): MetadataRoute.Sitemap[number] => ({
+        url: url(path),
+        lastModified: built,
+        changeFrequency,
+        priority,
+        ...(images.length ? { images } : {}),
+    });
 
-    const itineraryRoutes = itineraries.map((i) => ({
-        url: `${base}/itineraries/${i.slug}`,
-        lastModified: new Date(),
-    }));
-
-    const storyRoutes = stories.map((s) => ({
-        url: `${base}/stories/${s.slug}`,
-        lastModified: new Date(),
-    }));
-
-    const destinationRoutes = destinations.map((d) => ({
-        url: `${base}/destinations/${d.slug}`,
-        lastModified: new Date(),
-    }));
-
-    const ledgerRoutes = [...entries.map(entryHref), ...guestStories.map(guestHref)].map((path) => ({
-        url: `${base}${path}`,
-        lastModified: new Date(),
-    }));
-
-    return [...staticRoutes, ...ledgerRoutes, ...itineraryRoutes, ...storyRoutes, ...destinationRoutes];
+    return [
+        page("/", 1, "weekly"),
+        page(
+            "/entries",
+            0.9,
+            "weekly",
+            entries.map((e) => e.image.src),
+        ),
+        page("/story", 0.7, "monthly"),
+        page("/guest-ledger", 0.7, "weekly"),
+        page("/enquire", 0.8, "monthly"),
+        ...entries.map((e) =>
+            page(entryHref(e), 0.8, "monthly", [e.image.src, ...entryDetail(e).gallery.map((g) => g.src)]),
+        ),
+        ...guestStories.map((g) => page(guestHref(g), 0.5, "monthly", [g.poster.src])),
+    ];
 }

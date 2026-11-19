@@ -4,19 +4,20 @@ import { join } from "node:path";
 
 /**
  * Social sharing cards (Open Graph / X / WhatsApp / LinkedIn previews) in the
- * site's "night camp" style: the page's own photo, a dark fade for legibility,
- * the logo, an ember eyebrow, the title and up to three fact chips.
+ * Backroad Ledger style: the page's own photo under a navy fade, the
+ * wordmark, a typewriter eyebrow in ochre, a Jost uppercase title and up to
+ * three fact chips.
  */
 
 export const ogImageSize = { width: 1200, height: 630 };
 export const ogImageContentType = "image/png";
 
 const colors = {
-    night: "#0e1117",
-    fg: "#f4efe8",
-    mist: "rgba(244,239,232,0.78)",
-    ember: "#f59e3d",
-    line: "rgba(255,255,255,0.28)",
+    night: "#1c2f3d",
+    fg: "#ffffff",
+    mist: "rgba(255,255,255,0.82)",
+    ember: "#d9a55b",
+    line: "rgba(255,255,255,0.4)",
 };
 
 interface OgImageProps {
@@ -26,20 +27,21 @@ interface OgImageProps {
     subtitle?: string;
     /** Up to three short facts shown as chips, e.g. "9 days", "Small group". */
     chips?: string[];
-    /** A Sanity or Unsplash image URL. Missing or unreachable images fall back to a night gradient. */
+    /** An Unsplash (or other JPEG/PNG) URL. Missing or unreachable images fall back to a navy gradient. */
     image?: string;
     /** Shown bottom-right, e.g. "boutique-travel.vercel.app". */
     domain?: string;
 }
 
-const font = (pkg: string, file: string) => readFile(join(process.cwd(), "node_modules/@fontsource", pkg, "files", file));
+const font = (pkg: string, file: string) =>
+    readFile(join(process.cwd(), "node_modules/@fontsource", pkg, "files", file));
 
 /** Requests a 1200×630 JPEG crop: the card renderer can't decode WebP or AVIF. */
 function ogPhotoUrl(src?: string): string | undefined {
     if (!src || src.startsWith("data:")) return undefined;
     try {
         const url = new URL(src);
-        if (url.hostname === "images.unsplash.com" || url.hostname === "cdn.sanity.io") {
+        if (url.hostname === "images.unsplash.com") {
             url.searchParams.set("w", "1200");
             url.searchParams.set("h", "630");
             url.searchParams.set("fit", "crop");
@@ -69,21 +71,20 @@ async function loadPhoto(src?: string): Promise<string | undefined> {
 }
 
 function titleSize(title: string): number {
-    if (title.length > 48) return 58;
-    if (title.length > 32) return 68;
-    return 80;
+    if (title.length > 48) return 54;
+    if (title.length > 30) return 64;
+    return 78;
 }
 
 export async function generateOgImage({ siteName, eyebrow, title, subtitle, chips = [], image, domain }: OgImageProps) {
-    // The latin-ext files carry the rupee sign (₹) and other currency symbols.
-    const [display, displayExt, displayItalic, sans600, sans600Ext, sans700, sans700Ext, photo] = await Promise.all([
-        font("fraunces", "fraunces-latin-400-normal.woff"),
-        font("fraunces", "fraunces-latin-ext-400-normal.woff"),
-        font("fraunces", "fraunces-latin-400-italic.woff"),
-        font("plus-jakarta-sans", "plus-jakarta-sans-latin-600-normal.woff"),
-        font("plus-jakarta-sans", "plus-jakarta-sans-latin-ext-600-normal.woff"),
-        font("plus-jakarta-sans", "plus-jakarta-sans-latin-700-normal.woff"),
-        font("plus-jakarta-sans", "plus-jakarta-sans-latin-ext-700-normal.woff"),
+    // The latin-ext files carry the rupee sign (₹) and accented place names.
+    const [jost600, jost600Ext, jost500, typeItalic, typeItalicExt, type400, photo] = await Promise.all([
+        font("jost", "jost-latin-600-normal.woff"),
+        font("jost", "jost-latin-ext-600-normal.woff"),
+        font("jost", "jost-latin-500-normal.woff"),
+        font("courier-prime", "courier-prime-latin-400-italic.woff"),
+        font("courier-prime", "courier-prime-latin-ext-400-italic.woff"),
+        font("courier-prime", "courier-prime-latin-400-normal.woff"),
         loadPhoto(image),
     ]);
 
@@ -95,9 +96,9 @@ export async function generateOgImage({ siteName, eyebrow, title, subtitle, chip
                 display: "flex",
                 position: "relative",
                 backgroundColor: colors.night,
-                backgroundImage: "radial-gradient(circle at 75% 15%, #2a3550 0%, #151922 45%, #0e1117 100%)",
+                backgroundImage: "radial-gradient(circle at 75% 15%, #2b465a 0%, #1c2f3d 50%, #0b1114 100%)",
                 color: colors.fg,
-                fontFamily: "Jakarta, Jakarta Ext",
+                fontFamily: "Jost, Jost Ext",
             }}
         >
             {photo && (
@@ -120,8 +121,8 @@ export async function generateOgImage({ siteName, eyebrow, title, subtitle, chip
                     height: 630,
                     display: "flex",
                     backgroundImage: photo
-                        ? "linear-gradient(90deg, rgba(14,17,23,0.96) 0%, rgba(14,17,23,0.88) 42%, rgba(14,17,23,0.35) 75%, rgba(14,17,23,0.1) 100%)"
-                        : "radial-gradient(circle at 15% 110%, rgba(245,158,61,0.22), transparent 55%)",
+                        ? "linear-gradient(90deg, rgba(28,47,61,0.96) 0%, rgba(28,47,61,0.88) 42%, rgba(28,47,61,0.35) 75%, rgba(28,47,61,0.1) 100%)"
+                        : "radial-gradient(circle at 15% 110%, rgba(217,165,91,0.22), transparent 55%)",
                 }}
             />
             {photo && (
@@ -133,7 +134,7 @@ export async function generateOgImage({ siteName, eyebrow, title, subtitle, chip
                         width: 1200,
                         height: 630,
                         display: "flex",
-                        backgroundImage: "linear-gradient(180deg, rgba(14,17,23,0) 55%, rgba(14,17,23,0.75) 100%)",
+                        backgroundImage: "linear-gradient(180deg, rgba(28,47,61,0) 55%, rgba(28,47,61,0.75) 100%)",
                     }}
                 />
             )}
@@ -148,13 +149,11 @@ export async function generateOgImage({ siteName, eyebrow, title, subtitle, chip
                     padding: "56px 64px",
                 }}
             >
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <svg width="44" height="44" viewBox="0 0 28 28" fill="none">
-                        <circle cx="14" cy="14" r="13" stroke={colors.ember} strokeWidth="1.5" />
-                        <path d="M6 19l5-7 3 4 2-3 6 6H6z" fill={colors.ember} />
-                        <circle cx="19" cy="8.5" r="1.6" fill={colors.fg} />
-                    </svg>
-                    <span style={{ fontFamily: "Fraunces, Fraunces Ext", fontSize: 30 }}>{siteName}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <div style={{ width: 34, height: 2, backgroundColor: colors.ember }} />
+                    <span style={{ fontSize: 26, fontWeight: 600, letterSpacing: 6, textTransform: "uppercase" }}>
+                        {siteName}
+                    </span>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", maxWidth: 780 }}>
@@ -164,22 +163,21 @@ export async function generateOgImage({ siteName, eyebrow, title, subtitle, chip
                             alignItems: "center",
                             gap: 14,
                             color: colors.ember,
+                            fontFamily: "Courier Prime",
                             fontSize: 20,
-                            fontWeight: 700,
-                            letterSpacing: 4,
+                            letterSpacing: 6,
                             textTransform: "uppercase",
                         }}
                     >
-                        <div style={{ width: 36, height: 2, backgroundColor: colors.ember }} />
                         {eyebrow}
                     </div>
                     <div
                         style={{
                             marginTop: 22,
-                            fontFamily: "Fraunces, Fraunces Ext",
                             fontSize: titleSize(title),
-                            lineHeight: 1.05,
-                            letterSpacing: -1,
+                            fontWeight: 600,
+                            lineHeight: 0.98,
+                            textTransform: "uppercase",
                         }}
                     >
                         {title}
@@ -188,10 +186,11 @@ export async function generateOgImage({ siteName, eyebrow, title, subtitle, chip
                         <div
                             style={{
                                 marginTop: 22,
-                                fontSize: 26,
-                                lineHeight: 1.4,
+                                fontFamily: "Courier Prime Italic, Courier Prime Italic Ext",
+                                fontStyle: "italic",
+                                fontSize: 25,
+                                lineHeight: 1.45,
                                 color: colors.mist,
-                                fontWeight: 600,
                                 maxWidth: 720,
                             }}
                         >
@@ -212,9 +211,10 @@ export async function generateOgImage({ siteName, eyebrow, title, subtitle, chip
                                     padding: "0 20px",
                                     borderRadius: 999,
                                     border: `1px solid ${colors.line}`,
-                                    backgroundColor: "rgba(255,255,255,0.1)",
-                                    fontSize: 20,
-                                    fontWeight: 600,
+                                    fontSize: 17,
+                                    fontWeight: 500,
+                                    letterSpacing: 2,
+                                    textTransform: "uppercase",
                                 }}
                             >
                                 {c}
@@ -222,7 +222,7 @@ export async function generateOgImage({ siteName, eyebrow, title, subtitle, chip
                         ))}
                     </div>
                     {domain && (
-                        <div style={{ display: "flex", fontFamily: "Fraunces, Fraunces Ext", fontStyle: "italic", fontSize: 24, color: colors.mist }}>
+                        <div style={{ display: "flex", fontFamily: "Courier Prime", fontSize: 20, color: colors.mist }}>
                             {domain}
                         </div>
                     )}
@@ -232,13 +232,12 @@ export async function generateOgImage({ siteName, eyebrow, title, subtitle, chip
         {
             ...ogImageSize,
             fonts: [
-                { name: "Fraunces", data: display, weight: 400, style: "normal" },
-                { name: "Fraunces Ext", data: displayExt, weight: 400, style: "normal" },
-                { name: "Fraunces", data: displayItalic, weight: 400, style: "italic" },
-                { name: "Jakarta", data: sans600, weight: 600, style: "normal" },
-                { name: "Jakarta Ext", data: sans600Ext, weight: 600, style: "normal" },
-                { name: "Jakarta", data: sans700, weight: 700, style: "normal" },
-                { name: "Jakarta Ext", data: sans700Ext, weight: 700, style: "normal" },
+                { name: "Jost", data: jost600, weight: 600, style: "normal" },
+                { name: "Jost Ext", data: jost600Ext, weight: 600, style: "normal" },
+                { name: "Jost", data: jost500, weight: 500, style: "normal" },
+                { name: "Courier Prime Italic", data: typeItalic, weight: 400, style: "italic" },
+                { name: "Courier Prime Italic Ext", data: typeItalicExt, weight: 400, style: "italic" },
+                { name: "Courier Prime", data: type400, weight: 400, style: "normal" },
             ],
         },
     );

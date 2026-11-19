@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
-import { getSiteSettings } from "@/sanity/lib/queries";
+import { site } from "@/lib/site";
 
-export default async function robots(): Promise<MetadataRoute.Robots> {
-    const settings = await getSiteSettings();
+export default function robots(): MetadataRoute.Robots {
     return {
-        rules: settings.allowIndexing ? { userAgent: "*", allow: "/" } : { userAgent: "*", disallow: "/" },
-        sitemap: `${settings.siteUrl}/sitemap.xml`,
+        rules: site.allowIndexing
+            ? { userAgent: "*", allow: "/", disallow: ["/api/"] }
+            : { userAgent: "*", disallow: "/" },
+        sitemap: `${site.siteUrl}/sitemap.xml`,
     };
 }

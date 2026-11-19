@@ -12,21 +12,29 @@ const MAX_ENTRIES = 2;
 type Field = "name" | "email" | "consent";
 
 /**
- * The Begin Your Entry form, on the home page and on /enquire. Saves to
- * Sanity through /api/enquiry. `initialEntries` pre-selects Entries, e.g.
- * from an Entry page's /enquire?entry=05 link.
+ * The Begin Your Entry form, on the home page and on /enquire. Sends it to
+ * the team by email through /api/enquiry. An /enquire?entry=05 link (from
+ * an Entry or guest page) pre-selects that Entry; the page itself stays
+ * static, so the query is read in the browser.
  */
-export function LedgerEnquiryForm({ initialEntries = [] }: { initialEntries?: string[] }) {
+export function LedgerEnquiryForm() {
     const ids = useId();
     const form = useRef<HTMLFormElement>(null);
     const [v, setV] = useState({ name: "", email: "", from: "", travellers: "1", window: "", message: "" });
-    const [chosen, setChosen] = useState<string[]>(initialEntries.slice(0, MAX_ENTRIES));
+    const [chosen, setChosen] = useState<string[]>([]);
     const [pickerOpen, setPickerOpen] = useState(false);
     const [consent, setConsent] = useState(false);
     const [honeypot, setHoneypot] = useState("");
     const [showErrors, setShowErrors] = useState(false);
     const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
     const picker = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const asked = new URLSearchParams(window.location.search)
+            .getAll("entry")
+            .filter((no) => entries.some((e) => e.no === no));
+        if (asked.length) setChosen(asked.slice(0, MAX_ENTRIES));
+    }, []);
 
     useEffect(() => {
         if (!pickerOpen) return;

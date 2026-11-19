@@ -1,16 +1,15 @@
 import type { MetadataRoute } from "next";
-import { getSiteSettings } from "@/sanity/lib/queries";
+import { site } from "@/lib/site";
 
-export default async function manifest(): Promise<MetadataRoute.Manifest> {
-    const settings = await getSiteSettings();
+export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: settings.name,
-        short_name: settings.name,
-        description: settings.defaultSeoDescription || settings.tagline,
+        name: site.name,
+        short_name: site.name,
+        description: site.defaultSeoDescription,
         start_url: "/",
         display: "standalone",
-        background_color: "#0e1117",
-        theme_color: "#0e1117",
+        background_color: "#eceef0",
+        theme_color: "#1c2f3d",
         icons: [
             { src: "/icon.svg", sizes: "any", type: "image/svg+xml" },
             { src: "/apple-icon", sizes: "180x180", type: "image/png" },
