@@ -111,6 +111,8 @@ export type Tag = (typeof tags)[number];
 
 export interface Entry {
     no: string;
+    /** URL of the Entry page: /entries/{slug}. */
+    slug: string;
     name: string;
     line: string;
     route: string;
@@ -122,6 +124,7 @@ export interface Entry {
 export const entries: Entry[] = [
     {
         no: "01",
+        slug: "mountain-seeker",
         name: "The Mountain Seeker",
         line: "For those who feel most themselves above the tree line, where the air thins and the view goes quiet.",
         route: "Spiti & Kinnaur",
@@ -131,6 +134,7 @@ export const entries: Entry[] = [
     },
     {
         no: "02",
+        slug: "ocean-backwater-traveller",
         name: "The Ocean & Backwater Traveller",
         line: "For guests drawn to water, slow boats, and coastlines where the day moves at the tide's pace.",
         route: "Kerala backwaters & coast",
@@ -140,6 +144,7 @@ export const entries: Entry[] = [
     },
     {
         no: "03",
+        slug: "rest-luxury-traveller",
         name: "The Rest Luxury Traveller",
         line: "For those who've earned stillness, and want it delivered in grand rooms with nowhere to be.",
         route: "Coorg & Chikmagalur estates",
@@ -149,6 +154,7 @@ export const entries: Entry[] = [
     },
     {
         no: "04",
+        slug: "backpacker",
         name: "The Backpacker",
         line: "For the traveller who trusts a train timetable over an itinerary, and wants India on their own terms.",
         route: "Hampi to Gokarna",
@@ -158,6 +164,7 @@ export const entries: Entry[] = [
     },
     {
         no: "05",
+        slug: "nature-wildlife-seeker",
         name: "The Nature & Wildlife Seeker",
         line: "For guests who'd rather track a pugmark than a checklist, deep inside forests that still belong to the animals.",
         route: "Kabini & Bandhavgarh",
@@ -167,6 +174,7 @@ export const entries: Entry[] = [
     },
     {
         no: "06",
+        slug: "culture-seeker",
         name: "The Culture Seeker",
         line: "For those who want the India held in temples, courtyards, and centuries-old craft, not a guidebook paragraph.",
         route: "Varanasi & Chettinad",
@@ -176,6 +184,7 @@ export const entries: Entry[] = [
     },
     {
         no: "07",
+        slug: "food-traveller",
         name: "The Food Traveller",
         line: "For guests who read a place through its kitchens, markets, and the family recipes passed down without a written word.",
         route: "Old Delhi, Lucknow, Amritsar",
@@ -185,6 +194,7 @@ export const entries: Entry[] = [
     },
     {
         no: "08",
+        slug: "slow-village-traveller",
         name: "The Slow / Village Traveller",
         line: "For those who want mornings with no agenda, spent in homes where the rhythm hasn't changed in generations.",
         route: "Meghalaya root-bridge villages",
@@ -194,6 +204,7 @@ export const entries: Entry[] = [
     },
     {
         no: "09",
+        slug: "photographer",
         name: "The Photographer",
         line: "For travellers chasing light first and destinations second, where every stop is really about the hour before sunset.",
         route: "Rann of Kutch & Ladakh",
@@ -207,6 +218,7 @@ export const entries: Entry[] = [
     },
     {
         no: "10",
+        slug: "spiritual-seeker",
         name: "The Spiritual Seeker",
         line: "For guests looking for India's older questions, found in ashrams, rivers, and the quiet of first light.",
         route: "Rishikesh & Varanasi",
@@ -231,6 +243,8 @@ export const steps = [
 /* ---------- 06 · Guest ledger ---------- */
 
 export interface GuestFilm {
+    /** URL of the guest's page: /guest-ledger/{slug}. */
+    slug: string;
     guest: string;
     country: string;
     entry: string;
@@ -246,6 +260,7 @@ export const guestLedger = {
     title: "Entries written by guests",
     lede: "Short films and handwritten pages from people who have already walked the routes.",
     featured: {
+        slug: "entry-07-guest",
         guest: "[Guest name]",
         country: "[Country]",
         entry: "07",
@@ -255,6 +270,7 @@ export const guestLedger = {
     } satisfies GuestFilm,
     films: [
         {
+            slug: "entry-02-guest",
             guest: "[Guest name]",
             country: "[Country]",
             entry: "02",
@@ -263,6 +279,7 @@ export const guestLedger = {
             poster: u("1506461883276-594a12b11cf3", "A boatman poling a canoe past a houseboat", "50% 55%"),
         },
         {
+            slug: "entry-05-guest",
             guest: "[Guest name]",
             country: "[Country]",
             entry: "05",
@@ -271,6 +288,7 @@ export const guestLedger = {
             poster: u("1581852017103-68ac65514cf7", "An elephant walking through tall golden grass", "50% 50%"),
         },
         {
+            slug: "entry-09-guest",
             guest: "[Guest name]",
             country: "[Country]",
             entry: "09",
@@ -284,6 +302,7 @@ export const guestLedger = {
             entry: "03",
             date: "[Month Year]",
             text: "[Two or three lines in the guest's own words, set like a handwritten note.]",
+            slug: "entry-03-guest",
             guest: "[Guest name]",
             place: "[Country] · [Route]",
             stamps: 3,
@@ -292,6 +311,7 @@ export const guestLedger = {
             entry: "06",
             date: "[Month Year]",
             text: "[Two or three lines in the guest's own words, set like a handwritten note.]",
+            slug: "entry-06-guest",
             guest: "[Guest name]",
             place: "[Country] · [Route]",
             stamps: 2,
@@ -300,6 +320,7 @@ export const guestLedger = {
             entry: "08",
             date: "[Month Year]",
             text: "[Two or three lines in the guest's own words, set like a handwritten note.]",
+            slug: "entry-08-guest",
             guest: "[Guest name]",
             place: "[Country] · [Route]",
             stamps: 3,
@@ -348,21 +369,26 @@ export const frames = {
         {
             name: "[Host name]",
             role: "[Weaver · Kutch]",
+            /** Entries this host is part of. */
+            entries: ["09"],
             image: u("1564564321837-a57b7070ac4f", "Portrait of a host", "50% 30%"),
         },
         {
             name: "[Host name]",
             role: "[Home cook · Lucknow]",
+            entries: ["07"],
             image: u("1580489944761-15a19d654956", "Portrait of a host", "50% 25%"),
         },
         {
             name: "[Host name]",
             role: "[Naturalist · Kabini]",
+            entries: ["05"],
             image: u("1522529599102-193c0d76b5b6", "Portrait of a host", "50% 30%"),
         },
         {
             name: "[Host name]",
             role: "[Homestay family · Meghalaya]",
+            entries: ["08"],
             image: u("1531123897727-8f129e1688ce", "Portrait of a host", "50% 25%"),
         },
     ],
@@ -403,10 +429,15 @@ export const enquiry = {
 /* ---------- Navigation ---------- */
 
 export const ledgerNav = [
-    { label: "Entries", href: "#entries" },
-    { label: "Our Story", href: "#story" },
-    { label: "Guest Ledger", href: "#guest-ledger" },
-    { label: "Hosts", href: "#hosts" },
+    { label: "Entries", href: "/entries" },
+    { label: "Our Story", href: "/story" },
+    { label: "Guest Ledger", href: "/guest-ledger" },
+    { label: "Hosts", href: "/story#hosts" },
 ];
 
-export const beginHref = "#enquire";
+export const beginHref = "/enquire";
+
+export const entryHref = (e: Pick<Entry, "slug">) => `/entries/${e.slug}`;
+export const guestHref = (g: { slug: string }) => `/guest-ledger/${g.slug}`;
+/** Enquiry with one Entry pre-selected. */
+export const beginEntryHref = (e: Pick<Entry, "no">) => `${beginHref}?entry=${e.no}`;

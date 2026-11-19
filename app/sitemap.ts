@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+import { entries, entryHref, guestHref } from "@/lib/data/ledger";
+import { guestStories } from "@/lib/data/ledger-pages";
 import { getSiteSettings, getAllItineraries, getAllStories, getAllDestinations } from "@/sanity/lib/queries";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -10,7 +12,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
     const base = settings.siteUrl;
 
-    const staticRoutes = ["/", "/about", "/itineraries", "/stories", "/destinations", "/packages", "/enquire"].map((path) => ({
+    const staticRoutes = [
+        "/",
+        "/entries",
+        "/story",
+        "/guest-ledger",
+        "/enquire",
+        "/about",
+        "/itineraries",
+        "/stories",
+        "/destinations",
+        "/packages",
+    ].map((path) => ({
         url: `${base}${path}`,
         lastModified: new Date(),
     }));
@@ -30,5 +43,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: new Date(),
     }));
 
-    return [...staticRoutes, ...itineraryRoutes, ...storyRoutes, ...destinationRoutes];
+    const ledgerRoutes = [...entries.map(entryHref), ...guestStories.map(guestHref)].map((path) => ({
+        url: `${base}${path}`,
+        lastModified: new Date(),
+    }));
+
+    return [...staticRoutes, ...ledgerRoutes, ...itineraryRoutes, ...storyRoutes, ...destinationRoutes];
 }

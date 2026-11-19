@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { beginHref, hero } from "@/lib/data/ledger";
@@ -96,9 +97,9 @@ export function HeroReel() {
                     <a href="#entries" className={lbtn("ochre")}>
                         Read the ledger <ArrowRight />
                     </a>
-                    <a href={beginHref} className={lbtn("outline-light")}>
+                    <Link href={beginHref} className={lbtn("outline-light")}>
                         Begin your entry
-                    </a>
+                    </Link>
                 </div>
             </div>
 

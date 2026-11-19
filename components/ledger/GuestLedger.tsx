@@ -2,70 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { SmartImage } from "@/components/ui/SmartImage";
-import { guestLedger, type GuestFilm } from "@/lib/data/ledger";
-import { h2, kicker, label, lsec, lwrap, photo, typedItalic, underlineLink } from "@/lib/ledger-ui";
+import { guestHref, guestLedger } from "@/lib/data/ledger";
+import { h2, kicker, label, lsec, lwrap, typedItalic, underlineLink } from "@/lib/ledger-ui";
 import { lx as cn } from "@/lib/ledger-ui";
 import { Footprints } from "./Footprints";
-import { ArrowRight, Play } from "./icons";
-
-const meta = (f: GuestFilm) => `${f.guest} · ${f.country} · Entry no. ${f.entry}`;
-
-/** Poster frame that swaps to the Vimeo/YouTube player on click (no third-party script until then). */
-function Film({
-    film,
-    large,
-    playing,
-    onPlay,
-}: {
-    film: GuestFilm;
-    large?: boolean;
-    playing: boolean;
-    onPlay: () => void;
-}) {
-    if (playing && film.embed) {
-        return (
-            <div className="relative aspect-video bg-black">
-                <iframe
-                    src={`${film.embed}${film.embed.includes("?") ? "&" : "?"}autoplay=1`}
-                    title={`Film: ${meta(film)}`}
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                    className="absolute inset-0 size-full"
-                />
-            </div>
-        );
-    }
-    return (
-        <button
-            type="button"
-            onClick={onPlay}
-            className={cn(photo, "group block aspect-video w-full bg-ledger-navy")}
-            aria-label={`Play film: ${meta(film)} (${film.duration})`}
-        >
-            <SmartImage image={film.poster} sizes={large ? "(min-width: 1024px) 60vw, 100vw" : "160px"} />
-            <span className="absolute inset-0 bg-ledger-deep/30 transition-colors group-hover:bg-ledger-deep/10" />
-            <span
-                className={cn(
-                    "absolute top-1/2 left-1/2 grid -translate-1/2 place-items-center rounded-full border border-white/90 bg-ledger-deep/60 text-white transition-transform group-hover:scale-105",
-                    large ? "size-16 [&_svg]:size-6" : "size-9 [&_svg]:size-4",
-                )}
-            >
-                <Play className="ml-0.5" />
-            </span>
-            {large && (
-                <span className="absolute right-3 bottom-3 border border-white/30 bg-ledger-deep/80 px-2 py-1 font-type text-[11px] text-white">
-                    {film.duration}
-                </span>
-            )}
-            {playing && !film.embed && (
-                <span className="absolute inset-x-0 bottom-0 bg-ledger-deep/90 px-4 py-3 text-left font-type text-[12.5px] text-white italic">
-                    This guest film is being edited and will be here soon.
-                </span>
-            )}
-        </button>
-    );
-}
+import { Film, meta } from "./GuestFilm";
+import { Stamps } from "./Stamps";
+import { ArrowRight } from "./icons";
 
 export function GuestLedger() {
     const [playing, setPlaying] = useState<string | null>(null);
@@ -87,7 +30,7 @@ export function GuestLedger() {
                         </h2>
                         <p className={cn(typedItalic, "text-ledger-paper/80")}>{guestLedger.lede}</p>
                     </div>
-                    <Link href="/stories" className={cn(underlineLink, "text-ochre")}>
+                    <Link href="/guest-ledger" className={cn(underlineLink, "text-ochre")}>
                         View all guest entries
                     </Link>
                 </div>
@@ -103,6 +46,12 @@ export function GuestLedger() {
                         <figcaption className="grid gap-3">
                             <span className={cn(label, "text-ochre")}>{meta(featured)}</span>
                             <q className="font-type text-[clamp(17px,1.8vw,21px)]/[1.5] italic">{featured.quote}</q>
+                            <Link
+                                href={guestHref(featured)}
+                                className={cn(underlineLink, "mt-1 w-max text-[12px] text-ochre")}
+                            >
+                                Read their entry <ArrowRight />
+                            </Link>
                         </figcaption>
                     </figure>
 
@@ -123,6 +72,12 @@ export function GuestLedger() {
                                     </span>
                                     <q className="font-type text-[14px] italic">{f.quote}</q>
                                     <span className="font-type text-[11px] text-ledger-paper/55">{f.duration}</span>
+                                    <Link
+                                        href={guestHref(f)}
+                                        className="w-max font-type text-[12px] text-ochre underline-offset-4 hover:underline"
+                                    >
+                                        Read their entry<span className="sr-only">: {meta(f)}</span>
+                                    </Link>
                                 </div>
                             </li>
                         ))}
@@ -147,23 +102,8 @@ export function GuestLedger() {
                                 <b className="font-jost text-[14px] font-semibold">{p.guest}</b>
                                 <span className="font-type text-xs text-ledger-grey">{p.place}</span>
                             </div>
-                            <div className="flex gap-2" aria-label={`${p.stamps} stamps earned`}>
-                                {[0, 1, 2].map((s) => (
-                                    <span
-                                        key={s}
-                                        aria-hidden
-                                        className={cn(
-                                            "grid size-10 place-items-center rounded-full border border-dashed font-jost text-[8px] font-semibold tracking-[0.08em] uppercase",
-                                            s < p.stamps
-                                                ? "-rotate-12 border-ochre-deep text-ochre-deep"
-                                                : "border-ledger-ink/30",
-                                        )}
-                                    >
-                                        {s < p.stamps ? `No.${p.entry}` : ""}
-                                    </span>
-                                ))}
-                            </div>
-                            <Link href="/stories" className={cn(underlineLink, "mt-1 w-max text-[12px]")}>
+                            <Stamps entry={p.entry} count={p.stamps} />
+                            <Link href={guestHref(p)} className={cn(underlineLink, "mt-1 w-max text-[12px]")}>
                                 Read this entry <ArrowRight />
                             </Link>
                         </li>

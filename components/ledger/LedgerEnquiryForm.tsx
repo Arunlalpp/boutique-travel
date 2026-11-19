@@ -2,7 +2,6 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { entries } from "@/lib/data/ledger";
-import { ENTRY_EVENT } from "@/lib/ledger-events";
 import { control, display, fieldLabel, lbtn, typedItalic } from "@/lib/ledger-ui";
 import { lx as cn } from "@/lib/ledger-ui";
 import { Chevron } from "./icons";
@@ -13,30 +12,21 @@ const MAX_ENTRIES = 2;
 type Field = "name" | "email" | "consent";
 
 /**
- * The home-page enquiry (also meant to live on /enquire later). Saves to
- * Sanity through /api/enquiry; an Entry chosen anywhere on the page arrives
- * pre-selected through the ENTRY_EVENT.
+ * The Begin Your Entry form, on the home page and on /enquire. Saves to
+ * Sanity through /api/enquiry. `initialEntries` pre-selects Entries, e.g.
+ * from an Entry page's /enquire?entry=05 link.
  */
-export function LedgerEnquiryForm() {
+export function LedgerEnquiryForm({ initialEntries = [] }: { initialEntries?: string[] }) {
     const ids = useId();
     const form = useRef<HTMLFormElement>(null);
     const [v, setV] = useState({ name: "", email: "", from: "", travellers: "1", window: "", message: "" });
-    const [chosen, setChosen] = useState<string[]>([]);
+    const [chosen, setChosen] = useState<string[]>(initialEntries.slice(0, MAX_ENTRIES));
     const [pickerOpen, setPickerOpen] = useState(false);
     const [consent, setConsent] = useState(false);
     const [honeypot, setHoneypot] = useState("");
     const [showErrors, setShowErrors] = useState(false);
     const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
     const picker = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const onEntry = (e: Event) => {
-            const no = (e as CustomEvent<string>).detail;
-            setChosen((c) => (c.includes(no) ? c : [no, ...c].slice(0, MAX_ENTRIES)));
-        };
-        window.addEventListener(ENTRY_EVENT, onEntry);
-        return () => window.removeEventListener(ENTRY_EVENT, onEntry);
-    }, []);
 
     useEffect(() => {
         if (!pickerOpen) return;
