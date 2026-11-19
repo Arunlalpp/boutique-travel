@@ -47,7 +47,7 @@ export function LedgerHeader({ siteName }: { siteName: string }) {
         <>
             <header
                 className={cn(
-                    "fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top,0px)] transition-[background-color,box-shadow] duration-300",
+                    "fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top,0px)] [view-transition-name:site-header] transition-[background-color,box-shadow] duration-300",
                     solid || open
                         ? "bg-ledger-night/95 shadow-[0_1px_0_rgb(255_255_255/0.08)] backdrop-blur-md"
                         : "bg-transparent",

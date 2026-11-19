@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import { LedgerHeader } from "@/components/ledger/LedgerHeader";
 import { LedgerFooter } from "@/components/ledger/LedgerFooter";
 import { WhatsAppButton } from "@/components/ledger/WhatsAppButton";
 import { CookieNotice } from "@/components/ledger/CookieNotice";
+import { PageTransitions } from "@/components/ledger/PageTransitions";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organization, siteMetadata, website } from "@/lib/seo";
 import { site, whatsappNumber } from "@/lib/site";
@@ -35,6 +37,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <LedgerFooter settings={site} />
                 <WhatsAppButton number={whatsappNumber} />
                 <CookieNotice />
+                {/* Suspense: it reads search params, which would otherwise opt every page out of static rendering. */}
+                <Suspense fallback={null}>
+                    <PageTransitions />
+                </Suspense>
             </body>
         </html>
     );
