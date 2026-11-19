@@ -81,6 +81,42 @@
     }
 }
 
+/*
+ * Page transitions (components/ledger/PageTransitions.tsx). The outgoing
+ * page lifts and fades quickly; the new one rises in a beat later, like
+ * turning to the next page of the ledger. Header and WhatsApp button are
+ * named separately so they stay in place.
+ */
+::view-transition-old(root) {
+    animation: ledger-page-out 200ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+::view-transition-new(root) {
+    animation: ledger-page-in 440ms cubic-bezier(0.2, 0.7, 0.2, 1) 60ms both;
+}
+::view-transition-group(site-header),
+::view-transition-group(whatsapp) {
+    animation-duration: 300ms;
+}
+@keyframes ledger-page-out {
+    to {
+        opacity: 0;
+        transform: translateY(-14px);
+    }
+}
+@keyframes ledger-page-in {
+    from {
+        opacity: 0;
+        transform: translateY(28px);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}
+
 @utility scrollbar-none {
     scrollbar-width: none;
     &::-webkit-scrollbar {
