@@ -17,8 +17,8 @@ export function siteMetadata(settings: SiteSettings): Metadata {
     return {
         metadataBase: new URL(settings.siteUrl),
         title: {
-            default: settings.defaultSeoTitle || `${settings.name} — ${settings.descriptor}`,
-            template: `%s — ${settings.name}`,
+            default: settings.defaultSeoTitle,
+            template: `%s · ${settings.name}`,
         },
         description: settings.defaultSeoDescription,
         alternates: { canonical: "/" },
@@ -35,7 +35,29 @@ export function siteMetadata(settings: SiteSettings): Metadata {
             title: settings.name,
             description: settings.defaultSeoDescription,
         },
-        robots: settings.allowIndexing ? { index: true, follow: true } : { index: false, follow: false },
+        applicationName: settings.name,
+        authors: [{ name: settings.name, url: settings.siteUrl }],
+        creator: settings.name,
+        publisher: settings.name,
+        category: "travel",
+        formatDetection: { telephone: false, email: false, address: false },
+        robots: settings.allowIndexing
+            ? {
+                  index: true,
+                  follow: true,
+                  googleBot: {
+                      index: true,
+                      follow: true,
+                      "max-image-preview": "large",
+                      "max-snippet": -1,
+                      "max-video-preview": -1,
+                  },
+              }
+            : { index: false, follow: false },
+        // Search Console: paste the content value of Google's HTML-tag verification into this env var.
+        verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+            ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+            : undefined,
     };
 }
 
@@ -72,6 +94,9 @@ export function breadcrumbs(settings: SiteSettings, trail: [string, string][]) {
     };
 }
 
+/** Dummy contact values from the design preview never go into structured data. */
+const real = (v?: string) => (v && !/example\.|0000/.test(v) ? v : undefined);
+
 /** The business itself, rendered once in the site layout. */
 export function organization(settings: SiteSettings) {
     return {
@@ -83,9 +108,9 @@ export function organization(settings: SiteSettings) {
         url: settings.siteUrl,
         logo: absolute(settings, "/icon.svg"),
         image: absolute(settings, "/opengraph-image"),
-        email: settings.email || undefined,
-        telephone: settings.phone || undefined,
-        address: settings.studio ? { "@type": "PostalAddress", streetAddress: settings.studio } : undefined,
+        areaServed: "India",
+        email: real(settings.email),
+        telephone: real(settings.phone),
         sameAs: settings.socials.map((s) => s.href).filter((href) => /^https?:\/\/.+\/.+/.test(href)),
     };
 }

@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { entries, tags, type Entry, type Tag } from "@/lib/data/ledger";
-import { chooseEntry } from "@/lib/ledger-events";
+import { entries, entryHref, tags, type Entry, type Tag } from "@/lib/data/ledger";
 import { display, h2, label, lbtn, lsec, lwrap, photo, typedItalic, underlineLink } from "@/lib/ledger-ui";
 import { lx as cn } from "@/lib/ledger-ui";
 import { Footprints } from "./Footprints";
@@ -21,10 +22,11 @@ const isDesktop = () => window.matchMedia("(min-width: 1024px)").matches;
 
 /**
  * The ten Entries. Desktop: a table whose hovered row swaps the preview on
- * the right, and a click opens the Entry. Phones: an accordion, one row open
+ * the right, and a click opens the Entry page. Phones: an accordion, one row open
  * at a time, with the photo and tags inside it.
  */
 export function LedgerIndex() {
+    const router = useRouter();
     const [filter, setFilter] = useState<Filter>("All");
     const [active, setActive] = useState(entries[0].no);
     const [openNo, setOpenNo] = useState<string | null>(entries[0].no);
@@ -42,7 +44,7 @@ export function LedgerIndex() {
     };
 
     const onRowClick = (e: Entry) => {
-        if (isDesktop()) chooseEntry(e.no);
+        if (isDesktop()) router.push(entryHref(e));
         else setOpenNo(openNo === e.no ? null : e.no);
     };
 
@@ -64,9 +66,9 @@ export function LedgerIndex() {
                             Entry carries two tags.
                         </p>
                     </div>
-                    <button type="button" className={underlineLink} onClick={() => applyFilter("All")}>
+                    <Link href="/entries" className={underlineLink}>
                         View all entries
-                    </button>
+                    </Link>
                 </div>
 
                 <div
@@ -168,13 +170,9 @@ export function LedgerIndex() {
                                                     </span>
                                                 ))}
                                             </div>
-                                            <button
-                                                type="button"
-                                                className={cn(lbtn("ink"), "w-max")}
-                                                onClick={() => chooseEntry(e.no)}
-                                            >
+                                            <Link href={entryHref(e)} className={cn(lbtn("ink"), "w-max")}>
                                                 Open entry {e.no} <ArrowRight />
-                                            </button>
+                                            </Link>
                                         </div>
                                     </li>
                                 );
@@ -213,13 +211,9 @@ export function LedgerIndex() {
                                     </span>
                                 ))}
                             </div>
-                            <button
-                                type="button"
-                                className={cn(lbtn("ink"), "mt-2 w-max")}
-                                onClick={() => chooseEntry(current.no)}
-                            >
+                            <Link href={entryHref(current)} className={cn(lbtn("ink"), "mt-2 w-max")}>
                                 Open entry {current.no} <ArrowRight />
-                            </button>
+                            </Link>
                         </div>
                     </aside>
                 </div>

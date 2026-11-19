@@ -1,25 +1,33 @@
-import { ButtonLink } from "@/components/ui/ButtonLink";
-import { eyebrow, hXl, lede, sec, wrap } from "@/lib/ui";
-import { cn } from "@/lib/utils";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Footprints } from "@/components/ledger/Footprints";
+import { ArrowRight } from "@/components/ledger/icons";
+import { h1, kicker, lbtn, lwrap, typedItalic } from "@/lib/ledger-ui";
+import { lx as cn } from "@/lib/ledger-ui";
+
+export const metadata: Metadata = {
+    title: "Page not found",
+    robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
     return (
-        <section className={cn(sec, "flex min-h-[80svh] items-center overflow-hidden pt-40!")}>
-            <div
-                aria-hidden
-                className="pointer-events-none absolute -top-[200px] -left-[200px] size-[700px] rounded-full bg-[radial-gradient(circle,rgb(245_158_61/0.16),transparent_70%)] blur-[10px]"
-            />
-            <div className={cn(wrap, "relative grid gap-6")}>
-                <span className={eyebrow}>Page not found</span>
-                <h1 className={cn(hXl, "max-w-[14ch]")}>Even the best trails take a wrong turn.</h1>
-                <p className={lede}>
-                    The page you were looking for has moved, or never existed. Let us point you somewhere better.
+        <section className="flex min-h-[86svh] items-center bg-ledger-navy text-white">
+            <div className={cn(lwrap, "grid justify-items-start gap-6 pt-28 pb-16")}>
+                <Footprints className="text-ochre" />
+                <p className={kicker}>Page not found</p>
+                <h1 className={cn(h1, "max-w-[12ch] text-[clamp(44px,7vw,96px)]")}>This path isn’t in the ledger.</h1>
+                <p className={cn(typedItalic, "max-w-[42ch] text-white/85")}>
+                    The page you were looking for has moved, or was never walked. The Entries are a better place to
+                    start.
                 </p>
-                <div className="mt-4 flex flex-wrap gap-2.5">
-                    <ButtonLink href="/">Back to camp</ButtonLink>
-                    <ButtonLink href="/itineraries" variant="glass" arrow={false}>
-                        Browse journeys
-                    </ButtonLink>
+                <div className="mt-2 flex flex-wrap gap-3">
+                    <Link href="/entries" className={lbtn("ochre")}>
+                        Read the ledger <ArrowRight />
+                    </Link>
+                    <Link href="/" className={lbtn("outline-light")}>
+                        Home
+                    </Link>
                 </div>
             </div>
         </section>

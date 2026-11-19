@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { beginHref, ledgerNav } from "@/lib/data/ledger";
 import { label } from "@/lib/ledger-ui";
@@ -7,13 +9,14 @@ import { lx as cn } from "@/lib/ledger-ui";
 import { Close, Menu } from "./icons";
 
 /**
- * Wordmark, four section links and the "Begin your entry" button. Sits
+ * Wordmark, four page links and the "Begin your entry" button. Sits
  * transparent over the hero video and turns solid once the guest scrolls.
  * On phones the links move into a full-screen menu.
  */
 export function LedgerHeader({ siteName }: { siteName: string }) {
     const [solid, setSolid] = useState(false);
     const [open, setOpen] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
         const onScroll = () => setSolid(window.scrollY > 40);
@@ -33,6 +36,11 @@ export function LedgerHeader({ siteName }: { siteName: string }) {
         };
     }, [open]);
 
+    // Close the phone menu when a link changes the page.
+    useEffect(() => setOpen(false), [pathname]);
+
+    const isCurrent = (href: string) => !href.includes("#") && (pathname === href || pathname.startsWith(`${href}/`));
+
     const linkClass = cn(label, "text-[12px] text-white/85 transition-colors hover:text-white");
 
     return (
@@ -46,20 +54,25 @@ export function LedgerHeader({ siteName }: { siteName: string }) {
                 )}
             >
                 <div className="mx-auto flex h-[72px] max-w-[1200px] items-center justify-between gap-6 px-[clamp(20px,5vw,48px)] max-lg:h-16">
-                    <a
-                        href="#top"
+                    <Link
+                        href="/"
                         className="font-jost text-[19px] font-semibold tracking-[0.2em] whitespace-nowrap text-white uppercase"
                     >
                         {siteName}
-                    </a>
+                    </Link>
 
                     <nav aria-label="Main" className="flex items-center gap-9 max-lg:hidden">
                         {ledgerNav.map((item) => (
-                            <a key={item.href} href={item.href} className={linkClass}>
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={cn(linkClass, isCurrent(item.href) && "text-white")}
+                                aria-current={isCurrent(item.href) ? "page" : undefined}
+                            >
                                 {item.label}
-                            </a>
+                            </Link>
                         ))}
-                        <a
+                        <Link
                             href={beginHref}
                             className={cn(
                                 label,
@@ -67,7 +80,7 @@ export function LedgerHeader({ siteName }: { siteName: string }) {
                             )}
                         >
                             Begin your entry
-                        </a>
+                        </Link>
                     </nav>
 
                     <button
@@ -93,23 +106,24 @@ export function LedgerHeader({ siteName }: { siteName: string }) {
                 <ul className="grid gap-1 border-t border-white/10">
                     {ledgerNav.map((item) => (
                         <li key={item.href} className="border-b border-white/10">
-                            <a
+                            <Link
                                 href={item.href}
                                 onClick={() => setOpen(false)}
-                                className="block py-5 font-jost text-[34px] leading-none font-semibold text-white uppercase"
+                                aria-current={isCurrent(item.href) ? "page" : undefined}
+                                className="block py-5 font-jost text-[34px] leading-none font-semibold text-white uppercase aria-[current=page]:text-ochre"
                             >
                                 {item.label}
-                            </a>
+                            </Link>
                         </li>
                     ))}
                 </ul>
-                <a
+                <Link
                     href={beginHref}
                     onClick={() => setOpen(false)}
                     className="mt-10 flex h-14 items-center justify-center bg-ochre font-jost text-sm font-semibold tracking-[0.14em] text-ledger-ink uppercase"
                 >
                     Begin your entry
-                </a>
+                </Link>
                 <p className="mt-6 font-type text-sm text-white/60 italic">Paths first walked by us.</p>
             </nav>
         </>

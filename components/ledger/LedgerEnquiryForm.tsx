@@ -2,7 +2,6 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { entries } from "@/lib/data/ledger";
-import { ENTRY_EVENT } from "@/lib/ledger-events";
 import { control, display, fieldLabel, lbtn, typedItalic } from "@/lib/ledger-ui";
 import { lx as cn } from "@/lib/ledger-ui";
 import { Chevron } from "./icons";
@@ -13,9 +12,10 @@ const MAX_ENTRIES = 2;
 type Field = "name" | "email" | "consent";
 
 /**
- * The home-page enquiry (also meant to live on /enquire later). Saves to
- * Sanity through /api/enquiry; an Entry chosen anywhere on the page arrives
- * pre-selected through the ENTRY_EVENT.
+ * The Begin Your Entry form, on the home page and on /enquire. Sends it to
+ * the team by email through /api/enquiry. An /enquire?entry=05 link (from
+ * an Entry or guest page) pre-selects that Entry; the page itself stays
+ * static, so the query is read in the browser.
  */
 export function LedgerEnquiryForm() {
     const ids = useId();
@@ -30,12 +30,10 @@ export function LedgerEnquiryForm() {
     const picker = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const onEntry = (e: Event) => {
-            const no = (e as CustomEvent<string>).detail;
-            setChosen((c) => (c.includes(no) ? c : [no, ...c].slice(0, MAX_ENTRIES)));
-        };
-        window.addEventListener(ENTRY_EVENT, onEntry);
-        return () => window.removeEventListener(ENTRY_EVENT, onEntry);
+        const asked = new URLSearchParams(window.location.search)
+            .getAll("entry")
+            .filter((no) => entries.some((e) => e.no === no));
+        if (asked.length) setChosen(asked.slice(0, MAX_ENTRIES));
     }, []);
 
     useEffect(() => {

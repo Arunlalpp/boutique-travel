@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import Link from "next/link";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { Reveal } from "@/components/motion/Reveal";
 import { story } from "@/lib/data/ledger";
@@ -11,8 +9,6 @@ import { ArrowRight } from "./icons";
 
 /** The elephant story: two overlapping photographs, the founding text, the two partners. */
 export function StorySection() {
-    const [more, setMore] = useState(false);
-
     return (
         <section id="story" className={cn(lsec, "bg-ledger-paper text-ledger-ink")} aria-labelledby="story-title">
             <div
@@ -50,13 +46,6 @@ export function StorySection() {
                             {p}
                         </p>
                     ))}
-                    <div id="story-more" hidden={!more} className="grid gap-6">
-                        {story.more.map((p) => (
-                            <p key={p} className={cn(typedItalic, "text-ledger-ink/85")}>
-                                {p}
-                            </p>
-                        ))}
-                    </div>
 
                     <ul className="mt-2 flex flex-wrap gap-x-10 gap-y-5">
                         {story.partners.map((p) => (
@@ -72,15 +61,9 @@ export function StorySection() {
                         ))}
                     </ul>
 
-                    <button
-                        type="button"
-                        className={cn(underlineLink, "mt-2 w-max")}
-                        aria-expanded={more}
-                        aria-controls="story-more"
-                        onClick={() => setMore(!more)}
-                    >
-                        {more ? "Show less" : "Read the full story"} <ArrowRight className={cn(more && "-rotate-90")} />
-                    </button>
+                    <Link href="/story" className={cn(underlineLink, "mt-2 w-max")}>
+                        Read the full story <ArrowRight />
+                    </Link>
                 </div>
             </div>
         </section>

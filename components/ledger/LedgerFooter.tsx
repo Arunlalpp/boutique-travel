@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { SiteSettings } from "@/lib/types";
 import { beginHref, ledgerNav } from "@/lib/data/ledger";
 import { label, lwrap } from "@/lib/ledger-ui";
@@ -16,12 +17,12 @@ export function LedgerFooter({ settings }: { settings: SiteSettings }) {
             <div className={lwrap}>
                 <div className="grid grid-cols-[minmax(0,1.2fr)_repeat(3,minmax(0,0.6fr))] gap-10 max-lg:grid-cols-3 max-lg:*:first:col-span-full max-sm:grid-cols-2">
                     <div className="grid content-start gap-4">
-                        <a
-                            href="#top"
+                        <Link
+                            href="/"
                             className="w-max font-jost text-[clamp(20px,2.2vw,26px)] font-semibold tracking-[0.18em] uppercase"
                         >
                             {settings.name}
-                        </a>
+                        </Link>
                         <p className="font-type text-[14px] text-white/75 italic">Paths first walked by us.</p>
                         <Seal name={settings.name} />
                     </div>
@@ -30,7 +31,7 @@ export function LedgerFooter({ settings }: { settings: SiteSettings }) {
                         <ul className={list}>
                             {ledgerNav.map((l) => (
                                 <li key={l.href}>
-                                    <a href={l.href}>{l.label}</a>
+                                    <Link href={l.href}>{l.label}</Link>
                                 </li>
                             ))}
                         </ul>
@@ -39,7 +40,7 @@ export function LedgerFooter({ settings }: { settings: SiteSettings }) {
                         <h3 className={heading}>Plan</h3>
                         <ul className={list}>
                             <li>
-                                <a href={beginHref}>Begin Your Entry</a>
+                                <Link href={beginHref}>Begin Your Entry</Link>
                             </li>
                             {wa && (
                                 <li>
@@ -54,7 +55,7 @@ export function LedgerFooter({ settings }: { settings: SiteSettings }) {
                                 </li>
                             )}
                             <li>
-                                <a href="#why">Responsible travel</a>
+                                <Link href="/story#promise">Responsible travel</Link>
                             </li>
                         </ul>
                     </nav>

@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
-/** Home-screen icon for iOS: the campfire mark on the night background. */
+/** Home-screen icon for iOS: the elephant footprint from the Ledger, ochre on navy. */
 export default function AppleIcon() {
     return new ImageResponse(
         <div
@@ -13,14 +13,15 @@ export default function AppleIcon() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "#0e1117",
-                backgroundImage: "radial-gradient(circle at 50% 30%, #2a3550 0%, #0e1117 75%)",
+                backgroundColor: "#1c2f3d",
             }}
         >
-            <svg width="120" height="120" viewBox="0 0 28 28" fill="none">
-                <circle cx="14" cy="14" r="12.5" stroke="#f59e3d" strokeWidth="1.4" />
-                <path d="M6 19l5-7 3 4 2-3 6 6H6z" fill="#f59e3d" />
-                <circle cx="19" cy="8.5" r="1.6" fill="#f4efe8" />
+            <svg width="112" height="112" viewBox="0 0 32 32" fill="#d9a55b">
+                <ellipse cx="16" cy="19" rx="10" ry="9.5" />
+                <circle cx="8.5" cy="8.6" r="2.5" />
+                <circle cx="13.6" cy="6.4" r="2.6" />
+                <circle cx="18.9" cy="6.4" r="2.6" />
+                <circle cx="23.9" cy="8.6" r="2.5" />
             </svg>
         </div>,
         size,
